@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101c21"><meta name="description" content="Explore Toronto in 3D using OpenStreetMap and terrain data.">
+  <title>Samsung CongitV NDT · Toronto in 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="./style.css?v=network-explorer-1">
+  <script src="./vendor/maplibre-gl.js"></script>
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/"}}</script>
+</head>
+<body>
+  <main class="app">
+    <div id="map" aria-label="Interactive 3D map of Toronto"></div>
+    <div class="topbar"><div class="brand"><span class="brand-icon">✳</span><span>Samsung <b>CongitV NDT</b></span></div><div class="topright"><form id="location-search" class="location-search" role="search"><label class="visually-hidden" for="location-query">Search locations</label><input id="location-query" type="search" placeholder="Search locations" autocomplete="off" maxlength="200" required><button type="submit" aria-label="Search locations" title="Search locations"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></button><div id="search-results" class="search-results" hidden><div id="search-status" role="status" aria-live="polite"></div><ul id="search-list" aria-label="Search results"></ul><div class="search-credit">Search by <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> · © OpenStreetMap contributors</div></div></form><span id="coordinates">43.7001° N &nbsp; 79.4163° W</span></div></div>
+    <nav class="intro panel" aria-label="Map navigation">
+      <div class="navigation-label">VIEWS</div>
+      <div class="locations">
+        <button class="location" id="city-view"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 20h18M5 20V8l7-4 7 4v12M9 20v-6h6v6M9 9h.01M15 9h.01"/></svg><span>Region</span><span class="location-arrow" aria-hidden="true">↗</span></button>
+      </div>
+      <div class="navigation-label">PROJECTS</div>
+      <div class="districts" aria-label="Projects">
+        <button id="harbourfront"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>Harbourfront</button>
+        <button id="etobicoke"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>Etobicoke</button>
+        <button id="northyork"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>North York</button>
+        <button id="scarborough"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>Scarborough</button>
+      </div>
+      <details class="map-settings network-settings">
+        <summary><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 14v7M8 21h8M9 14l3-9 3 9M5 6a10 10 0 0 0 0 10M19 6a10 10 0 0 1 0 10M8 9a5 5 0 0 0 0 5M16 9a5 5 0 0 1 0 5"/></svg><span>Network</span></summary>
+        <div class="layers" aria-label="Network layers"><label><span><span class="layer-icon">⌁</span> TELUS sites</span><input id="network-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">⌁</span> Bell outdoor</span><input id="bell-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">◔</span> Sector fans</span><input id="sector-fans-toggle" type="checkbox" checked><i></i></label></div>
+      </details>
+      <details class="map-settings">
+        <summary><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg><span>Map Settings</span></summary>
+        <div class="layers" aria-label="Map layers"><label><span><span class="layer-icon building-icon">▥</span> Buildings</span><input id="buildings-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon street-icon">╱</span> Streets</span><input id="streets-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">♣</span> Trees</span><input id="trees-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">△</span> Terrain</span><input id="terrain-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">♧</span> Street details</span><input id="street-detail-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">◒</span> Shadows</span><input id="shadows-toggle" type="checkbox"><i></i></label><div id="shadow-status" hidden class="source-note">Lighting, shadows and street models are illustrative.</div><div id="terrain-status" hidden class="layer-note">Loading terrain…</div><div id="roof-status" hidden class="source-note">Zoom in to see mapped roof shapes.</div><div id="tree-status" hidden class="source-note">Zoom in for OSM trees.</div><div id="street-status" hidden class="source-note">Zoom in for mapped street details.</div></div>
+      </details>
+    </nav>
+
+    <aside id="network-panel" class="network-panel panel" aria-label="Network infrastructure" hidden>
+      <div class="network-title"><div><span>NETWORK CONTEXT</span><h2>Licensed site locations</h2></div><button id="network-close" aria-label="Close network view" title="Close network view">×</button></div>
+      <p class="network-note">ISED extract · 2026-11-03 · Toronto area</p>
+      <div class="network-legend"><span><i class="network-dot indoor"></i>TELUS indoor</span><span><i class="network-dot outdoor"></i>TELUS outdoor</span><span><i class="network-dot bell"></i>Bell outdoor</span><span><i class="network-dot other"></i>TELUS other/mixed</span></div>
+      <div class="network-symbol-key"><span><b aria-hidden="true">◎</b> TELUS non-directional</span><span><b aria-hidden="true">↑</b> Reported TX bearing · zoom 14+</span></div>
+      <div class="network-symbol-key sector-key"><span><i class="sector-swatch sector-one"></i>Bearing 1</span><span><i class="sector-swatch sector-two"></i>Bearing 2</span><span><i class="sector-swatch sector-three"></i>Bearing 3</span></div>
+      <p id="network-status" role="status" aria-live="polite">Loading network records…</p>
+      <div class="coverage-controls" aria-label="Network map display"><strong>Map display</strong><label class="coverage-focus"><input id="coverage-focus" type="checkbox"> Show fans for selected site only</label><label for="fan-intensity">Fan intensity (relative) <output id="fan-intensity-value" for="fan-intensity">100%</output><input id="fan-intensity" type="range" min="25" max="150" step="5" value="100"></label></div>
+      <section id="sector-selection" aria-label="Selected sector" hidden><strong id="sector-site"></strong><p id="sector-info" role="status" aria-live="polite"></p><div id="sector-choices" aria-label="Select a reported bearing"></div></section>
+      <div id="network-detail" hidden></div>
+      <div class="network-search"><label for="network-search">Find a licensed site</label><input id="network-search" type="search" placeholder="Location, site ID or cell ID" autocomplete="off" maxlength="100"><p id="network-list-status" role="status" aria-live="polite">Nearby locations</p><div id="network-list" aria-label="Network locations"></div></div>
+      <p class="network-note">Selecting a site highlights all of its fans with usable reported direction, beamwidth and frequency. Click a fan or use the bearing buttons to emphasize one sector; colors repeat after three bearings. For visualization only, each fan is drawn at 5/12 of its original calculated radius; the full estimate is shown in the selected-sector details. Width uses the widest reported beamwidth, enlarged to at least 15° for visibility. TELUS use of an individual Bell site is unverified.</p>
+      <div class="coverage-controls" aria-label="3GPP planning assumptions">
+        <strong>3GPP TR 38.901 · UMa</strong>
+        <label for="coverage-mode">Environment<select id="coverage-mode"><option value="NLOS">Urban macro NLOS</option><option value="LOS">Urban macro LOS</option></select></label>
+        <div class="coverage-numbers"><label for="coverage-eirp">Assumed EIRP (dBm)<input id="coverage-eirp" type="number" min="0" max="90" step="1"></label><label for="coverage-threshold">Min. received power (dBm)<input id="coverage-threshold" type="number" min="-160" max="-20" step="1"></label></div>
+        <p class="network-note">Assumed BS 25 m, UE 1.5 m, receiver gain 0 dBi and no extra loss. Lowest reported TX frequency per bearing. Five twelfths of the calculated boresight radius is drawn across each fan. No site-specific building or terrain modelling, fading margin, interference or antenna-pattern loss. Not RSRP or measured coverage. Model range: 10 m–5 km.</p>
+        <p id="coverage-status" role="status" aria-live="polite">Loading network records…</p>
+        <a href="https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf" target="_blank" rel="noopener noreferrer">3GPP model reference</a>
+      </div>
+    </aside>
+
+    <nav class="map-controls" aria-label="Camera controls">
+      <button id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+      <div class="control-separator" aria-hidden="true"></div>
+      <button id="tilt-up" aria-label="Tilt toward the horizon" title="Tilt toward the horizon">◢</button><button id="tilt-down" aria-label="Tilt toward overhead view" title="Tilt toward overhead view">◩</button>
+      <button id="rotate-left" aria-label="Rotate left" title="Rotate left">↶</button><button id="rotate-right" aria-label="Rotate right" title="Rotate right">↷</button>
+      <div class="control-separator" aria-hidden="true"></div>
+      <button id="north" aria-label="Reset bearing to north" title="Reset bearing to north"><span aria-hidden="true">▲</span></button><button id="reset" aria-label="Reset camera to Toronto overview" title="Reset camera to Toronto overview">⌂</button>
+    </nav>
+    <div id="loading" class="loading"><span class="spinner"></span><b>Preparing your view</b><small>Loading map and terrain data</small></div><div id="error" class="error panel" hidden><b>Map data could not be loaded.</b><p>The map needs a connection to the map and elevation tile services.</p><button id="retry">Try again</button></div>
+  </main><script type="module" src="./app.js?v=network-explorer-3"></script>
+</body></html>
