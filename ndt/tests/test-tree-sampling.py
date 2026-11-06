@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / 'scripts'))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'scripts'))
 from tree_sampling import metres, sample_row, tile
 
 

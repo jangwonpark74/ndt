@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-const base = new URL('./dist/street-detail/',import.meta.url);
+const base = new URL('../dist/street-detail/',import.meta.url);
 const manifest = JSON.parse(await readFile(new URL('manifest.json',base)));
 const counts = {lamp:0,bench:0};
 for (const [key,expected] of Object.entries(manifest.tiles)) {

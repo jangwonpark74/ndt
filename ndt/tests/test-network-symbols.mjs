@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery} from './dist/network-symbols.mjs';
-import {coverageRadius} from './dist/radio-model.mjs';
+import {antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery} from '../dist/network-symbols.mjs';
+import {coverageRadius} from '../dist/radio-model.mjs';
 
 const omni = {tx_ant_omni_indicator:'N',tx_ant_azimuth:'0'};
 const directional = {tx_ant_omni_indicator:'D',tx_ant_azimuth:'0'};
@@ -17,13 +17,13 @@ const bellFeature = {...feature,properties:{...feature.properties,site_id:'b',pr
 const arrows = sectorFeatures([feature,bellFeature]);
 assert.deepEqual(arrows.features.map(f=>[f.properties.provider,f.properties.azimuth]),[['TELUS',0],['TELUS',120],['Bell',0],['Bell',120]],'repeated bearings are deduplicated per site and both licensees are retained');
 assert.equal(bearingSummaries([{...directional,record_count:3},{...directional,record_count:2}])[0].count,5,'grouped record weights are preserved');
-const sites = JSON.parse(fs.readFileSync('dist/telus-sites.geojson','utf8'));
+const sites = JSON.parse(fs.readFileSync(new URL('../dist/telus-sites.geojson', import.meta.url), 'utf8'));
 const records = sites.features.flatMap(f=>f.properties.records);
 assert.equal(records.length,783);
 assert.ok(records.every(record=>record.cell_id && record.physical_id && record.tx_frequency));
 assert.ok(records.every(record=>antennaPattern(record) === 'omni'));
 assert.equal(sectorFeatures(sites.features).features.length,0,'current TELUS data does not claim directional sectors');
-const bell = JSON.parse(fs.readFileSync('dist/bell-outdoor-sites.geojson','utf8'));
+const bell = JSON.parse(fs.readFileSync(new URL('../dist/bell-outdoor-sites.geojson', import.meta.url), 'utf8'));
 const directed = bell.features.map(f=>bearingSummaries(f.properties.records)).filter(bearings=>bearings.length);
 assert.equal(directed.length,865,'Bell coordinates with valid directional bearings are retained');
 assert.equal(directed.filter(bearings=>bearings.length === 3).length,454,'the source reports three bearings at these coordinates');

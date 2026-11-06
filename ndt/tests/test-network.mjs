@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {siteClass, towerHeight, createTowerGeometry, validNetworkFeature, validTelusMatch, validTelusSite, validBellOutdoorSite} from './dist/network-layer.mjs';
+import {siteClass, towerHeight, createTowerGeometry, validNetworkFeature, validTelusMatch, validTelusSite, validBellOutdoorSite} from '../dist/network-layer.mjs';
 
 const outdoor = {site_type:'O',structure_type:'T',structure_height:'350'};
 assert.equal(siteClass([{site_type:'I'}]),'indoor');
@@ -17,14 +17,14 @@ const tower = createTowerGeometry();
 assert.equal(tower.boundingBox.min.z,0);
 assert.equal(tower.boundingBox.max.z,1,'the scaled tower model ends at the reported height');
 tower.dispose();
-const data = JSON.parse(fs.readFileSync('dist/network.geojson','utf8'));
+const data = JSON.parse(fs.readFileSync(new URL('../dist/network.geojson', import.meta.url), 'utf8'));
 assert.equal(data.type,'FeatureCollection');
 assert.match(data.source,/2026-10-31/);
 assert.ok(data.features.length > 0 && data.features.every(validNetworkFeature));
 assert.ok(data.features.some(f=>f.properties.mobile) && data.features.some(f=>!f.properties.mobile));
 assert.equal(new Set(data.features.map(f=>`${f.properties.osm_type}:${f.properties.osm_id}`)).size,data.features.length);
 assert.equal(validNetworkFeature({geometry:{type:'Point',coordinates:[200,0]},properties:{osm_type:'node',osm_id:'1',mobile:true}}),false);
-const matches = JSON.parse(fs.readFileSync('dist/telus-network.geojson','utf8'));
+const matches = JSON.parse(fs.readFileSync(new URL('../dist/telus-network.geojson', import.meta.url), 'utf8'));
 assert.equal(matches.max_distance_m,30);
 assert.equal(matches.ised_date,'2026-11-03');
 assert.ok(matches.features.every(validTelusMatch));
@@ -32,7 +32,7 @@ const sample = {...data.features[0],properties:{...data.features[0].properties,m
 assert.equal(validTelusMatch(sample),true);
 assert.equal(validTelusMatch({...sample,properties:{...sample.properties,match_distance_m:31}}),false);
 assert.equal(validTelusMatch({...sample,properties:{...sample.properties,licensees:['Rogers']}}),false);
-const sites = JSON.parse(fs.readFileSync('dist/telus-sites.geojson','utf8'));
+const sites = JSON.parse(fs.readFileSync(new URL('../dist/telus-sites.geojson', import.meta.url), 'utf8'));
 assert.equal(sites.record_count,783);
 assert.equal(sites.features.length,60);
 assert.ok(sites.features.every(validTelusSite));
@@ -42,7 +42,7 @@ assert.equal(validTelusSite({...sites.features[0],properties:{...sites.features[
 assert.ok(sites.features.every(f=>f.properties.records.every(record=>record.site_type === 'I' && record.structure_type === 'O')));
 assert.ok(sites.features.every(f=>siteClass(f.properties.records) === 'indoor'));
 assert.ok(sites.features.every(f=>towerHeight(f.properties.records) === null),'indoor records never produce fabricated towers');
-const bell = JSON.parse(fs.readFileSync('dist/bell-outdoor-sites.geojson','utf8'));
+const bell = JSON.parse(fs.readFileSync(new URL('../dist/bell-outdoor-sites.geojson', import.meta.url), 'utf8'));
 assert.equal(bell.record_count,174416);
 assert.equal(bell.features.length,1481);
 assert.ok(bell.features.every(validBellOutdoorSite));

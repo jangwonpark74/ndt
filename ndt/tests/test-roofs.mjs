@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { roofGeometry } from './dist/roof-geometry.mjs';
+import { roofGeometry } from '../dist/roof-geometry.mjs';
 const rect = [[0,0],[20,0],[20,10],[0,10],[0,0]];
 const concave = [[0,0],[20,0],[20,5],[10,5],[10,10],[0,10],[0,0]];
 const identity = point => point;
@@ -43,7 +43,7 @@ assert.equal(roofGeometry([rect,courtyard], {roof_shape:'gabled',roof_height:3},
 console.log('Roof shape, height, and concave-footprint tests passed.');
 
 const { readFile } = await import('node:fs/promises');
-const dataset = JSON.parse(await readFile(new URL('./dist/toronto-roofs.json', import.meta.url)));
+const dataset = JSON.parse(await readFile(new URL('../dist/toronto-roofs.json', import.meta.url)));
 const real = dataset.roofs.find(roof => roof.id === 951725944);
 assert.equal(real?.shape, 'skillion', 'Toronto OSM way 951725944 retains its mapped shape');
 assert.equal(real.id * 10, 9517259440, 'the sampled OpenFreeMap building ID matches the OSM way');
@@ -54,7 +54,7 @@ assert.equal(actual.eaves, 230);
 actual.roof.dispose(); actual.wall.dispose();
 console.log('Toronto OSM roof fixture passed.');
 
-const { buildRoofParts, roofFeatureIds } = await import('./dist/roof-layer.mjs');
+const { buildRoofParts, roofFeatureIds } = await import('../dist/roof-layer.mjs');
 const relation = dataset.roofs.find(roof => roof.type === 'relation' && roof.id === 37964);
 assert.ok(relation?.polygons[0].length > 1, 'Osgoode Hall keeps its mapped courtyard');
 assert.deepEqual(roofFeatureIds(relation), [379643], 'the sampled relation matches the Toronto tile ID');

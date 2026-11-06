@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {RADIO_DEFAULTS, umaPathLoss, coverageRadius} from './dist/radio-model.mjs';
+import {RADIO_DEFAULTS, umaPathLoss, coverageRadius} from '../dist/radio-model.mjs';
 
 assert.ok(Math.abs(umaPathLoss(100,2000,'LOS')-78.2773957031) < 1e-8, '3GPP UMa LOS before breakpoint');
 assert.ok(Math.abs(umaPathLoss(100,2000,'NLOS')-98.1767626163) < 1e-8, '3GPP UMa NLOS uses the larger loss');

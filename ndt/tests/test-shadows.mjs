@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { shadowFeatures } from './dist/shadows.mjs';
+import { shadowFeatures } from '../dist/shadows.mjs';
 const ring = [[-79.39,43.64],[-79.389,43.64],[-79.389,43.641],[-79.39,43.641],[-79.39,43.64]];
 const building = {properties:{render_height:30},geometry:{type:'Polygon',coordinates:[ring]}};
 const result = shadowFeatures([building]);

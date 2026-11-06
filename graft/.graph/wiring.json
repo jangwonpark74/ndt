@@ -1,17 +1,2256 @@
 {
   "meta": {
     "version": 1,
-    "nodeCount": 0,
-    "edgeCount": 0,
-    "languages": [],
+    "nodeCount": 76,
+    "edgeCount": 187,
+    "languages": [
+      "javascript",
+      "python"
+    ],
     "scopes": [
       {
         "prefix": "",
         "label": "",
-        "markers": []
+        "markers": [
+          "pyproject.toml"
+        ]
       }
     ]
   },
-  "nodes": [],
-  "edges": []
+  "nodes": [
+    {
+      "id": "ndt/scripts/convert_osm.py",
+      "name": "convert_osm.py",
+      "kind": "file",
+      "path": "ndt/scripts/convert_osm.py",
+      "span": "L1-L20",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "107580657f15bf60dc44962bdf19476ed2f4878ec7f01292969c40b116c7ad18",
+      "chars": 978,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_bell_outdoor.py",
+      "name": "extract_bell_outdoor.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_bell_outdoor.py",
+      "span": "L1-L88",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "71e702ebcfa206023668e128261034eff486f0d1e0e33a5d73bac2371cf45059",
+      "chars": 4294,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_bell_outdoor.py#group_records",
+      "name": "group_records",
+      "kind": "function",
+      "path": "ndt/scripts/extract_bell_outdoor.py",
+      "span": "L19-L59",
+      "signature": "def group_records(rows)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2345d22435a17d60c40c7048b0a4a9842a8baa99c979bfd64982a0f9213b7555",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_bell_outdoor.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/extract_bell_outdoor.py",
+      "span": "L62-L83",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "572ef7acce3fc3eb27b60119efa536a7ec0fffdfcbf1f54c6655388da882b551",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_network.py",
+      "name": "extract_network.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L1-L64",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3dbf35d78842a508c746676b14b2c4d1382d8775f9ecce66ae0a66bd295bc6e4",
+      "chars": 2463,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#Communications",
+      "name": "Communications",
+      "kind": "class",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L13-L46",
+      "signature": "class Communications(osmium.SimpleHandler)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "92bf79883d2eebea27d7c7a8f3722b1362fcbe956e941397aa511fc14a8bbd91",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#Communications.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L14-L16",
+      "signature": "def __init__(self)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "50c3af1eb3524e9704d3569edf3bb4cb2d0aff45ee0a952a42cbd9a5c55162c5",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Communications"
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#Communications.add",
+      "name": "add",
+      "kind": "method",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L24-L34",
+      "signature": "def add(self, obj, kind, lon, lat)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "537405c3baa29c132706fcda80cc6771935fb818f31df2aea4fb856bcd48726f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Communications"
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#Communications.matches",
+      "name": "matches",
+      "kind": "method",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L19-L22",
+      "signature": "def matches(tags)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "093cbe208bfa6c4dd2d2454a8521e2fa54dcc71c8a2e6fce19ef14d42e338c4d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Communications"
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#Communications.node",
+      "name": "node",
+      "kind": "method",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L36-L38",
+      "signature": "def node(self, node)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5752146ecdb72b8bfcec6fbe0700387a26a9421a0ed5e6dfb3a9688e5a5c6940",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Communications"
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#Communications.way",
+      "name": "way",
+      "kind": "method",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L40-L46",
+      "signature": "def way(self, way)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3d34a7637690a42878cb9199833429f29797e2b8f437b82fd140f0c21116ca8b",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Communications"
+    },
+    {
+      "id": "ndt/scripts/extract_network.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/extract_network.py",
+      "span": "L49-L59",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "33e02ab40ecfb11c0410a15c9a725e7f7e1b9650c8c52b0c5a1ec78508794f05",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py",
+      "name": "extract_roofs.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L1-L76",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f429f5b35dcefbdb5dca00aeb470d08c087a78c250498b45d757144fa46565a7",
+      "chars": 3025,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py#roof_shape",
+      "name": "roof_shape",
+      "kind": "function",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L18-L27",
+      "signature": "def roof_shape(tags)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8ba7b6f9c5a35ccdeaa849188c3c75f38842d1702f3ff6e7ccfec77eac38e3e0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py#Roofs",
+      "name": "Roofs",
+      "kind": "class",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L30-L64",
+      "signature": "class Roofs(osmium.SimpleHandler)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8a45eb0f0c85b9bf8c4f9f2b9d3763dae0af5e9f4923298c0e4d6985c513f54d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py#Roofs.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L31-L33",
+      "signature": "def __init__(self)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "58b12834e32887bd0170848c9143ba13a1a845bab7ca5d5f47e473c6b0b3cc58",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Roofs"
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py#Roofs.area",
+      "name": "area",
+      "kind": "method",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L48-L64",
+      "signature": "def area(self, area)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "19541f18d1f3c93fa16ffbd39721e4ae76b32ef7c92a258d8eec7218a9b75d76",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Roofs"
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py#Roofs.area.coordinates",
+      "name": "coordinates",
+      "kind": "function",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L55-L56",
+      "signature": "def coordinates(ring)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "71974562ec22bbdd690b6915763b2e55cbc9e76e3ff686250c70d149da1829a2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_roofs.py#Roofs.way",
+      "name": "way",
+      "kind": "method",
+      "path": "ndt/scripts/extract_roofs.py",
+      "span": "L35-L46",
+      "signature": "def way(self, way)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ff43fe3cd9060156b40d05c9a825de89fca151ef811b400d8633efde274f6122",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Roofs"
+    },
+    {
+      "id": "ndt/scripts/extract_street_detail.py",
+      "name": "extract_street_detail.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_street_detail.py",
+      "span": "L1-L53",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "416fef971798ae3fbdbe7a5ca906da0eff0ceaa4c517d5cc633dc7a3da5d9ce3",
+      "chars": 1969,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_street_detail.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/extract_street_detail.py",
+      "span": "L30-L48",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "4664cead404820d5cff10858c3689ab638a6257bbf6bf34d744860569c55926d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_street_detail.py#StreetDetail",
+      "name": "StreetDetail",
+      "kind": "class",
+      "path": "ndt/scripts/extract_street_detail.py",
+      "span": "L14-L27",
+      "signature": "class StreetDetail(osmium.SimpleHandler)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ccb046ccdfd1e637902d906d2b774e9b787debd9ccefd15a38a6af430fcb72f0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_street_detail.py#StreetDetail.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/scripts/extract_street_detail.py",
+      "span": "L15-L18",
+      "signature": "def __init__(self)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "782be1ecefba18f553edc522fc11cd8e2c7c98e0e55e4fc60826a3844d2236f0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "StreetDetail"
+    },
+    {
+      "id": "ndt/scripts/extract_street_detail.py#StreetDetail.node",
+      "name": "node",
+      "kind": "method",
+      "path": "ndt/scripts/extract_street_detail.py",
+      "span": "L20-L27",
+      "signature": "def node(self, node)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "1824c3a611f820dc5c5bf79000254c319cc8fad90e66beff9845b1ba9f267d18",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "StreetDetail"
+    },
+    {
+      "id": "ndt/scripts/extract_telus_sites.py",
+      "name": "extract_telus_sites.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_telus_sites.py",
+      "span": "L1-L80",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "07c0a80a656aebd7f1298f3b5180c68ed6555656b1b8644940b6d87e6bb114a4",
+      "chars": 3880,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_telus_sites.py#group_records",
+      "name": "group_records",
+      "kind": "function",
+      "path": "ndt/scripts/extract_telus_sites.py",
+      "span": "L19-L51",
+      "signature": "def group_records(rows)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "e7ac01b24167c58364ec71e4e798b175da9d63800e4e527e398997954cf16af7",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_telus_sites.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/extract_telus_sites.py",
+      "span": "L54-L75",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8a4ad5d4f9822c4a530f5dc30665755f79dc035ccee5816a89e4bf1edea2a276",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py",
+      "name": "extract_trees.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L1-L94",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "7283c8da4cf6c9e35979ad11ab572e3851204298db0b1635cb575654ac569ec1",
+      "chars": 3876,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L48-L89",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "11cbeede4c3a4c726b83b853aef627d00e9532d05ba7c312552997415394ed31",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#main.cell",
+      "name": "cell",
+      "kind": "function",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L60-L61",
+      "signature": "def cell(lon, lat)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "85c7302678addfbd5eb737fa284d80af61973c720abf8f84517fd9dcbb3da496",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#Trees",
+      "name": "Trees",
+      "kind": "class",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L15-L45",
+      "signature": "class Trees(osmium.SimpleHandler)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2ec3fda2d82d42252bd7f81231059ee1804ef81b0a45b84ae3de517ae6a7446e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#Trees.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L16-L19",
+      "signature": "def __init__(self)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "ea5ee9116742dde70ed6a83ca0affbb6e375a70feba08e755039d02b2c2eb9a1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Trees"
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#Trees.attributes",
+      "name": "attributes",
+      "kind": "method",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L22-L26",
+      "signature": "def attributes(tags)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cccc29000cdb4f654ef84cfd1463d098a6f408e3857ab62556d88e0b56d58d44",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Trees"
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#Trees.node",
+      "name": "node",
+      "kind": "method",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L28-L30",
+      "signature": "def node(self, node)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6888b0e22993710741cf00918b3156ad7eb497384e099a510b1c3e326af6b9c6",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Trees"
+    },
+    {
+      "id": "ndt/scripts/extract_trees.py#Trees.way",
+      "name": "way",
+      "kind": "method",
+      "path": "ndt/scripts/extract_trees.py",
+      "span": "L32-L45",
+      "signature": "def way(self, way)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "e0b65ffda3af0d08d123ca555bef011eec8a025ba4726bc0c1f26de77e8507e9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Trees"
+    },
+    {
+      "id": "ndt/scripts/match_telus.py",
+      "name": "match_telus.py",
+      "kind": "file",
+      "path": "ndt/scripts/match_telus.py",
+      "span": "L1-L89",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b64cecc02d1b77495a0bf7d147c95161fd33d841b4fa21393082d8e24031ee15",
+      "chars": 3924,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/match_telus.py#distance_m",
+      "name": "distance_m",
+      "kind": "function",
+      "path": "ndt/scripts/match_telus.py",
+      "span": "L15-L19",
+      "signature": "def distance_m(a, b)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ef4c9c68c41e79644c4f61bd61845357a517c9cad79f751a1a9c4f612ea6c8f9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/match_telus.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/match_telus.py",
+      "span": "L48-L84",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c1b7e21a1e62184e1f828c0504817395ced901ea236c17e0eceb4de7c39a7a53",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/match_telus.py#match_sites",
+      "name": "match_sites",
+      "kind": "function",
+      "path": "ndt/scripts/match_telus.py",
+      "span": "L22-L45",
+      "signature": "def match_sites(features, records)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ca1778d47632024e9af02c811070616f85029808446c4291d0d698a4ee257403",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/tree_sampling.py",
+      "name": "tree_sampling.py",
+      "kind": "file",
+      "path": "ndt/scripts/tree_sampling.py",
+      "span": "L1-L49",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b9be577889ea9e3f9858ac3d17dc4d4c151c902cbdb35a35dfdef7a7ca36a369",
+      "chars": 1758,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/tree_sampling.py#metres",
+      "name": "metres",
+      "kind": "function",
+      "path": "ndt/scripts/tree_sampling.py",
+      "span": "L8-L13",
+      "signature": "def metres(value)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "659e3e24d485a36b835e96b80dd789804f1610835ae4ea829c4c5cd4d0b225aa",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/tree_sampling.py#sample_row",
+      "name": "sample_row",
+      "kind": "function",
+      "path": "ndt/scripts/tree_sampling.py",
+      "span": "L24-L48",
+      "signature": "def sample_row(points, count=None, spacing=8)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "82085f05cea28676a620394a1de3a3641d520687c2b119513da133985e428395",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/tree_sampling.py#tile",
+      "name": "tile",
+      "kind": "function",
+      "path": "ndt/scripts/tree_sampling.py",
+      "span": "L16-L21",
+      "signature": "def tile(lon, lat, zoom=ZOOM)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f775fafced4928fc1911fbfbf738df787030092a5be1d7e0c3e78e883b0fcd60",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-bell-outdoor.py",
+      "name": "test-bell-outdoor.py",
+      "kind": "file",
+      "path": "ndt/tests/test-bell-outdoor.py",
+      "span": "L1-L38",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "89eac8842e79a71958d0ab42ead379beda381d7e8630a882d4c055b23fca43df",
+      "chars": 1670,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest",
+      "name": "BellOutdoorTest",
+      "kind": "class",
+      "path": "ndt/tests/test-bell-outdoor.py",
+      "span": "L17-L33",
+      "signature": "class BellOutdoorTest(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9546fc4cfd9e4570a7bd70f16281a609511adfe4e4bf5f2b94cc8eb172f69a0f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_excludes_indoor_other_licensees_and_out_of_bounds",
+      "name": "test_excludes_indoor_other_licensees_and_out_of_bounds",
+      "kind": "method",
+      "path": "ndt/tests/test-bell-outdoor.py",
+      "span": "L32-L33",
+      "signature": "def test_excludes_indoor_other_licensees_and_out_of_bounds(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "e2954864cb4173ed7b92eef9e11deafa1897ba7ad7ca9cb9ee0f0a95c6a86ba4",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "BellOutdoorTest"
+    },
+    {
+      "id": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_group_keeps_record_counts_and_height",
+      "name": "test_group_keeps_record_counts_and_height",
+      "kind": "method",
+      "path": "ndt/tests/test-bell-outdoor.py",
+      "span": "L18-L30",
+      "signature": "def test_group_keeps_record_counts_and_height(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d19b35d59bfcc87fe7fc8aaa5b849d6fe74406a16ec473af9fd51d84d81d8814",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "BellOutdoorTest"
+    },
+    {
+      "id": "ndt/tests/test-bell-outdoor.py#row",
+      "name": "row",
+      "kind": "function",
+      "path": "ndt/tests/test-bell-outdoor.py",
+      "span": "L10-L14",
+      "signature": "def row(licensee='Bell Mobility Inc.', site_type='O', lon='-79.39')",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "92c4166f44c8945541afa3c29c88b5deb152b176192a8be4e7e358ee28cc6bd9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-lighting.mjs",
+      "name": "test-lighting.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-lighting.mjs",
+      "span": "L1-L23",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5c0b5216fad8d01da9b3bc2a803eab7c19a265eeed41523cf546270c3d8f6393",
+      "chars": 1568,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-network-symbols.mjs",
+      "name": "test-network-symbols.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-network-symbols.mjs",
+      "span": "L1-L61",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9a2ebe21f40714b074a4f63f7c00b4cc643e9eacea790c3467433169c5ba6550",
+      "chars": 6012,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-network.mjs",
+      "name": "test-network.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-network.mjs",
+      "span": "L1-L53",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "fa3d37b8345e97ba5d83ec68f1f85875bedb1f86fc0e70723916f7caa72e8ec4",
+      "chars": 4194,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-radio-model.mjs",
+      "name": "test-radio-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-radio-model.mjs",
+      "span": "L1-L19",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0fc3935e55e441a0fae567cd45e807a02c627fdf4a5305d5bdb5d161a41ad0e5",
+      "chars": 1450,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-roofs.mjs",
+      "name": "test-roofs.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-roofs.mjs",
+      "span": "L1-L80",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6b34ba4e0be357201074bef2f0ea3558519f5dbabb361ce83be425ddd230d87e",
+      "chars": 6080,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-roofs.mjs#identity",
+      "name": "identity",
+      "kind": "function",
+      "path": "ndt/tests/test-roofs.mjs",
+      "span": "L5-L5",
+      "signature": "identity = point",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "f6b9f4fae6bbe12611cb394700360db8a4d38f19709acc9e33fd43aa9d29f5b5",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-roofs.mjs#local",
+      "name": "local",
+      "kind": "function",
+      "path": "ndt/tests/test-roofs.mjs",
+      "span": "L50-L50",
+      "signature": "local = ([lon,lat])",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "b545e785741affb49fc29e9849880b3392569151215d530ef6020b59386a5ef2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-search.mjs",
+      "name": "test-search.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-search.mjs",
+      "span": "L1-L10",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d13948b836e1f88fd46409cbc29b8b170e81ec2b4e21813150746ed03f05d797",
+      "chars": 756,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-shadows.mjs",
+      "name": "test-shadows.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-shadows.mjs",
+      "span": "L1-L16",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5162621e04483261b5dbaea679451f1b18ec05d872b99e69b89e983506c0bdb9",
+      "chars": 1374,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-street-detail.mjs",
+      "name": "test-street-detail.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-street-detail.mjs",
+      "span": "L1-L17",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "fc45f39a58629d2e1fb9e3b0a70fb1b7d33cf365378bea798b5d1e8ef0e343e3",
+      "chars": 797,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-matching.py",
+      "name": "test-telus-matching.py",
+      "kind": "file",
+      "path": "ndt/tests/test-telus-matching.py",
+      "span": "L1-L33",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d3d264671b67d72ec0942fe5ee094a98a9ee136cdda10fcc3855180731ab24a4",
+      "chars": 1155,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-matching.py#MatchTest",
+      "name": "MatchTest",
+      "kind": "class",
+      "path": "ndt/tests/test-telus-matching.py",
+      "span": "L19-L28",
+      "signature": "class MatchTest(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b7e7c598bca0470daa5687cc5cc141366d292de20728817f2b0d8da905a59bef",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-matching.py#MatchTest.test_close_unambiguous_match_preserves_distance_and_source",
+      "name": "test_close_unambiguous_match_preserves_distance_and_source",
+      "kind": "method",
+      "path": "ndt/tests/test-telus-matching.py",
+      "span": "L20-L24",
+      "signature": "def test_close_unambiguous_match_preserves_distance_and_source(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a93497512e65e086f0eb4da74e5db7761dce8fb3d89df340d61626e07f3f11fc",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "MatchTest"
+    },
+    {
+      "id": "ndt/tests/test-telus-matching.py#MatchTest.test_distant_or_ambiguous_locations_are_not_matches",
+      "name": "test_distant_or_ambiguous_locations_are_not_matches",
+      "kind": "method",
+      "path": "ndt/tests/test-telus-matching.py",
+      "span": "L26-L28",
+      "signature": "def test_distant_or_ambiguous_locations_are_not_matches(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c6f6b49bd6370ca97c726536e9ee971e39f94552d1819055b785d5e567f45a59",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "MatchTest"
+    },
+    {
+      "id": "ndt/tests/test-telus-matching.py#osm",
+      "name": "osm",
+      "kind": "function",
+      "path": "ndt/tests/test-telus-matching.py",
+      "span": "L10-L12",
+      "signature": "def osm(osm_id, lon)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "809ace9179c2b1cb9f152335ba640fa609006432f6c507e31764d8a47b6e363b",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-matching.py#record",
+      "name": "record",
+      "kind": "function",
+      "path": "ndt/tests/test-telus-matching.py",
+      "span": "L15-L16",
+      "signature": "def record(lon)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5f1f8d72604c8c285104119e7641092e006fe88f04a4571a81b2ec215660fab7",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-sites.py",
+      "name": "test-telus-sites.py",
+      "kind": "file",
+      "path": "ndt/tests/test-telus-sites.py",
+      "span": "L1-L33",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ac2f785155a5a34133e78317394895dc892d93f045ee03394386b7ba0810898e",
+      "chars": 1435,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-sites.py#row",
+      "name": "row",
+      "kind": "function",
+      "path": "ndt/tests/test-telus-sites.py",
+      "span": "L10-L12",
+      "signature": "def row(licensee, lon='-79.39', lat='43.70', technology='LTE')",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "08949378979d72ba52c4d2d2f2c0f2947b685773e8a65c91b861c7eaa888e7f8",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-sites.py#TelusSitesTest",
+      "name": "TelusSitesTest",
+      "kind": "class",
+      "path": "ndt/tests/test-telus-sites.py",
+      "span": "L15-L28",
+      "signature": "class TelusSitesTest(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f8a0f1a937538f27f94c7049f94bf004d9f99553fc908b877d2bbae90f9eada1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-telus-sites.py#TelusSitesTest.test_excludes_non_telus_outside_and_invalid_coordinates",
+      "name": "test_excludes_non_telus_outside_and_invalid_coordinates",
+      "kind": "method",
+      "path": "ndt/tests/test-telus-sites.py",
+      "span": "L27-L28",
+      "signature": "def test_excludes_non_telus_outside_and_invalid_coordinates(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2c94645982c6153fd6847bf2cc7d3608d5154b6b9c03ef9f37ac26a9e47a9329",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TelusSitesTest"
+    },
+    {
+      "id": "ndt/tests/test-telus-sites.py#TelusSitesTest.test_groups_all_records_at_the_same_coordinate",
+      "name": "test_groups_all_records_at_the_same_coordinate",
+      "kind": "method",
+      "path": "ndt/tests/test-telus-sites.py",
+      "span": "L16-L25",
+      "signature": "def test_groups_all_records_at_the_same_coordinate(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "caa334470ca4fdcbc2a9ab2945ac3a7ceab10e32991696caa4641580395ad68d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TelusSitesTest"
+    },
+    {
+      "id": "ndt/tests/test-tree-sampling.py",
+      "name": "test-tree-sampling.py",
+      "kind": "file",
+      "path": "ndt/tests/test-tree-sampling.py",
+      "span": "L1-L30",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ca2e174ca217d6111c6d452fffed17932e823d718d79c4da3e7bf39715140399",
+      "chars": 1068,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-tree-sampling.py#TreeSamplingTests",
+      "name": "TreeSamplingTests",
+      "kind": "class",
+      "path": "ndt/tests/test-tree-sampling.py",
+      "span": "L9-L25",
+      "signature": "class TreeSamplingTests(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "492a6a42956bb234cca314a25062594a9909f020704d6d391a1f9fab0b283d7e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_row_follows_all_segments_and_count",
+      "name": "test_row_follows_all_segments_and_count",
+      "kind": "method",
+      "path": "ndt/tests/test-tree-sampling.py",
+      "span": "L14-L22",
+      "signature": "def test_row_follows_all_segments_and_count(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a77062596170bef8922e22e566a24100004bcb9d882f04806e88d8ab6eaf447b",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TreeSamplingTests"
+    },
+    {
+      "id": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_toronto_tile",
+      "name": "test_toronto_tile",
+      "kind": "method",
+      "path": "ndt/tests/test-tree-sampling.py",
+      "span": "L24-L25",
+      "signature": "def test_toronto_tile(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3a90b190c892654f18e68c3c5787c9c3bc8ac4220b57d6518716f15636fa91b9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TreeSamplingTests"
+    },
+    {
+      "id": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_units_and_bad_values",
+      "name": "test_units_and_bad_values",
+      "kind": "method",
+      "path": "ndt/tests/test-tree-sampling.py",
+      "span": "L10-L12",
+      "signature": "def test_units_and_bad_values(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "61b4765b8f9b5a75cdb5f368dce31cefed97b6cc394797d266752aab0280a8fd",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TreeSamplingTests"
+    },
+    {
+      "id": "ndt/tests/test-trees.mjs",
+      "name": "test-trees.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-trees.mjs",
+      "span": "L1-L27",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "886d1735294c04140a1ff247545334515cd4eeb51617c3941e34b39dfd27ca05",
+      "chars": 2048,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test.mjs",
+      "name": "test.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test.mjs",
+      "span": "L1-L19",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b215ec58c25fede9f3dca79f2acfe1ae358a166975bc9a6d20e7c7f5f7838887",
+      "chars": 1663,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "ndt/scripts/convert_osm.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/convert_osm.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "ndt/scripts/extract_bell_outdoor.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "ndt/scripts/extract_bell_outdoor.py#group_records",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "ndt/scripts/extract_bell_outdoor.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": ".extract_telus_sites",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "collections",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "csv",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "extract_telus_sites",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "hashlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py",
+      "target": "zipfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_bell_outdoor.py#main",
+      "target": "ndt/scripts/extract_bell_outdoor.py#group_records",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "ndt/scripts/extract_network.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "ndt/scripts/extract_network.py#Communications",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "ndt/scripts/extract_network.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "osmium",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications",
+      "target": "ndt/scripts/extract_network.py#Communications.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications",
+      "target": "ndt/scripts/extract_network.py#Communications.add",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications",
+      "target": "ndt/scripts/extract_network.py#Communications.matches",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications",
+      "target": "ndt/scripts/extract_network.py#Communications.node",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications",
+      "target": "ndt/scripts/extract_network.py#Communications.way",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications.add",
+      "target": "ndt/scripts/extract_network.py#Communications.matches",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications.node",
+      "target": "ndt/scripts/extract_network.py#Communications.add",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications.way",
+      "target": "ndt/scripts/extract_network.py#Communications.add",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#Communications.way",
+      "target": "ndt/scripts/extract_network.py#Communications.matches",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_network.py#main",
+      "target": "ndt/scripts/extract_network.py#Communications",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "ndt/scripts/extract_roofs.py#Roofs",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "ndt/scripts/extract_roofs.py#roof_shape",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "ndt/scripts/extract_roofs.py#Roofs",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "osmium",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs",
+      "target": "ndt/scripts/extract_roofs.py#Roofs.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs",
+      "target": "ndt/scripts/extract_roofs.py#Roofs.area",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs",
+      "target": "ndt/scripts/extract_roofs.py#Roofs.way",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs.area",
+      "target": "ndt/scripts/extract_roofs.py#roof_shape",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs.area",
+      "target": "ndt/scripts/extract_roofs.py#Roofs.area.coordinates",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs.area",
+      "target": "ndt/scripts/extract_roofs.py#Roofs.area.coordinates",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_roofs.py#Roofs.way",
+      "target": "ndt/scripts/extract_roofs.py#roof_shape",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "ndt/scripts/extract_street_detail.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "ndt/scripts/extract_street_detail.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "ndt/scripts/extract_street_detail.py#StreetDetail",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "osmium",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py",
+      "target": "tree_sampling",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py#main",
+      "target": "ndt/scripts/extract_street_detail.py#StreetDetail",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py#StreetDetail",
+      "target": "ndt/scripts/extract_street_detail.py#StreetDetail.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py#StreetDetail",
+      "target": "ndt/scripts/extract_street_detail.py#StreetDetail.node",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_street_detail.py#StreetDetail.node",
+      "target": "ndt/scripts/tree_sampling.py#tile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "ndt/scripts/extract_telus_sites.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "ndt/scripts/extract_telus_sites.py#group_records",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "ndt/scripts/extract_telus_sites.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "collections",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "csv",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "hashlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py",
+      "target": "zipfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_telus_sites.py#main",
+      "target": "ndt/scripts/extract_telus_sites.py#group_records",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "ndt/scripts/extract_trees.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "ndt/scripts/extract_trees.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "ndt/scripts/extract_trees.py#Trees",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "osmium",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py",
+      "target": "tree_sampling",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#main",
+      "target": "ndt/scripts/extract_trees.py#main.cell",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#main",
+      "target": "ndt/scripts/extract_trees.py#Trees",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#main",
+      "target": "ndt/scripts/tree_sampling.py#tile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#main",
+      "target": "ndt/scripts/extract_trees.py#main.cell",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees",
+      "target": "ndt/scripts/extract_trees.py#Trees.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees",
+      "target": "ndt/scripts/extract_trees.py#Trees.attributes",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees",
+      "target": "ndt/scripts/extract_trees.py#Trees.node",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees",
+      "target": "ndt/scripts/extract_trees.py#Trees.way",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees.attributes",
+      "target": "ndt/scripts/tree_sampling.py#metres",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees.node",
+      "target": "ndt/scripts/extract_trees.py#Trees.attributes",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees.way",
+      "target": "ndt/scripts/extract_trees.py#Trees.attributes",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees.way",
+      "target": "ndt/scripts/tree_sampling.py#metres",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/scripts/extract_trees.py#Trees.way",
+      "target": "ndt/scripts/tree_sampling.py#sample_row",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "ndt/scripts/match_telus.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "ndt/scripts/match_telus.py#distance_m",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "ndt/scripts/match_telus.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "ndt/scripts/match_telus.py#match_sites",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "collections",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "csv",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "hashlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py",
+      "target": "zipfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py#main",
+      "target": "ndt/scripts/match_telus.py#match_sites",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/match_telus.py#match_sites",
+      "target": "ndt/scripts/match_telus.py#distance_m",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/tree_sampling.py",
+      "target": "ndt/scripts/tree_sampling.py#metres",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/tree_sampling.py",
+      "target": "ndt/scripts/tree_sampling.py#sample_row",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/tree_sampling.py",
+      "target": "ndt/scripts/tree_sampling.py#tile",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/tree_sampling.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/tree_sampling.py",
+      "target": "re",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py",
+      "target": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py",
+      "target": "ndt/tests/test-bell-outdoor.py#row",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py",
+      "target": "scripts.extract_bell_outdoor",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest",
+      "target": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_excludes_indoor_other_licensees_and_out_of_bounds",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest",
+      "target": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_group_keeps_record_counts_and_height",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_excludes_indoor_other_licensees_and_out_of_bounds",
+      "target": "ndt/tests/test-bell-outdoor.py#row",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_group_keeps_record_counts_and_height",
+      "target": "ndt/tests/test-bell-outdoor.py#row",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-lighting.mjs",
+      "target": "../dist/lighting.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-lighting.mjs",
+      "target": "../dist/shadows.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-lighting.mjs",
+      "target": "../dist/vendor/three.module.js",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-lighting.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-symbols.mjs",
+      "target": "../dist/network-symbols.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-symbols.mjs",
+      "target": "../dist/radio-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-symbols.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-symbols.mjs",
+      "target": "node:fs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network.mjs",
+      "target": "../dist/network-layer.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network.mjs",
+      "target": "node:fs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-radio-model.mjs",
+      "target": "../dist/radio-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-radio-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-roofs.mjs",
+      "target": "ndt/tests/test-roofs.mjs#identity",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-roofs.mjs",
+      "target": "ndt/tests/test-roofs.mjs#local",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-roofs.mjs",
+      "target": "../dist/roof-geometry.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-roofs.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-search.mjs",
+      "target": "../dist/search.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-search.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-shadows.mjs",
+      "target": "../dist/shadows.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-shadows.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-street-detail.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-street-detail.mjs",
+      "target": "node:fs/promises",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "ndt/tests/test-telus-matching.py#MatchTest",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "ndt/tests/test-telus-matching.py#osm",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "ndt/tests/test-telus-matching.py#record",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "scripts.match_telus",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest",
+      "target": "ndt/tests/test-telus-matching.py#MatchTest.test_close_unambiguous_match_preserves_distance_and_source",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest",
+      "target": "ndt/tests/test-telus-matching.py#MatchTest.test_distant_or_ambiguous_locations_are_not_matches",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest.test_close_unambiguous_match_preserves_distance_and_source",
+      "target": "ndt/scripts/match_telus.py#match_sites",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest.test_close_unambiguous_match_preserves_distance_and_source",
+      "target": "ndt/tests/test-telus-matching.py#osm",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest.test_close_unambiguous_match_preserves_distance_and_source",
+      "target": "ndt/tests/test-telus-matching.py#record",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest.test_distant_or_ambiguous_locations_are_not_matches",
+      "target": "ndt/scripts/match_telus.py#match_sites",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest.test_distant_or_ambiguous_locations_are_not_matches",
+      "target": "ndt/tests/test-telus-matching.py#osm",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-matching.py#MatchTest.test_distant_or_ambiguous_locations_are_not_matches",
+      "target": "ndt/tests/test-telus-matching.py#record",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py",
+      "target": "ndt/tests/test-telus-sites.py#row",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py",
+      "target": "ndt/tests/test-telus-sites.py#TelusSitesTest",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py",
+      "target": "scripts.extract_telus_sites",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py#TelusSitesTest",
+      "target": "ndt/tests/test-telus-sites.py#TelusSitesTest.test_excludes_non_telus_outside_and_invalid_coordinates",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py#TelusSitesTest",
+      "target": "ndt/tests/test-telus-sites.py#TelusSitesTest.test_groups_all_records_at_the_same_coordinate",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py#TelusSitesTest.test_excludes_non_telus_outside_and_invalid_coordinates",
+      "target": "ndt/tests/test-telus-sites.py#row",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-telus-sites.py#TelusSitesTest.test_groups_all_records_at_the_same_coordinate",
+      "target": "ndt/tests/test-telus-sites.py#row",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py",
+      "target": "ndt/tests/test-tree-sampling.py#TreeSamplingTests",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py",
+      "target": "tree_sampling",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py#TreeSamplingTests",
+      "target": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_row_follows_all_segments_and_count",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py#TreeSamplingTests",
+      "target": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_toronto_tile",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py#TreeSamplingTests",
+      "target": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_units_and_bad_values",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_row_follows_all_segments_and_count",
+      "target": "ndt/scripts/tree_sampling.py#sample_row",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_toronto_tile",
+      "target": "ndt/scripts/tree_sampling.py#tile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-tree-sampling.py#TreeSamplingTests.test_units_and_bad_values",
+      "target": "ndt/scripts/tree_sampling.py#metres",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-trees.mjs",
+      "target": "../dist/tree-data.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-trees.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-trees.mjs",
+      "target": "node:fs/promises",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test.mjs",
+      "target": "../dist/osm.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    }
+  ]
 }

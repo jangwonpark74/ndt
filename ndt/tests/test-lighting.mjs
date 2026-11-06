@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import * as THREE from './dist/vendor/three.module.js';
-import { addSceneLights, setSceneLight, lightPresets, mapLight } from './dist/lighting.mjs';
-import { shadowFeatures } from './dist/shadows.mjs';
+import * as THREE from '../dist/vendor/three.module.js';
+import { addSceneLights, setSceneLight, lightPresets, mapLight } from '../dist/lighting.mjs';
+import { shadowFeatures } from '../dist/shadows.mjs';
 
 const scene = new THREE.Scene();
 const light = addSceneLights(scene);

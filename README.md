@@ -1,6 +1,6 @@
 # Toronto NDT
 
-Toronto NDT is a 3D city and network visualization project. The application and its Git repository are in [`viewer/`](viewer/); its README documents the data, limitations and detailed setup. The Makefile and Python environment configuration are in this directory.
+Toronto NDT is a 3D city and network visualization project. The [viewer README](ndt/README.md) documents its data, limitations and detailed setup.
 
 To run it locally:
 
@@ -9,4 +9,18 @@ make setup
 make run
 ```
 
-[`F4MAP_REVERSE_ENGINEERING.md`](F4MAP_REVERSE_ENGINEERING.md) and the PNG files in [`images/`](images/) are reference and preview material. `graft/` contains the workspace code index.
+## Directory layout
+
+```text
+ndt/
+  dist/       Static application, data and vendored libraries; served directly
+  scripts/    Data preparation and conversion tools
+  tests/      JavaScript and Python checks
+  .openai/    Static hosting configuration
+docs/         Research, benchmarks and preview images
+graft/        Workspace code index
+Makefile      Setup, run and validation commands
+pyproject.toml, uv.lock  Python environment definition
+```
+
+`ndt/dist/` is checked-in application source and data, not a disposable build output. Its path is also used by the hosting configuration. Research and preview material is in [`docs/`](docs/).

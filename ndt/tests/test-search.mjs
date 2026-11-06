@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { searchResults } from './dist/search.mjs';
+import { searchResults } from '../dist/search.mjs';
 
 const place = {geometry:{type:'Point',coordinates:[-79.387,43.643]},properties:{name:'CN Tower',city:'Toronto',state:'Ontario',country:'Canada'}};
 assert.deepEqual(searchResults({features:[place]}), [{label:'CN Tower, Toronto, Ontario, Canada',coordinates:[-79.387,43.643]}]);
