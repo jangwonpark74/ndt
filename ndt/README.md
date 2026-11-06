@@ -51,4 +51,16 @@ Each fan radius is an illustrative link-budget estimate using the urban macro (U
 
 Node.js is needed for the JavaScript tests and syntax checks. Run `make test` for the OSM parsing, tile attributes, tree extraction and roof geometry tests, or `make check` for those tests and source syntax checks. Run `make help` to list the commands.
 
+For the Playwright UI tests, install Node.js and run the following from the workspace root:
+
+```sh
+npm ci
+npx playwright install chromium --only-shell
+make test-ui
+```
+
+The browser suite starts a local server on port 5189 and checks search, network and layer controls, failure recovery, responsive layouts, keyboard use and automated WCAG A/AA rules. It substitutes a minimal map style and search responses; it does not verify live map tiles, terrain, or the external search service. To additionally run the network-dependent desktop, mobile and landscape map smoke tests, use `NDT_LIVE_UI=1 npm run test:ui -- live.spec.cjs`. Automated accessibility checks do not replace testing with assistive technology.
+
+To run the same UI suite in other engines, install them with `npx playwright install firefox webkit`, then use `NDT_BROWSER=firefox npm run test:ui` or `NDT_BROWSER=webkit npm run test:ui`.
+
 See [the benchmark](../docs/BENCHMARK.md) for earlier visual and performance observations and their comparison limits.

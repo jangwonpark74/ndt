@@ -1,6 +1,9 @@
 .venv/
 .cache/
 __pycache__/
+node_modules/
+playwright-report/
+test-results/
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/

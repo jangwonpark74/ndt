@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": 1,
-    "nodeCount": 76,
-    "edgeCount": 187,
+    "nodeCount": 83,
+    "edgeCount": 195,
     "languages": [
       "javascript",
       "python"
@@ -12,6 +12,7 @@
         "prefix": "",
         "label": "",
         "markers": [
+          "package.json",
           "pyproject.toml"
         ]
       }
@@ -717,6 +718,50 @@
       "crux": null
     },
     {
+      "id": "ndt/tests/test-convert-osm.py",
+      "name": "test-convert-osm.py",
+      "kind": "file",
+      "path": "ndt/tests/test-convert-osm.py",
+      "span": "L1-L36",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0bf65ad44e72a06f8ac3797c24805e84857b5596ccf055e5f354bb79c31c74f2",
+      "chars": 1491,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-convert-osm.py#ConvertOsmTest",
+      "name": "ConvertOsmTest",
+      "kind": "class",
+      "path": "ndt/tests/test-convert-osm.py",
+      "span": "L9-L31",
+      "signature": "class ConvertOsmTest(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "91c6ab9951b5a2cb8ddfd74655381b9adfb0e2afa58dc477140e80f4ea9e4c26",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-convert-osm.py#ConvertOsmTest.test_converts_supported_ways_and_skips_incomplete_geometry",
+      "name": "test_converts_supported_ways_and_skips_incomplete_geometry",
+      "kind": "method",
+      "path": "ndt/tests/test-convert-osm.py",
+      "span": "L10-L31",
+      "signature": "def test_converts_supported_ways_and_skips_incomplete_geometry(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c09d1a40afebb693104128e4a5e21add1fa09b0660c5c4854837c413a36a1f38",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ConvertOsmTest"
+    },
+    {
       "id": "ndt/tests/test-lighting.mjs",
       "name": "test-lighting.mjs",
       "kind": "file",
@@ -1124,6 +1169,66 @@
       "origin": "ast",
       "body_hash": "b215ec58c25fede9f3dca79f2acfe1ae358a166975bc9a6d20e7c7f5f7838887",
       "chars": 1663,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs",
+      "name": "app.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L1-L180",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "95ddfb70a2f944677d86eed906417e936b530e548df7e34f5b616d1a0aad838e",
+      "chars": 10273,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/failures.spec.cjs",
+      "name": "failures.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/failures.spec.cjs",
+      "span": "L1-L20",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "4ff0cd8a1015418ec7d220eea2ad9eea3846dec5fe2748ba4f5b94633975c872",
+      "chars": 1122,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/live.spec.cjs",
+      "name": "live.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/live.spec.cjs",
+      "span": "L1-L32",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "e152d9ab8c8af7e4bf1c59079ce9598bae910af87051ac02ace6532ae13dbc50",
+      "chars": 1862,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "playwright.config.cjs",
+      "name": "playwright.config.cjs",
+      "kind": "file",
+      "path": "playwright.config.cjs",
+      "span": "L1-L13",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "93f71874c813c88ca93523c992bc87504478278c70b66afa02a9a097ec1c256d",
+      "chars": 404,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1866,6 +1971,54 @@
       "source": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest.test_group_keeps_record_counts_and_height",
       "target": "ndt/tests/test-bell-outdoor.py#row",
       "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "ndt/tests/test-convert-osm.py#ConvertOsmTest",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "subprocess",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-convert-osm.py#ConvertOsmTest",
+      "target": "ndt/tests/test-convert-osm.py#ConvertOsmTest.test_converts_supported_ways_and_skips_incomplete_geometry",
+      "relation": "contains",
       "confidence": "extracted"
     },
     {

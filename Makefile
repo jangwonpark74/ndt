@@ -5,12 +5,13 @@ PORT ?= 5179
 UV_CACHE_DIR ?= $(CURDIR)/.cache/uv
 export UV_CACHE_DIR
 
-.PHONY: help setup run test check
+.PHONY: help setup run test test-ui check
 
 help:
 	@printf '%s\n' 'make setup  Create the local Python environment' \
 		'make run    Start the viewer (HOST=127.0.0.1 PORT=5179)' \
 		'make test   Run the viewer tests' \
+		'make test-ui  Run Playwright UI tests' \
 		'make check  Check source syntax and run tests'
 
 setup:
@@ -34,6 +35,10 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/test-telus-matching.py
 	cd ndt && $(UV) run --locked python -B tests/test-telus-sites.py
 	cd ndt && $(UV) run --locked python -B tests/test-bell-outdoor.py
+	cd ndt && $(UV) run --locked python -B tests/test-convert-osm.py
+
+test-ui:
+	npm run test:ui
 
 check: test
 	cd ndt && $(NODE) --check dist/app.js
