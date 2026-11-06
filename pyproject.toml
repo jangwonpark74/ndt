@@ -1,0 +1,9 @@
+[project]
+name = "toronto-ndt"
+version = "0.1.0"
+description = "A 3D Toronto network digital twin viewer using OpenStreetMap and terrain data"
+requires-python = ">=3.14"
+dependencies = []
+
+[tool.uv]
+package = false
