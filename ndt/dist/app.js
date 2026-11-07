@@ -7,9 +7,10 @@ import { shadowFeatures } from './shadows.mjs';
 import { createStreetDetailLayer } from './street-detail.mjs';
 import { searchResults } from './search.mjs';
 import { createNetworkLayer, siteClass, towerHeight, validTelusSite, validBellOutdoorSite } from './network-layer.mjs';
-import { antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery, sitesWithFansOrIndoor } from './network-symbols.mjs?v=network-explorer-3';
+import { antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery, sitesWithFansOrIndoor } from './network-symbols.mjs?v=network-explorer-4';
 import { RADIO_DEFAULTS } from './radio-model.mjs';
 import { createNycReservations } from './nyc-reservations.mjs?v=2';
+import { distanceMetres, selectProjectSites, projectCoverage } from './project-coverage.mjs?v=cluster-2';
 
 const $ = id => document.getElementById(id);
 let regions;
@@ -67,6 +68,131 @@ const lighting = lightPresets.southeast;
 const emptyFeatures = {type:'FeatureCollection', features:[]};
 let shadowSignature = '';
 let networkFeatures = null, networkLoading = false, networkListSignature = null, selectedNetworkFeature = null, selectedSector = null;
+let selectedProject = null, projectClusters = null, projectRequest = 0, projectDataPromise = null;
+let projectSitesById = new Map(), eligibleProjectSites = new Set(), missingProjectSites = new Set(), projectSaving = false, projectPopup = null;
+function renderProjectSites() {
+  $('project-sites').replaceChildren();
+  for (const site of projectClusters.get(selectedProject.id)) {
+    const item = document.createElement('li'); item.textContent = siteLocations(site)[0] || site.properties.site_id; $('project-sites').append(item);
+  }
+}
+function updateProjectCoverage(fit = false) {
+  if (!projectClusters || !map.getSource('project-coverage') || region.network !== 'ised') return;
+  const status = $('project-status'), eirp = $('coverage-eirp').value, threshold = $('coverage-threshold').value;
+  const scenario = {mode:$('coverage-mode').value,eirpDbm:eirp === '' ? NaN : Number(eirp),thresholdDbm:threshold === '' ? NaN : Number(threshold)};
+  const boundaries = [];
+  for (const project of region.projects) {
+    if (missingProjectSites.has(project.id)) continue;
+    try {
+      const feature = projectCoverage(projectClusters.get(project.id),scenario);
+      if (feature) { feature.properties.project_id = project.id; boundaries.push(feature); }
+    } catch (error) { console.warn('Project boundary:',error); }
+  }
+  map.getSource('project-coverage').setData({type:'FeatureCollection',features:boundaries});
+  if (!selectedProject) return;
+  const boundary = boundaries.find(feature=>feature.properties.project_id === selectedProject.id);
+  const projectSites = projectClusters.get(selectedProject.id);
+  map.getSource('project-sites').setData({type:'FeatureCollection',features:projectSites.map(site=>({type:'Feature',geometry:site.geometry,properties:{site_id:site.properties.site_id}}))});
+  if (missingProjectSites.has(selectedProject.id)) { status.textContent = 'Saved project sites are missing from the current data. Boundary and editing are unavailable.'; return; }
+  if (!boundary) { status.textContent = projectSites.length ? 'Boundary unavailable: usable sector estimates and valid planning assumptions are required.' : 'No project sites. Right-click an eligible Bell site to add it; seven are required for simulation.'; return; }
+  const radius = Math.max(...projectSites.map(site=>distanceMetres(site.geometry.coordinates,projectSites[0].geometry.coordinates)));
+  status.textContent = `${projectSites.length} Bell locations · cluster radius ${(radius/1000).toFixed(2)} km · ${projectSites.length === 7 ? '' : '7 sites required for simulation · '}full-radius project boundary includes gaps; not measured coverage. Right-click a Bell site to edit the project.`;
+  if (fit) {
+    if (window.innerWidth <= 700) { $('network-panel').hidden = true; document.querySelector('.network-settings').open = false; }
+    const points = boundary.geometry.coordinates[0];
+    const bounds = points.reduce((result,point)=>result.extend(point),new maplibregl.LngLatBounds());
+    const sidebar = document.querySelector('.intro').getBoundingClientRect();
+    const panel = $('network-panel');
+    const controls = document.querySelector('.map-controls').getBoundingClientRect();
+    const right = Math.max(window.innerWidth-controls.left+20,panel.hidden ? 30 : window.innerWidth-panel.getBoundingClientRect().left+25);
+    map.fitBounds(bounds,{padding:{left:sidebar.right+25,right,top:100,bottom:40},pitch:0,bearing:0,maxZoom:15});
+  }
+}
+async function selectProject(project) {
+  projectPopup?.remove();
+  selectedProject = project; const request = ++projectRequest;
+  for (const item of region.projects) $(item.id).setAttribute('aria-pressed',String(item.id === project.id));
+  $('project-summary').hidden = false; $('project-title').textContent = project.name; $('project-sites').replaceChildren();
+  map.getSource('project-sites')?.setData(emptyFeatures);
+  if (region.network !== 'ised') {
+    $('project-status').textContent = 'Coverage boundary unavailable: New York reservation records have no radio bearings, widths or frequencies.';
+    map.flyTo({center:project.center,zoom:project.zoom,pitch:project.pitch,bearing:0}); return;
+  }
+  $('project-status').textContent = 'Selecting seven nearby eligible Bell locations…';
+  try {
+    await loadProjectClusters();
+    if (request !== projectRequest) return;
+    renderProjectSites();
+    updateProjectCoverage(true);
+  } catch (error) {
+    if (request === projectRequest) $('project-status').textContent = 'Project site data unavailable. Select the project again to retry.';
+    console.warn(error);
+  }
+}
+function loadProjectClusters() {
+  if (!projectDataPromise) projectDataPromise = Promise.all([fetch(`${assetBase}/bell-outdoor-sites.geojson`),fetch(`/api/regions/${encodeURIComponent(region.id)}/projects`)]).then(async responses=>{
+    if (responses.some(response=>!response.ok)) throw new Error('Project site data unavailable');
+    return Promise.all(responses.map(response=>response.json()));
+  }).then(([data,saved])=>{
+    if (data.type !== 'FeatureCollection' || !Array.isArray(data.features) || !data.features.every(validBellOutdoorSite) || data.features.reduce((sum,f)=>sum+f.properties.record_count,0) !== data.record_count || new Set(data.features.map(f=>f.properties.site_id)).size !== data.features.length) throw new Error('Invalid project site data');
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) throw new Error('Invalid saved projects');
+    projectSitesById = new Map(data.features.map(site=>[site.properties.site_id,site]));
+    const counts = new Map();
+    for (const fan of sectorFanFeatures(data.features,RADIO_DEFAULTS).features) counts.set(fan.properties.site_id,(counts.get(fan.properties.site_id)||0)+1);
+    eligibleProjectSites = new Set([...counts].filter(([,count])=>count === 3).map(([id])=>id));
+    projectClusters = new Map(region.projects.map(project=>{
+      if (!Object.hasOwn(saved,project.id)) return [project.id,selectProjectSites(data.features,project.center)];
+      const ids = saved[project.id];
+      if (!Array.isArray(ids) || !ids.every(id=>typeof id === 'string') || new Set(ids).size !== ids.length) throw new Error('Invalid saved site list');
+      if (ids.some(id=>!projectSitesById.has(id))) missingProjectSites.add(project.id);
+      return [project.id,ids.map(id=>projectSitesById.get(id)).filter(Boolean)];
+    }));
+    updateProjectCoverage();
+  }).catch(error=>{ projectDataPromise = null; throw error; });
+  return projectDataPromise;
+}
+async function changeProjectSite(project, site, add, button) {
+  if (projectSaving) return;
+  const sites = projectClusters.get(project.id);
+  const next = add ? [...sites,site] : sites.filter(item=>item.properties.site_id !== site.properties.site_id);
+  projectSaving = true; button.disabled = true; button.textContent = 'Saving…';
+  try {
+    const response = await fetch(`/api/regions/${encodeURIComponent(region.id)}/projects/${encodeURIComponent(project.id)}/sites`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(next.map(item=>item.properties.site_id)),
+    });
+    if (!response.ok) throw new Error('Could not save project sites');
+    projectClusters.set(project.id,next);
+    if (selectedProject?.id === project.id) { renderProjectSites(); updateProjectCoverage(true); }
+    else updateProjectCoverage();
+    if (projectPopup?.getElement()?.contains(button)) projectPopup.remove();
+  } catch (error) {
+    button.disabled = false; button.textContent = 'Save failed. Try again';
+    if (!button.isConnected) $('project-status').textContent = `Could not save changes to ${project.name}. Select the project and try again.`;
+    console.warn(error);
+  }
+  finally { projectSaving = false; }
+}
+function showProjectSiteMenu(event) {
+  if (region.network !== 'ised' || !map.getLayer('project-site-markers')) return;
+  const hit = map.queryRenderedFeatures(event.point,{layers:['project-site-markers','network-sites']}).find(feature=>projectSitesById.has(feature.properties.site_id));
+  if (!hit) return;
+  event.originalEvent.preventDefault(); projectPopup?.remove();
+  const site = projectSitesById.get(hit.properties.site_id), content = document.createElement('div');
+  content.className = 'project-site-menu';
+  const title = document.createElement('strong'); title.textContent = siteLocations(site)[0] || site.properties.site_id; content.append(title);
+  const message = document.createElement('p'); content.append(message);
+  if (!selectedProject) message.textContent = 'Select a project to edit its sites.';
+  else if (missingProjectSites.has(selectedProject.id)) message.textContent = 'Saved project sites are missing from this dataset; editing is unavailable.';
+  else {
+    const project = selectedProject, member = projectClusters.get(project.id).some(item=>item.properties.site_id === site.properties.site_id);
+    message.textContent = project.name;
+    const button = document.createElement('button'); button.type = 'button';
+    button.textContent = member ? 'Remove site from project' : 'Add site to project';
+    if (!member && !eligibleProjectSites.has(site.properties.site_id)) { button.disabled = true; message.textContent = 'This site needs three usable sector estimates.'; }
+    button.onclick = () => changeProjectSite(project,site,!member,button); content.append(button);
+  }
+  projectPopup = new maplibregl.Popup({closeButton:true,closeOnClick:true}).setLngLat(site.geometry.coordinates).setDOMContent(content).addTo(map);
+}
 function activeNetworkFeatures() {
   return (networkFeatures || []).filter(feature => feature.properties.provider === 'Bell' ? $('bell-toggle').checked : $('network-toggle').checked);
 }
@@ -103,6 +229,7 @@ function updateCoverage() {
   map.getSource('network-sites').setData({type:'FeatureCollection',features:markers.map(feature=>({type:'Feature',geometry:feature.geometry,properties:{site_id:feature.properties.site_id,site_class:markerClass(feature),antenna_pattern:feature.properties.provider === 'Bell' ? 'unknown' : sitePattern(feature.properties.records)}}))});
   map.getSource('network-sectors').setData(sectorFeatures(markers));
   networkLayer?.setData(markers);
+  updateProjectCoverage();
   if (!$('sector-fans-toggle').checked) { source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Planning estimate is off.'; return; }
   if (!$('bell-toggle').checked) { source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Enable Bell outdoor to see planning estimates.'; return; }
   if (!networkFeatures) { source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Loading network records…'; return; }
@@ -403,6 +530,8 @@ map.on('load', () => {
   map.addSource('network-site-fans-selected',{type:'geojson',data:emptyFeatures});
   map.addSource('network-sector-selected',{type:'geojson',data:emptyFeatures});
   map.addSource('network-selected-site',{type:'geojson',data:emptyFeatures});
+  map.addSource('project-coverage',{type:'geojson',data:emptyFeatures});
+  map.addSource('project-sites',{type:'geojson',data:emptyFeatures});
   const sectorColor = ['match',['get','sector'],1,'#ee5a55',2,'#147fb5',3,'#8b4fa8','#6b776d'];
   map.addLayer({id:'network-sector-fans',type:'fill',source:'network-sector-fans',layout:{visibility:'none'},paint:{'fill-color':sectorColor,'fill-opacity':['interpolate',['linear'],['zoom'],10,.045,14,.105,17,.18]}});
   map.addLayer({id:'network-sector-outlines',type:'line',source:'network-sector-fans',layout:{visibility:'none'},paint:{'line-color':sectorColor,'line-opacity':['interpolate',['linear'],['zoom'],10,.2,14,.5,17,.65],'line-width':1}});
@@ -416,6 +545,9 @@ map.on('load', () => {
   map.addLayer({id:'network-sites',type:'circle',source:'network-sites',layout:{visibility:'none'},paint:{'circle-color':['match',['get','site_class'],'indoor','#087f9f','outdoor','#7b43a3','bell','#c87512','#77867c'],'circle-radius':['interpolate',['linear'],['zoom'],8,3,16,6],'circle-stroke-color':'#ffffff','circle-stroke-width':1.5,'circle-opacity':.95}});
   map.addLayer({id:'network-omni-rings',type:'circle',source:'network-sites',layout:{visibility:'none'},filter:['==',['get','antenna_pattern'],'omni'],paint:{'circle-color':'#087f9f','circle-opacity':0,'circle-radius':['interpolate',['linear'],['zoom'],8,6,16,10],'circle-stroke-color':'#087f9f','circle-stroke-width':1.5,'circle-stroke-opacity':.9}});
   map.addLayer({id:'network-selected-site-ring',type:'circle',source:'network-selected-site',layout:{visibility:'none'},paint:{'circle-color':'#ffffff','circle-opacity':0,'circle-radius':12,'circle-stroke-color':'#183b33','circle-stroke-width':3}});
+  map.addLayer({id:'project-boundary-halo',type:'line',source:'project-coverage',layout:{'line-cap':'round'},paint:{'line-color':'#ffffff','line-width':6,'line-opacity':.9,'line-dasharray':[4/3,4/3]}});
+  map.addLayer({id:'project-boundary',type:'line',source:'project-coverage',layout:{'line-cap':'round'},paint:{'line-color':'#135a43','line-width':4,'line-dasharray':[2,2]}});
+  map.addLayer({id:'project-site-markers',type:'circle',source:'project-sites',paint:{'circle-color':'#135a43','circle-radius':6,'circle-stroke-color':'#ffffff','circle-stroke-width':2}});
   function addBearingImage(id,color) {
     const arrow = document.createElement('canvas'); arrow.width = 48; arrow.height = 48;
     const context = arrow.getContext('2d'); context.lineJoin = 'round'; context.lineCap = 'round';
@@ -428,6 +560,13 @@ map.on('load', () => {
   map.addLayer({id:'network-sector-arrows',type:'symbol',source:'network-sectors',minzoom:14,layout:{visibility:'none','icon-image':['match',['get','provider'],'Bell','bell-bearing','telus-bearing'],'icon-allow-overlap':true,'icon-ignore-placement':true,'icon-rotation-alignment':'map','icon-rotate':['get','azimuth']}});
   networkLayer = createNetworkLayer(map,region.center); map.addLayer(networkLayer);
   if ($('network-toggle').checked || $('bell-toggle').checked) showNetwork();
+  if (region.network === 'ised') loadProjectClusters().catch(error=>{
+    if (!selectedProject) {
+      $('project-summary').hidden = false; $('project-title').textContent = 'Project boundaries';
+      $('project-status').textContent = 'Project site data unavailable. Select a project to retry.';
+    }
+    console.warn(error);
+  });
   if (region.network === 'nyc-poles') nycReservations = createNycReservations(map,assetBase);
   markerLayer = createMarkerLayer(); map.addLayer(markerLayer);
   $('loading').hidden = true; $('error').hidden = true;
@@ -438,6 +577,7 @@ map.on('idle', () => { terrainStatus(); roofLayer?.refresh(); treeLayer?.refresh
 map.on('moveend', refreshShadows);
 map.on('moveend', () => { updateCoordinates(); terrainStatus(); });
 map.on('click', showFeature);
+map.on('contextmenu', showProjectSiteMenu);
 map.on('mouseenter','network-sector-fans',()=>{ map.getCanvas().style.cursor = 'pointer'; });
 map.on('mouseleave','network-sector-fans',()=>{ map.getCanvas().style.cursor = ''; });
 map.on('error', event => {
@@ -477,7 +617,7 @@ searchForm.onsubmit = async event => {
 searchQuery.oninput = () => { searchPanel.hidden = true; };
 searchForm.onkeydown = event => { if (event.key === 'Escape') { searchPanel.hidden = true; searchQuery.focus(); } };
 $('city-view').onclick = () => map.flyTo(CITY);
-for (const project of region.projects) $(project.id).onclick = () => map.flyTo({center:project.center,zoom:project.zoom,pitch:project.pitch,bearing:0});
+for (const project of region.projects) $(project.id).onclick = () => selectProject(project);
 $('reset').onclick = () => map.flyTo(CITY);
 $('zoom-in').onclick = () => map.zoomIn(); $('zoom-out').onclick = () => map.zoomOut();
 $('tilt-up').onclick = () => map.easeTo({pitch:Math.min(map.getMaxPitch(),map.getPitch()+15)});
@@ -505,6 +645,9 @@ $('network-search').oninput = () => { networkListSignature = null; refreshNetwor
 $('coverage-mode').value = RADIO_DEFAULTS.mode; $('coverage-eirp').value = RADIO_DEFAULTS.eirpDbm; $('coverage-threshold').value = RADIO_DEFAULTS.thresholdDbm;
 for (const id of ['coverage-mode','coverage-eirp','coverage-threshold']) $(id).oninput = updateCoverage;
 $('network-close').onclick = () => { $('network-toggle').checked = false; $('bell-toggle').checked = false; showNetwork(); };
+document.querySelector('.network-settings').addEventListener('toggle',event=>{
+  if (event.target.open && ($('network-toggle').checked || $('bell-toggle').checked)) showNetwork();
+});
 $('trees-toggle').onchange = event => {
   setLayers(['trees-overview-points'], event.target.checked);
   treeLayer?.setVisible(event.target.checked);

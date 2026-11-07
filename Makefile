@@ -29,6 +29,7 @@ test:
 	cd ndt && $(NODE) tests/test-network.mjs
 	cd ndt && $(NODE) tests/test-network-symbols.mjs
 	cd ndt && $(NODE) tests/test-radio-model.mjs
+	cd ndt && $(NODE) tests/test-project-coverage.mjs
 	cd ndt && $(NODE) tests/test-street-detail.mjs
 	cd ndt && $(UV) run --locked python -B tests/test-tree-sampling.py
 	cd ndt && $(UV) run --locked python -B tests/test-telus-matching.py
@@ -54,6 +55,7 @@ check: test
 	cd ndt && $(NODE) --check dist/network-layer.mjs
 	cd ndt && $(NODE) --check dist/network-symbols.mjs
 	cd ndt && $(NODE) --check dist/nyc-reservations.mjs
+	cd ndt && $(NODE) --check dist/project-coverage.mjs
 	cd ndt && $(NODE) --check dist/radio-model.mjs
 	cd ndt && $(NODE) --check dist/street-detail.mjs
 	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"

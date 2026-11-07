@@ -75,7 +75,7 @@ export function lowestFrequencyMHz(bearing) {
 }
 
 // Planning preview only: a uniform boresight path-loss threshold, not measured coverage.
-export function sectorFanFeatures(sites, scenario = RADIO_DEFAULTS, {includeOtherBearingCounts = false} = {}) {
+export function sectorFanFeatures(sites, scenario = RADIO_DEFAULTS, {includeOtherBearingCounts = false, fullCoverage = false} = {}) {
   const features = [];
   for (const site of sites) {
     if (site.properties.provider !== 'Bell') continue;
@@ -85,13 +85,15 @@ export function sectorFanFeatures(sites, scenario = RADIO_DEFAULTS, {includeOthe
     if (!includeOtherBearingCounts && reportedWidths.some(widths=>!widths.length)) continue;
     bearings.forEach((bearing,index) => {
       if (!reportedWidths[index].length) return;
-      const width = Math.max(...reportedWidths[index]), displayWidth = Math.max(15,width), steps = Math.max(4,Math.ceil(displayWidth/10));
+      const width = Math.max(...reportedWidths[index]), displayWidth = Math.max(15,width);
       const frequencyMHz = lowestFrequencyMHz(bearing), estimate = coverageRadius(frequencyMHz,scenario);
       if (!estimate || estimate.radiusM <= 0) return;
       // Scale the geometry for visualization only; retain the original model estimate in radius_m.
       const center = site.geometry.coordinates, displayRadiusM = estimate.radiusM * 5 / 12;
+      const geometryRadius = fullCoverage ? estimate.radiusM : displayRadiusM, geometryWidth = fullCoverage ? width : displayWidth;
+      const steps = Math.max(4,Math.ceil(geometryWidth/10));
       const ring = [center];
-      for (let i=0;i<=steps;i++) ring.push(destination(center,displayRadiusM,bearing.azimuth-displayWidth/2+displayWidth*i/steps));
+      for (let i=0;i<=steps;i++) ring.push(destination(center,geometryRadius,bearing.azimuth-geometryWidth/2+geometryWidth*i/steps));
       ring.push(center);
       features.push({type:'Feature',geometry:{type:'Polygon',coordinates:[ring]},properties:{site_id:site.properties.site_id,azimuth:bearing.azimuth,beamwidth:width,display_width:displayWidth,sector:index%3+1,frequency_mhz:frequencyMHz,radius_m:estimate.radiusM,display_radius_m:displayRadiusM,status:estimate.status}});
     });
