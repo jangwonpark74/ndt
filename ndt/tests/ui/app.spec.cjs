@@ -125,6 +125,79 @@ test('network data failure gives a retry path', async ({ page }) => {
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
 });
 
+test('tree manifest failure can be retried by toggling trees', async ({ page }) => {
+  let requests = 0;
+  await page.route('**/trees/manifest.json', route => {
+    requests++;
+    return requests === 1 ? route.fulfill({ status: 503 }) : route.continue();
+  });
+  await page.getByRole('button', { name: 'Harbourfront' }).click();
+  await expect(page.locator('#tree-status')).toContainText('Tree data unavailable.', { timeout: 20000 });
+  await page.getByText('Map Settings', { exact: true }).click();
+  await expect(page.locator('#tree-status')).toBeVisible();
+  await expect(page.locator('#tree-status')).toContainText('Turn Trees off and on to retry.');
+  const trees = page.locator('#trees-toggle');
+  await trees.uncheck();
+  await trees.check();
+  await expect.poll(() => requests).toBe(2);
+  await expect(page.locator('#tree-status')).toContainText('mapped and row trees in view.', { timeout: 20000 });
+  await expect(page.locator('#tree-status')).toBeHidden();
+});
+
+test('roof data failure can be retried by toggling buildings', async ({ page }) => {
+  let requests = 0;
+  await page.route('**/toronto-roofs.json', route => {
+    requests++;
+    return requests === 1 ? route.fulfill({ status: 503 }) : route.continue();
+  });
+  await page.getByRole('button', { name: 'Harbourfront' }).click();
+  await expect(page.locator('#roof-status')).toContainText('Roof data unavailable', { timeout: 20000 });
+  await page.getByText('Map Settings', { exact: true }).click();
+  await expect(page.locator('#roof-status')).toBeVisible();
+  await expect(page.locator('#roof-status')).toContainText('Turn Buildings off and on to retry.');
+  const buildings = page.locator('#buildings-toggle');
+  await buildings.uncheck();
+  await buildings.check();
+  await expect.poll(() => requests).toBe(2);
+  await expect(page.locator('#roof-status')).toContainText('mapped roofs in this view.', { timeout: 20000 });
+  await expect(page.locator('#roof-status')).toBeHidden();
+});
+
+test('unavailable terrain is reported and cleared when terrain is disabled', async ({ page }) => {
+  test.setTimeout(70000);
+  await page.getByText('Map Settings', { exact: true }).click();
+  const status = page.locator('#terrain-status');
+  await page.evaluate(() => {
+    const fire = maplibregl.Map.prototype.fire;
+    maplibregl.Map.prototype.fire = function(event, ...args) {
+      return event.type === 'error' && event.sourceId === 'terrain-dem' ? this : fire.call(this, event, ...args);
+    };
+    maplibregl.Map.prototype.queryTerrainElevation = () => null;
+  });
+  await page.locator('#terrain-toggle').uncheck();
+  await page.locator('#terrain-toggle').check();
+  await expect(status).toContainText('Terrain tiles are unavailable or still loading.', { timeout: 25000 });
+  await expect(status).toBeVisible();
+  await page.evaluate(() => { maplibregl.Map.prototype.queryTerrainElevation = () => 100; });
+  await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+  await expect(status).toContainText('Terrain elevation near map center: 100 m.');
+  await expect(status).toBeHidden();
+  await page.evaluate(() => { maplibregl.Map.prototype.queryTerrainElevation = () => null; });
+  await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+  await expect(status).toBeVisible({ timeout: 25000 });
+  await page.locator('#terrain-toggle').uncheck();
+  await expect(status).toBeHidden();
+});
+
+test('failed terrain tile requests are reported even when the map returns zero elevation', async ({ page }) => {
+  await page.getByText('Map Settings', { exact: true }).click();
+  const status = page.locator('#terrain-status');
+  await expect(status).toContainText('Some terrain tiles could not be loaded.', { timeout: 15000 });
+  await expect(status).toBeVisible();
+  await page.locator('#terrain-toggle').uncheck();
+  await expect(status).toBeHidden();
+});
+
 test('search results remain clickable above the network panel on a phone', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.route('https://photon.komoot.io/api/**', route => route.fulfill({

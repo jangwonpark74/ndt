@@ -168,7 +168,7 @@ export function createRoofLayer(map, report) {
     },
     refresh,
     setLighting(preset) { if (light) setSceneLight(light, preset); },
-    setVisible(value) { visible = value; refresh(); },
+    setVisible(value) { visible = value; if (value) failed = false; refresh(); },
     onRemove() { clear(); renderer?.dispose(); }
   };
 }

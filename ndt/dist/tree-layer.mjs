@@ -127,7 +127,7 @@ export function createTreeLayer(map, report) {
     },
     refresh,
     setLighting(preset) { if (light) setSceneLight(light, preset); },
-    setVisible(value) { visible=value; if (value) failed.clear(); refresh(); },
+    setVisible(value) { visible=value; if (value) { failed.clear(); manifestFailed = false; } refresh(); },
     onRemove() { clear(); scene = null; trunkGeometry.dispose(); broadGeometry.dispose(); needleGeometry.dispose(); bark.dispose(); foliage.dispose(); renderer?.dispose(); }
   };
 }

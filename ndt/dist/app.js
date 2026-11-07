@@ -11,6 +11,11 @@ import { antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFe
 import { RADIO_DEFAULTS } from './radio-model.mjs';
 
 const $ = id => document.getElementById(id);
+function reportLayerStatus(id, control, text) {
+  const status = $(id), unavailable = text.includes('unavailable');
+  status.textContent = unavailable ? `${text} Turn ${control} off and on to retry.` : text;
+  status.hidden = !unavailable;
+}
 const CITY = { center: [-79.39, 43.70], zoom: 10.2, pitch: 43, bearing: 0 };
 const HARBOURFRONT = { center: [-79.3922155, 43.6394193], zoom: 17, pitch: 58, bearing: 0 };
 const DISTRICTS = { etobicoke: [-79.56, 43.65], northyork: [-79.412, 43.769], scarborough: [-79.25, 43.78] };
@@ -23,6 +28,7 @@ let markerLayer, roofLayer, treeLayer, streetDetailLayer, networkLayer;
 let streetLayers = [];
 let buildingLayers = [];
 let terrainReady = false;
+let terrainTileError = false;
 let loadFinished = false;
 let terrainWarning;
 const lighting = lightPresets.southeast;
@@ -271,12 +277,30 @@ function createMarkerLayer() {
 }
 
 function terrainStatus() {
-  if (!map.getTerrain()) { $('terrain-status').textContent = 'Terrain is off.'; return; }
+  const status = $('terrain-status');
+  if (!map.getTerrain()) {
+    terrainReady = false; terrainTileError = false; clearTimeout(terrainWarning); terrainWarning = null;
+    status.textContent = 'Terrain is off.'; status.hidden = true; return;
+  }
+  if (terrainTileError) return;
   const elevation = map.queryTerrainElevation(map.getCenter());
   if (Number.isFinite(elevation)) {
-    terrainReady = true;
-    $('terrain-status').textContent = `Terrain elevation near map center: ${Math.round(elevation)} m.`;
-  } else { terrainReady = false; $('terrain-status').textContent = 'Elevation tiles are loading for this view…'; }
+    terrainReady = true; clearTimeout(terrainWarning); terrainWarning = null;
+    status.textContent = `Terrain elevation near map center: ${Math.round(elevation)} m.`; status.hidden = true;
+  } else {
+    terrainReady = false;
+    if (status.hidden) {
+      status.textContent = 'Elevation tiles are loading for this view…';
+      if (!terrainWarning) terrainWarning = setTimeout(warnTerrain, 20000);
+    }
+  }
+}
+function warnTerrain() {
+  terrainWarning = null;
+  if (!terrainReady && map.getTerrain()) {
+    $('terrain-status').textContent = 'Terrain tiles are unavailable or still loading. Turn Terrain off for a flat map.';
+    $('terrain-status').hidden = false;
+  }
 }
 function setLayers(ids, visible) {
   for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
@@ -333,9 +357,9 @@ map.on('load', () => {
     map.setPaintProperty('building-3d', 'fill-extrusion-color', ['to-color', ['get', 'colour'], '#d8d9d3']);
     map.setPaintProperty('building-3d', 'fill-extrusion-opacity', 1);
   }
-  roofLayer = createRoofLayer(map, text => { $('roof-status').textContent = text; }); map.addLayer(roofLayer);
-  treeLayer = createTreeLayer(map, text => { $('tree-status').textContent = text; }); map.addLayer(treeLayer);
-  streetDetailLayer = createStreetDetailLayer(map, text => { $('street-status').textContent = text; }); map.addLayer(streetDetailLayer);
+  roofLayer = createRoofLayer(map, text => reportLayerStatus('roof-status', 'Buildings', text)); map.addLayer(roofLayer);
+  treeLayer = createTreeLayer(map, text => reportLayerStatus('tree-status', 'Trees', text)); map.addLayer(treeLayer);
+  streetDetailLayer = createStreetDetailLayer(map, text => reportLayerStatus('street-status', 'Street details', text)); map.addLayer(streetDetailLayer);
   for (const layer of [roofLayer, treeLayer, streetDetailLayer]) layer.setLighting(lighting);
   map.addSource('network-sites',{type:'geojson',data:emptyFeatures});
   map.addSource('network-sectors',{type:'geojson',data:emptyFeatures});
@@ -370,7 +394,7 @@ map.on('load', () => {
   if ($('network-toggle').checked || $('bell-toggle').checked) showNetwork();
   markerLayer = createMarkerLayer(); map.addLayer(markerLayer);
   $('loading').hidden = true; $('error').hidden = true;
-  terrainWarning = setTimeout(() => { if (!terrainReady && map.getTerrain()) $('terrain-status').textContent = 'Terrain tiles are unavailable or still loading.'; }, 20000);
+  terrainWarning = setTimeout(warnTerrain, 20000);
   updateCoordinates();
 });
 map.on('idle', () => { terrainStatus(); roofLayer?.refresh(); treeLayer?.refresh(); streetDetailLayer?.refresh(); networkLayer?.refresh(); refreshNetwork(); if ($('shadows-toggle').checked) refreshShadows(); });
@@ -379,7 +403,14 @@ map.on('moveend', () => { updateCoordinates(); terrainStatus(); });
 map.on('click', showFeature);
 map.on('mouseenter','network-sector-fans',()=>{ map.getCanvas().style.cursor = 'pointer'; });
 map.on('mouseleave','network-sector-fans',()=>{ map.getCanvas().style.cursor = ''; });
-map.on('error', event => { console.warn('Map resource:', event.error?.message || event.error); });
+map.on('error', event => {
+  if (event.sourceId === 'terrain-dem' && map.getTerrain()) {
+    terrainTileError = true; terrainReady = false; clearTimeout(terrainWarning); terrainWarning = null;
+    $('terrain-status').textContent = 'Some terrain tiles could not be loaded. Turn Terrain off for a flat map.';
+    $('terrain-status').hidden = false;
+  }
+  console.warn('Map resource:', event.error?.message || event.error);
+});
 setTimeout(() => { if (!loadFinished) { $('loading').hidden = true; $('error').hidden = false; } }, 20000);
 $('retry').onclick = () => location.reload();
 const searchForm = $('location-search'), searchQuery = $('location-query'), searchPanel = $('search-results'), searchStatus = $('search-status'), searchList = $('search-list');
@@ -446,7 +477,5 @@ $('streets-toggle').onchange = event => setLayers(streetLayers, event.target.che
 $('street-detail-toggle').onchange = event => streetDetailLayer?.setVisible(event.target.checked);
 $('terrain-toggle').onchange = event => {
   if (!map.getSource('terrain-dem')) return;
-  terrainReady = false; clearTimeout(terrainWarning);
   map.setTerrain(event.target.checked ? {source:'terrain-dem', exaggeration:1} : null); terrainStatus();
-  if (event.target.checked) terrainWarning = setTimeout(() => { if (!terrainReady) $('terrain-status').textContent = 'Terrain tiles are unavailable or still loading.'; }, 20000);
 };
