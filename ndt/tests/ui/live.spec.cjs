@@ -29,3 +29,17 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['mob
     }
   });
 }
+
+test('live New York region loads with Verizon reservations', async ({ page }, testInfo) => {
+  test.setTimeout(60000);
+  await page.setViewportSize({width:1440,height:900});
+  const style = page.waitForResponse(response => response.url().startsWith('https://tiles.openfreemap.org/styles/liberty') && response.ok(), {timeout:30000});
+  await page.goto('/?region=new-york');
+  await style;
+  await expect(page.locator('#loading')).toBeHidden({timeout:30000});
+  await expect(page.locator('#error')).toBeHidden();
+  await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:30000});
+  await page.getByRole('button', {name:'Manhattan', exact:true}).click();
+  await expect(page.locator('#coordinates')).toContainText('40.7484', {timeout:15000});
+  await page.screenshot({path:testInfo.outputPath('new-york-manhattan.png')});
+});

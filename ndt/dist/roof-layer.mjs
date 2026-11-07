@@ -68,8 +68,8 @@ export function buildRoofParts(roof, properties, elevation, toLocal) {
   return parts.length ? {parts, replaceNative:true} : null;
 }
 
-export function createRoofLayer(map, report) {
-  const origin = maplibregl.MercatorCoordinate.fromLngLat(ORIGIN);
+export function createRoofLayer(map, report, base = '.', center = ORIGIN, roofFile = 'toronto-roofs.json') {
+  const origin = maplibregl.MercatorCoordinate.fromLngLat(center);
   const unit = origin.meterInMercatorCoordinateUnits();
   const toLocal = point => {
     const p = maplibregl.MercatorCoordinate.fromLngLat(point);
@@ -91,7 +91,7 @@ export function createRoofLayer(map, report) {
   async function load() {
     if (request || data || failed) return;
     report('Loading mapped roof shapes…');
-    request = fetch('./toronto-roofs.json').then(response => {
+    request = fetch(`${base}/${roofFile}`).then(response => {
       if (!response.ok) throw new Error(`Roof data: ${response.status}`);
       return response.json();
     }).then(json => {

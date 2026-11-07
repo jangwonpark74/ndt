@@ -1,7 +1,6 @@
 UV ?= uv
 NODE ?= node
 HOST ?= 127.0.0.1
-PORT ?= 5179
 UV_CACHE_DIR ?= $(CURDIR)/.cache/uv
 export UV_CACHE_DIR
 
@@ -9,7 +8,7 @@ export UV_CACHE_DIR
 
 help:
 	@printf '%s\n' 'make setup  Create the local Python environment' \
-		'make run    Start the viewer (HOST=127.0.0.1 PORT=5179)' \
+		'make run    Start the viewer (HOST=127.0.0.1, default ports 5179–5189)' \
 		'make test   Run the viewer tests' \
 		'make test-ui  Run Playwright UI tests' \
 		'make check  Check source syntax and run tests'
@@ -18,7 +17,7 @@ setup:
 	$(UV) sync --locked
 
 run:
-	cd ndt && $(UV) run --locked python -m http.server $(PORT) --bind $(HOST) --directory dist
+	$(UV) run --locked python ndt/server.py --host $(HOST) $(if $(filter undefined,$(origin PORT)),,--port $(PORT))
 
 test:
 	cd ndt && $(NODE) tests/test.mjs
@@ -36,6 +35,7 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/test-telus-sites.py
 	cd ndt && $(UV) run --locked python -B tests/test-bell-outdoor.py
 	cd ndt && $(UV) run --locked python -B tests/test-convert-osm.py
+	cd ndt && $(UV) run --locked python -B tests/test-regions.py
 
 test-ui:
 	npm run test:ui
@@ -53,6 +53,7 @@ check: test
 	cd ndt && $(NODE) --check dist/search.mjs
 	cd ndt && $(NODE) --check dist/network-layer.mjs
 	cd ndt && $(NODE) --check dist/network-symbols.mjs
+	cd ndt && $(NODE) --check dist/nyc-reservations.mjs
 	cd ndt && $(NODE) --check dist/radio-model.mjs
 	cd ndt && $(NODE) --check dist/street-detail.mjs
 	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"

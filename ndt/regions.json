@@ -1,0 +1,23 @@
+[
+  {
+    "id": "toronto", "name": "Toronto", "center": [-79.39, 43.70], "zoom": 10.2, "pitch": 43,
+    "projects": [
+      {"id":"harbourfront", "name":"Harbourfront", "center":[-79.3922155,43.6394193], "zoom":17, "pitch":58},
+      {"id":"etobicoke", "name":"Etobicoke", "center":[-79.56,43.65], "zoom":14.5, "pitch":55},
+      {"id":"northyork", "name":"North York", "center":[-79.412,43.769], "zoom":14.5, "pitch":55},
+      {"id":"scarborough", "name":"Scarborough", "center":[-79.25,43.78], "zoom":14.5, "pitch":55}
+    ],
+    "network": "ised", "data_root": "dist", "roof": "toronto-roofs.json", "network_files": ["telus-sites.geojson", "bell-outdoor-sites.geojson"]
+  },
+  {
+    "id": "new-york", "name": "New York City", "center": [-73.95, 40.72], "zoom": 10.2, "pitch": 43,
+    "projects": [
+      {"id":"manhattan", "name":"Manhattan", "center":[-73.9857,40.7484], "zoom":16, "pitch":58},
+      {"id":"brooklyn", "name":"Brooklyn", "center":[-73.9442,40.6782], "zoom":14.5, "pitch":55},
+      {"id":"queens", "name":"Queens", "center":[-73.7949,40.7282], "zoom":14.5, "pitch":55},
+      {"id":"bronx", "name":"The Bronx", "center":[-73.8648,40.8448], "zoom":14.5, "pitch":55},
+      {"id":"staten-island", "name":"Staten Island", "center":[-74.15,40.58], "zoom":14.5, "pitch":55}
+    ],
+    "network": "nyc-poles", "data_root": "data/new-york", "roof": "roofs.json", "network_files": ["verizon-poles.geojson"]
+  }
+]

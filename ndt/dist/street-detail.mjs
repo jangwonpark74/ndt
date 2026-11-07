@@ -5,8 +5,8 @@ import { addSceneLights, setSceneLight } from './lighting.mjs';
 
 const ORIGIN = [-79.39,43.70], MIN_ZOOM = 17, MAX_ITEMS = 1000, MAX_DISTANCE = 1200;
 
-export function createStreetDetailLayer(map, report) {
-  const origin = maplibregl.MercatorCoordinate.fromLngLat(ORIGIN), unit = origin.meterInMercatorCoordinateUnits();
+export function createStreetDetailLayer(map, report, base = '.', center = ORIGIN) {
+  const origin = maplibregl.MercatorCoordinate.fromLngLat(center), unit = origin.meterInMercatorCoordinateUnits();
   const lampPole = new THREE.CylinderGeometry(.07,.09,5,6).rotateX(Math.PI/2).translate(0,0,2.5);
   const lampHead = new THREE.SphereGeometry(.22,8,6).translate(0,0,5);
   const seat = new THREE.BoxGeometry(1.5,.5,.12).translate(0,0,.5);
@@ -21,7 +21,7 @@ export function createStreetDetailLayer(map, report) {
   function fetchManifest() {
     if (loading || failed.has('manifest')) return;
     loading = true; report('Loading mapped street details…');
-    fetch('./street-detail/manifest.json').then(response => {
+    fetch(`${base}/street-detail/manifest.json`).then(response => {
       if (!response.ok) throw new Error(`Street detail manifest: ${response.status}`);
       return response.json();
     }).then(data => {
@@ -32,7 +32,7 @@ export function createStreetDetailLayer(map, report) {
   function fetchTile(key) {
     if (cache.has(key) || pending.has(key) || failed.has(key)) return;
     pending.add(key);
-    fetch(`./street-detail/${key}.json`).then(response => {
+    fetch(`${base}/street-detail/${key}.json`).then(response => {
       if (!response.ok) throw new Error(`Street detail tile: ${response.status}`);
       return response.json();
     }).then(data => {

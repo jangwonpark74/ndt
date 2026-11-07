@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery} from '../dist/network-symbols.mjs';
+import {antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery, sitesWithFansOrIndoor} from '../dist/network-symbols.mjs';
 import {coverageRadius} from '../dist/radio-model.mjs';
 
 const omni = {tx_ant_omni_indicator:'N',tx_ant_azimuth:'0'};
@@ -57,4 +57,8 @@ assert.ok(Math.abs((north[1]-center[1])*111195-exampleFans[0].properties.display
 const missing = {...bellFeature,properties:{...bellFeature.properties,records:[directional,{...directional,tx_ant_azimuth:'120'},{...directional,tx_ant_azimuth:'240'}]}};
 assert.equal(sectorFanFeatures([missing]).features.length,0,'missing beamwidths do not invent a fan');
 assert.equal(sectorFanFeatures([feature]).features.length,0,'TELUS indoor locations do not receive Bell fans');
+const indoor = {...feature,properties:{...feature.properties,site_id:'indoor',records:[{site_type:'I'}]}};
+const mixed = {...feature,properties:{...feature.properties,site_id:'mixed',records:[{site_type:'I'},{site_type:'O'}]}};
+assert.deepEqual(sitesWithFansOrIndoor([example,missing,indoor,mixed],fans).map(f=>f.properties.site_id),[example.properties.site_id,'indoor','mixed'],'show fan sites and retain indoor records, including mixed sites');
+assert.deepEqual(sitesWithFansOrIndoor([example,indoor],{features:[]}).map(f=>f.properties.site_id),['indoor'],'indoor sites remain when no estimates are available');
 console.log('TELUS cell and antenna symbol tests passed.');

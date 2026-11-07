@@ -76,8 +76,8 @@ export function validBellOutdoorSite(feature) {
   return validSite(feature) && p.provider === 'Bell' && Array.isArray(p.licensees) && p.licensees.length === 1 && p.licensees[0] === 'Bell Mobility Inc.' && p.records.every(record => record.site_type === 'O');
 }
 
-export function createNetworkLayer(map) {
-  const origin = maplibregl.MercatorCoordinate.fromLngLat([-79.39,43.70]);
+export function createNetworkLayer(map, center = [-79.39,43.70]) {
+  const origin = maplibregl.MercatorCoordinate.fromLngLat(center);
   const unit = origin.meterInMercatorCoordinateUnits();
   const geometry = createTowerGeometry();
   const materials = {TELUS:new THREE.MeshBasicMaterial({color:0x7b43a3}), Bell:new THREE.MeshBasicMaterial({color:0xc87512})};

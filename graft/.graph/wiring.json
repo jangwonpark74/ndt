@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": 1,
-    "nodeCount": 83,
-    "edgeCount": 195,
+    "nodeCount": 103,
+    "edgeCount": 244,
     "languages": [
       "javascript",
       "python"
@@ -191,6 +191,49 @@
       "exported": true,
       "origin": "ast",
       "body_hash": "33e02ab40ecfb11c0410a15c9a725e7f7e1b9650c8c52b0c5a1ec78508794f05",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_nyc_verizon.py",
+      "name": "extract_nyc_verizon.py",
+      "kind": "file",
+      "path": "ndt/scripts/extract_nyc_verizon.py",
+      "span": "L1-L35",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6ba811898821e2800e73cba1d408378743d63d100f12642ecc000f9e4dd083da",
+      "chars": 1392,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_nyc_verizon.py#convert",
+      "name": "convert",
+      "kind": "function",
+      "path": "ndt/scripts/extract_nyc_verizon.py",
+      "span": "L7-L20",
+      "signature": "def convert(rows)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ff09f2849740e7637f3a23c1836f4d3bfbb73e536f0c11aa6085372467fe7e87",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/scripts/extract_nyc_verizon.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/scripts/extract_nyc_verizon.py",
+      "span": "L23-L30",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "dbaf4602c8b46a271a2459d81449e116ed842a4396d42f851fc2740bcf1b0a9d",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -645,6 +688,150 @@
       "crux": null
     },
     {
+      "id": "ndt/server.py",
+      "name": "server.py",
+      "kind": "file",
+      "path": "ndt/server.py",
+      "span": "L1-L120",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "bcebc0e7b9acb1ef6e9ffffe2c79871f09c0aa10ae7dd9ba78fc498568232c36",
+      "chars": 5441,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#bind_server",
+      "name": "bind_server",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L82-L92",
+      "signature": "def bind_server(host, port, handler)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "124b1131838173f6cf2e1e4c525e86a51432bd8e3e404dcdd257a8f59602247b",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#handler_for",
+      "name": "handler_for",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L51-L79",
+      "signature": "def handler_for(db_path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "be865ab51aeffc1877b4669a2e7cf9696cda4bd81094e95cb2c682d86cfc5dd6",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler",
+      "name": "Handler",
+      "kind": "class",
+      "path": "ndt/server.py",
+      "span": "L52-L78",
+      "signature": "class Handler(SimpleHTTPRequestHandler)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "1fe40c57f4378b52e6858a85ad8880c035622480299a9795760fd514c523c214",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L53-L54",
+      "signature": "def __init__(self, *args, **kwargs)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "36a627cd355322f8df9e17d05af8dc75fca7c5d9c323cd135ebdf58aa84a05ed",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.do_GET",
+      "name": "do_GET",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L56-L71",
+      "signature": "def do_GET(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3312fa56a396ab8b788aab6800b99ffde4148c639e93596c4cd85db7b39fa772",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.respond",
+      "name": "respond",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L73-L78",
+      "signature": "def respond(self, body, content_type)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f32e5206cae37b996f510a7ee60c241b60e7b56d3cc98c54b6dc0c0b4a663642",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#initialize",
+      "name": "initialize",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L27-L48",
+      "signature": "def initialize(db_path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "26620dfbf4d5103d63ed9274eea29c1d54e352f3bb8fc06e1f67f5e957e5a5f8",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#main",
+      "name": "main",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L95-L115",
+      "signature": "def main()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0c7aa3e311b5d000c215e668c3a321eb7d1fe66a44d5c87c2acd72b04762f96d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#region_files",
+      "name": "region_files",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L17-L24",
+      "signature": "def region_files(region)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "abd02a9f4465ad69a70b6b83063b8ff5584f43715264da3547707c36e60b8b65",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/test-bell-outdoor.py",
       "name": "test-bell-outdoor.py",
       "kind": "file",
@@ -781,12 +968,12 @@
       "name": "test-network-symbols.mjs",
       "kind": "file",
       "path": "ndt/tests/test-network-symbols.mjs",
-      "span": "L1-L61",
+      "span": "L1-L65",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "9a2ebe21f40714b074a4f63f7c00b4cc643e9eacea790c3467433169c5ba6550",
-      "chars": 6012,
+      "body_hash": "0d9aeff7ff150123f81f7ee47038556eb23b01e13f89ed899caf9f63d005163a",
+      "chars": 6649,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -820,6 +1007,80 @@
       "summary_state": "pending",
       "summary": null,
       "crux": null
+    },
+    {
+      "id": "ndt/tests/test-regions.py",
+      "name": "test-regions.py",
+      "kind": "file",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L1-L71",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5ee639d367c8ed228c3072db800d20042e7b8e19222dc8e4db7609db418d8b96",
+      "chars": 3925,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests",
+      "name": "RegionTests",
+      "kind": "class",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L20-L66",
+      "signature": "class RegionTests(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0d1af2c4d31a7d604c22c907160a4c276fac787be42a76cd4ee770cc050f5522",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_default_port_fallback_and_exact_port",
+      "name": "test_default_port_fallback_and_exact_port",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L21-L39",
+      "signature": "def test_default_port_fallback_and_exact_port(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cc42e421daebb1dedab61f8a041bd830025d43fca13683cbbe1ed87229b01148",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_sqlite_region_assets_and_restart",
+      "name": "test_sqlite_region_assets_and_restart",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L41-L58",
+      "signature": "def test_sqlite_region_assets_and_restart(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5c271d2359744bf72027ca0c34e1187654ef277f34c7760f759ffbfbe788a4d0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_verizon_filter_preserves_reported_status",
+      "name": "test_verizon_filter_preserves_reported_status",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L60-L66",
+      "signature": "def test_verizon_filter_preserves_reported_status(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "7a3d3608ed6aaa0e45f4587e2d459047b065ca12350e2c5b067a69dcd9bbc6db",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
     },
     {
       "id": "ndt/tests/test-roofs.mjs",
@@ -1178,12 +1439,26 @@
       "name": "app.spec.cjs",
       "kind": "file",
       "path": "ndt/tests/ui/app.spec.cjs",
-      "span": "L1-L253",
+      "span": "L1-L322",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "3c9216a5c1ef2651cb2cad2831c93e36369c64f6ed9bf5aa7c94e978eac6771d",
-      "chars": 14124,
+      "body_hash": "2ce8e8cd22f88a1dcf4604c2b8900d9840c2d751267bc5324ad1d575ca6fbd3a",
+      "chars": 18838,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs#markers",
+      "name": "markers",
+      "kind": "function",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L67-L67",
+      "signature": "markers = ()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "54f5132ef0fe0b3b40ead498c637c7cba2c72a13e8af053e65adf079eeded657",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1208,12 +1483,27 @@
       "name": "live.spec.cjs",
       "kind": "file",
       "path": "ndt/tests/ui/live.spec.cjs",
-      "span": "L1-L32",
+      "span": "L1-L46",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "e152d9ab8c8af7e4bf1c59079ce9598bae910af87051ac02ace6532ae13dbc50",
-      "chars": 1862,
+      "body_hash": "a909973915d92238e35cf79102ac29ce656ea65aa9a6646d7b5deef0b21e9689",
+      "chars": 2722,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/region-click.spec.cjs",
+      "name": "region-click.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/region-click.spec.cjs",
+      "span": "L1-L18",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c5416a3d8b295fc5a2ee9e3703be79ab4ac6d219022039870dc2be05f8c1b6ed",
+      "chars": 1165,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1227,8 +1517,8 @@
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "93f71874c813c88ca93523c992bc87504478278c70b66afa02a9a097ec1c256d",
-      "chars": 404,
+      "body_hash": "1de8f7bfd8da88753b4aa18b3b823d3aacfafadb3f0b0886311bc045690183fb",
+      "chars": 413,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1430,6 +1720,48 @@
     {
       "source": "ndt/scripts/extract_network.py#main",
       "target": "ndt/scripts/extract_network.py#Communications",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py",
+      "target": "ndt/scripts/extract_nyc_verizon.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py",
+      "target": "ndt/scripts/extract_nyc_verizon.py#convert",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py",
+      "target": "ndt/scripts/extract_nyc_verizon.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/scripts/extract_nyc_verizon.py#main",
+      "target": "ndt/scripts/extract_nyc_verizon.py#convert",
       "relation": "calls",
       "confidence": "extracted"
     },
@@ -1914,6 +2246,162 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#main",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#bind_server",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#handler_for",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#initialize",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#main",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#region_files",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "errno",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "hashlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "http.server",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "mimetypes",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "urllib.parse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for",
+      "target": "ndt/server.py#handler_for.Handler",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.do_GET",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.respond",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "SimpleHTTPRequestHandler",
+      "relation": "extends",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_GET",
+      "target": "ndt/server.py#handler_for.Handler.respond",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#initialize",
+      "target": "ndt/server.py#region_files",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#main",
+      "target": "ndt/server.py#bind_server",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#main",
+      "target": "ndt/server.py#handler_for",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#main",
+      "target": "ndt/server.py#initialize",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-bell-outdoor.py",
       "target": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest",
       "relation": "contains",
@@ -2097,6 +2585,90 @@
       "source": "ndt/tests/test-radio-model.mjs",
       "target": "node:assert/strict",
       "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "ndt/tests/test-regions.py#RegionTests",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "errno",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "importlib.util",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "server",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "unittest.mock",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_default_port_fallback_and_exact_port",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_sqlite_region_assets_and_restart",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_verizon_filter_preserves_reported_status",
+      "relation": "contains",
       "confidence": "extracted"
     },
     {
@@ -2403,6 +2975,18 @@
       "source": "ndt/tests/test.mjs",
       "target": "node:assert/strict",
       "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#markers",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#markers",
+      "relation": "contains",
       "confidence": "extracted"
     }
   ]

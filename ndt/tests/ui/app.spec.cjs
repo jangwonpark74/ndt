@@ -56,6 +56,75 @@ test('network and map controls expose usable states', async ({ page }) => {
   await expect(buildings).toBeChecked();
 });
 
+test('site markers retain indoor locations and require outdoor fans', async ({ page }) => {
+  await page.route('**/app.js*', async route => {
+    const response = await route.fetch();
+    const body = (await response.text()).replace('const map = new maplibregl.Map', 'const map = window.testMap = new maplibregl.Map');
+    await route.fulfill({ response, body });
+  });
+  await page.reload();
+  await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
+  const markers = () => page.evaluate(() => window.testMap.getSource('network-sites')._data.features.map(f=>f.properties));
+  const fans = await page.evaluate(() => window.testMap.getSource('network-sector-fans')._data.features.map(f=>f.properties.site_id));
+  const initial = await markers();
+  expect(initial.some(p=>p.site_class === 'indoor')).toBe(true);
+  expect(initial.some(p=>p.site_class === 'bell')).toBe(true);
+  expect(initial.filter(p=>p.site_class === 'bell').every(p=>fans.includes(p.site_id))).toBe(true);
+  await page.getByLabel('Assumed EIRP (dBm)').fill('100');
+  const invalid = await markers();
+  expect(invalid.some(p=>p.site_class === 'indoor')).toBe(true);
+  expect(invalid.some(p=>p.site_class === 'bell')).toBe(false);
+  await page.getByLabel('Assumed EIRP (dBm)').fill('46');
+  expect((await markers()).filter(p=>p.site_class === 'bell').length).toBe(initial.filter(p=>p.site_class === 'bell').length);
+});
+
+test('switch regions and inspect Verizon reservations without Toronto data', async ({ page }) => {
+  await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
+  await page.getByRole('button', {name:'New York City region'}).click();
+  await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', { timeout: 20000 });
+  await expect(page.getByRole('complementary', {name:'Network infrastructure'})).toBeHidden();
+  await expect(page.getByRole('complementary', {name:'Verizon pole reservations'})).toBeVisible();
+  await expect(page.getByRole('button', {name:'New York City region'})).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByLabel('Reset camera to New York City overview')).toBeVisible();
+  const accessibility = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();
+  expect(accessibility.violations).toEqual([]);
+  await page.getByLabel('Find a reservation').fill('24272');
+  await expect(page.locator('#nyc-list button')).toHaveCount(1);
+  await page.locator('#nyc-list button').click();
+  await expect(page.locator('#nyc-detail')).toContainText('Installed');
+  await expect(page.locator('#nyc-detail')).toContainText('49 STREET');
+  await page.getByRole('button', {name:'Manhattan', exact:true}).click();
+  await expect(page.locator('#coordinates')).toContainText('40.7484', {timeout:10000});
+  await page.getByRole('button', {name:'Toronto region'}).click();
+  await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
+  await expect(page.getByRole('complementary', {name:'Verizon pole reservations'})).toBeHidden();
+});
+
+test('proposed reservations are searchable but do not render as markers', async ({ page }) => {
+  await page.route('**/app.js*', async route => {
+    const response = await route.fetch();
+    const body = (await response.text()).replace('const map = new maplibregl.Map', 'const map = window.testMap = new maplibregl.Map');
+    await route.fulfill({response, body});
+  });
+  await page.goto('/?region=new-york');
+  await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:20000});
+  await expect.poll(() => page.evaluate(() => [...new Set(window.testMap.queryRenderedFeatures({layers:['nyc-reservations']}).map(f=>f.properties.status))].sort())).toEqual(['Approved','Installed']);
+  await page.getByLabel('Find a reservation').fill('Proposed');
+  await expect(page.locator('#nyc-list-status')).toContainText('190 matching reservations');
+  await expect(page.locator('#nyc-list button').first()).toContainText('Proposed');
+});
+
+test('New York controls remain reachable on a phone', async ({ page }) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.getByRole('button', {name:'New York City region'}).click();
+  await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:20000});
+  const panel = await page.locator('#nyc-panel').boundingBox();
+  const controls = await page.getByRole('navigation', {name:'Camera controls'}).boundingBox();
+  expect(panel.y + panel.height).toBeLessThanOrEqual(controls.y);
+  await page.getByRole('button', {name:'Close Verizon reservations'}).click();
+  await expect(page.locator('#nyc-panel')).toBeHidden();
+});
+
 test('mobile navigation and camera controls remain reachable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Close network view' }).click();

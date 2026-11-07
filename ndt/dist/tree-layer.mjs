@@ -6,8 +6,8 @@ const ORIGIN = [-79.39, 43.70];
 const MAX_CACHED_TILES = 48;
 const MAX_REQUESTS = 8;
 
-export function createTreeLayer(map, report) {
-  const origin = maplibregl.MercatorCoordinate.fromLngLat(ORIGIN);
+export function createTreeLayer(map, report, base = '.', center = ORIGIN) {
+  const origin = maplibregl.MercatorCoordinate.fromLngLat(center);
   const unit = origin.meterInMercatorCoordinateUnits();
   let renderer, scene, camera, light, manifest, manifestRequest, manifestFailed = false, visible = true, signature = null;
   const cache = new Map(), pending = new Map(), failed = new Set();
@@ -25,7 +25,7 @@ export function createTreeLayer(map, report) {
   function loadManifest() {
     if (manifestRequest || manifest || manifestFailed) return;
     report('Loading OSM trees…');
-    manifestRequest = fetch('./trees/manifest.json').then(response => {
+    manifestRequest = fetch(`${base}/trees/manifest.json`).then(response => {
       if (!response.ok) throw new Error(`Tree manifest: ${response.status}`);
       return response.json();
     }).then(data => {
@@ -35,7 +35,7 @@ export function createTreeLayer(map, report) {
   }
   function loadTile(key) {
     if (cache.has(key) || pending.has(key) || failed.has(key)) return;
-    const promise = fetch(`./trees/${key}.json`).then(response => {
+    const promise = fetch(`${base}/trees/${key}.json`).then(response => {
       if (!response.ok) throw new Error(`Tree tile ${key}: ${response.status}`);
       return response.json();
     }).then(data => {

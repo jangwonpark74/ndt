@@ -10,6 +10,11 @@ export function sitePattern(records) {
   return patterns.size === 1 ? [...patterns][0] : 'mixed';
 }
 
+export function sitesWithFansOrIndoor(sites, fans) {
+  const fanSites = new Set(fans.features.map(fan=>fan.properties.site_id));
+  return sites.filter(site=>site.properties.records.some(record=>record.site_type === 'I') || fanSites.has(site.properties.site_id));
+}
+
 export function siteMatchesQuery(feature, query) {
   const term = query.trim().toLocaleLowerCase();
   if (!term) return true;

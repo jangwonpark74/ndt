@@ -7,24 +7,56 @@ import { shadowFeatures } from './shadows.mjs';
 import { createStreetDetailLayer } from './street-detail.mjs';
 import { searchResults } from './search.mjs';
 import { createNetworkLayer, siteClass, towerHeight, validTelusSite, validBellOutdoorSite } from './network-layer.mjs';
-import { antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery } from './network-symbols.mjs?v=network-explorer-2';
+import { antennaPattern, sitePattern, sectorAzimuth, sectorFeatures, sectorFanFeatures, bearingSummaries, siteMatchesQuery, sitesWithFansOrIndoor } from './network-symbols.mjs?v=network-explorer-3';
 import { RADIO_DEFAULTS } from './radio-model.mjs';
+import { createNycReservations } from './nyc-reservations.mjs?v=2';
 
 const $ = id => document.getElementById(id);
+let regions;
+try {
+  const response = await fetch('/api/regions');
+  if (!response.ok) throw new Error('Region catalog unavailable');
+  regions = await response.json();
+  if (!Array.isArray(regions) || !regions.length) throw new Error('Invalid region catalog');
+} catch (error) {
+  $('loading').hidden = true; $('error').hidden = false;
+  $('error').querySelector('p').textContent = 'The regional data service is unavailable. Start the viewer with make run.';
+  $('retry').onclick = () => location.reload();
+  throw error;
+}
+const regionId = new URLSearchParams(location.search).get('region') || 'toronto';
+const region = regions.find(item=>item.id === regionId) || regions[0];
+const assetBase = `/api/regions/${encodeURIComponent(region.id)}/assets`;
+const choices = $('region-choices');
+for (const item of regions) {
+  const button = document.createElement('button'); button.type = 'button'; button.textContent = item.name;
+  button.setAttribute('aria-label',`${item.name} region`); button.setAttribute('aria-pressed',String(item.id === region.id));
+  button.onclick = () => { if (item.id !== region.id) { const url = new URL(location.href); url.searchParams.set('region',item.id); location.assign(url); } };
+  choices.append(button);
+}
+document.title = `Samsung CongitV NDT · ${region.name} in 3D`;
+$('map').setAttribute('aria-label',`Interactive 3D map of ${region.name}`);
+$('reset').setAttribute('aria-label',`Reset camera to ${region.name} overview`);
+$('reset').title = `Reset camera to ${region.name} overview`;
+if (region.network !== 'ised') {
+  document.querySelector('.network-settings').hidden = true;
+  $('nyc-network-settings').hidden = region.network !== 'nyc-poles';
+  $('network-toggle').checked = false; $('bell-toggle').checked = false;
+  const projects = document.querySelector('.districts'); projects.replaceChildren();
+  for (const project of region.projects) { const button = document.createElement('button'); button.id = project.id; button.textContent = project.name; projects.append(button); }
+}
 function reportLayerStatus(id, control, text) {
   const status = $(id), unavailable = text.includes('unavailable');
   status.textContent = unavailable ? `${text} Turn ${control} off and on to retry.` : text;
   status.hidden = !unavailable;
 }
-const CITY = { center: [-79.39, 43.70], zoom: 10.2, pitch: 43, bearing: 0 };
-const HARBOURFRONT = { center: [-79.3922155, 43.6394193], zoom: 17, pitch: 58, bearing: 0 };
-const DISTRICTS = { etobicoke: [-79.56, 43.65], northyork: [-79.412, 43.769], scarborough: [-79.25, 43.78] };
+const CITY = { center: region.center, zoom: region.zoom, pitch: region.pitch, bearing: 0 };
 const map = new maplibregl.Map({
   container: 'map', style: 'https://tiles.openfreemap.org/styles/liberty',
   ...CITY, maxPitch: 75, attributionControl: false,
 });
 map.addControl(new maplibregl.AttributionControl({compact: false}), 'bottom-right');
-let markerLayer, roofLayer, treeLayer, streetDetailLayer, networkLayer;
+let markerLayer, roofLayer, treeLayer, streetDetailLayer, networkLayer, nycReservations;
 let streetLayers = [];
 let buildingLayers = [];
 let terrainReady = false;
@@ -62,15 +94,21 @@ function updateCoverage() {
   const source = map.getSource('network-sector-fans');
   if (!source) return;
   const status = $('coverage-status');
+  const eirp = $('coverage-eirp').value, threshold = $('coverage-threshold').value;
+  const scenario = {mode:$('coverage-mode').value,eirpDbm:eirp === '' ? NaN : Number(eirp),thresholdDbm:threshold === '' ? NaN : Number(threshold)};
+  const validScenario = Number.isFinite(scenario.eirpDbm) && scenario.eirpDbm >= 0 && scenario.eirpDbm <= 90 && Number.isFinite(scenario.thresholdDbm) && scenario.thresholdDbm >= -160 && scenario.thresholdDbm <= -20;
+  const active = activeNetworkFeatures();
+  const allFans = validScenario ? sectorFanFeatures(active,scenario) : emptyFeatures;
+  const markers = sitesWithFansOrIndoor(active,allFans);
+  map.getSource('network-sites').setData({type:'FeatureCollection',features:markers.map(feature=>({type:'Feature',geometry:feature.geometry,properties:{site_id:feature.properties.site_id,site_class:markerClass(feature),antenna_pattern:feature.properties.provider === 'Bell' ? 'unknown' : sitePattern(feature.properties.records)}}))});
+  map.getSource('network-sectors').setData(sectorFeatures(markers));
+  networkLayer?.setData(markers);
   if (!$('sector-fans-toggle').checked) { source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Planning estimate is off.'; return; }
   if (!$('bell-toggle').checked) { source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Enable Bell outdoor to see planning estimates.'; return; }
   if (!networkFeatures) { source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Loading network records…'; return; }
-  const eirp = $('coverage-eirp').value, threshold = $('coverage-threshold').value;
-  const scenario = {mode:$('coverage-mode').value,eirpDbm:eirp === '' ? NaN : Number(eirp),thresholdDbm:threshold === '' ? NaN : Number(threshold)};
-  if (!Number.isFinite(scenario.eirpDbm) || scenario.eirpDbm < 0 || scenario.eirpDbm > 90 || !Number.isFinite(scenario.thresholdDbm) || scenario.thresholdDbm < -160 || scenario.thresholdDbm > -20) {
+  if (!validScenario) {
     source.setData(emptyFeatures); renderSectorSelection(emptyFeatures); status.textContent = 'Enter EIRP 0–90 dBm and received-power threshold −160 to −20 dBm.'; return;
   }
-  const allFans = sectorFanFeatures(activeNetworkFeatures(),scenario);
   const selected = selectedNetworkFeature?.properties.provider === 'Bell'
     ? sectorFanFeatures([selectedNetworkFeature],scenario,{includeOtherBearingCounts:true}) : emptyFeatures;
   const fans = $('coverage-focus').checked ? selected : allFans;
@@ -210,7 +248,7 @@ async function showNetwork() {
   if (!networkFeatures && !networkLoading) {
     networkLoading = true; $('network-status').textContent = 'Loading network records…';
     try {
-      const responses = await Promise.all(['./telus-sites.geojson','./bell-outdoor-sites.geojson?v=3gpp-preview-1'].map(url=>fetch(url)));
+      const responses = await Promise.all(['telus-sites.geojson','bell-outdoor-sites.geojson'].map(name=>fetch(`${assetBase}/${name}`)));
       if (responses.some(response=>!response.ok)) throw new Error('Network data request failed');
       const datasets = await Promise.all(responses.map(response=>response.json()));
       for (const [index,data] of datasets.entries()) {
@@ -224,11 +262,8 @@ async function showNetwork() {
     finally { networkLoading = false; }
   }
   if (networkFeatures) {
-    const active = activeNetworkFeatures();
-    map.getSource('network-sites').setData({type:'FeatureCollection',features:active.map(feature=>({type:'Feature',geometry:feature.geometry,properties:{site_id:feature.properties.site_id,site_class:markerClass(feature),antenna_pattern:feature.properties.provider === 'Bell' ? 'unknown' : sitePattern(feature.properties.records)}}))});
-    map.getSource('network-sectors').setData(sectorFeatures(active));
     updateCoverage();
-    networkLayer.setData(active); networkListSignature = null;
+    networkListSignature = null;
   }
   refreshNetwork();
 }
@@ -310,6 +345,7 @@ function updateCoordinates() {
   $('coordinates').textContent = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? 'N' : 'S'}  ${Math.abs(lng).toFixed(4)}° ${lng >= 0 ? 'E' : 'W'}`;
 }
 function showFeature(event) {
+  if (nycReservations?.click(event)) return;
   if (($('network-toggle').checked || $('bell-toggle').checked) && map.getLayer('network-sites')) {
     const hit = map.queryRenderedFeatures(event.point,{layers:['network-sector-arrows','network-sites','network-sector-fans','network-site-fans-selected-fill']})[0];
     if (hit) {
@@ -338,7 +374,7 @@ map.on('load', () => {
     }
   }
   map.addSource('trees-overview', {
-    type: 'geojson', data: './trees/overview.geojson', cluster: true, clusterRadius: 36, clusterMaxZoom: 14,
+    type: 'geojson', data: `${assetBase}/trees/overview.geojson`, cluster: true, clusterRadius: 36, clusterMaxZoom: 14,
   });
   const firstLabel = map.getStyle().layers.find(layer => layer.type === 'symbol')?.id;
   map.addSource('building-shadows', {type:'geojson', data:emptyFeatures});
@@ -357,9 +393,9 @@ map.on('load', () => {
     map.setPaintProperty('building-3d', 'fill-extrusion-color', ['to-color', ['get', 'colour'], '#d8d9d3']);
     map.setPaintProperty('building-3d', 'fill-extrusion-opacity', 1);
   }
-  roofLayer = createRoofLayer(map, text => reportLayerStatus('roof-status', 'Buildings', text)); map.addLayer(roofLayer);
-  treeLayer = createTreeLayer(map, text => reportLayerStatus('tree-status', 'Trees', text)); map.addLayer(treeLayer);
-  streetDetailLayer = createStreetDetailLayer(map, text => reportLayerStatus('street-status', 'Street details', text)); map.addLayer(streetDetailLayer);
+  roofLayer = createRoofLayer(map, text => reportLayerStatus('roof-status', 'Buildings', text),assetBase,region.center,region.roof); map.addLayer(roofLayer);
+  treeLayer = createTreeLayer(map, text => reportLayerStatus('tree-status', 'Trees', text),assetBase,region.center); map.addLayer(treeLayer);
+  streetDetailLayer = createStreetDetailLayer(map, text => reportLayerStatus('street-status', 'Street details', text),assetBase,region.center); map.addLayer(streetDetailLayer);
   for (const layer of [roofLayer, treeLayer, streetDetailLayer]) layer.setLighting(lighting);
   map.addSource('network-sites',{type:'geojson',data:emptyFeatures});
   map.addSource('network-sectors',{type:'geojson',data:emptyFeatures});
@@ -390,8 +426,9 @@ map.on('load', () => {
   }
   addBearingImage('telus-bearing','#087f9f'); addBearingImage('bell-bearing','#c87512');
   map.addLayer({id:'network-sector-arrows',type:'symbol',source:'network-sectors',minzoom:14,layout:{visibility:'none','icon-image':['match',['get','provider'],'Bell','bell-bearing','telus-bearing'],'icon-allow-overlap':true,'icon-ignore-placement':true,'icon-rotation-alignment':'map','icon-rotate':['get','azimuth']}});
-  networkLayer = createNetworkLayer(map); map.addLayer(networkLayer);
+  networkLayer = createNetworkLayer(map,region.center); map.addLayer(networkLayer);
   if ($('network-toggle').checked || $('bell-toggle').checked) showNetwork();
+  if (region.network === 'nyc-poles') nycReservations = createNycReservations(map,assetBase);
   markerLayer = createMarkerLayer(); map.addLayer(markerLayer);
   $('loading').hidden = true; $('error').hidden = true;
   terrainWarning = setTimeout(warnTerrain, 20000);
@@ -440,8 +477,7 @@ searchForm.onsubmit = async event => {
 searchQuery.oninput = () => { searchPanel.hidden = true; };
 searchForm.onkeydown = event => { if (event.key === 'Escape') { searchPanel.hidden = true; searchQuery.focus(); } };
 $('city-view').onclick = () => map.flyTo(CITY);
-$('harbourfront').onclick = () => map.flyTo(HARBOURFRONT);
-for (const [id, center] of Object.entries(DISTRICTS)) $(id).onclick = () => map.flyTo({center, zoom: 14.5, pitch: 55, bearing: 0});
+for (const project of region.projects) $(project.id).onclick = () => map.flyTo({center:project.center,zoom:project.zoom,pitch:project.pitch,bearing:0});
 $('reset').onclick = () => map.flyTo(CITY);
 $('zoom-in').onclick = () => map.zoomIn(); $('zoom-out').onclick = () => map.zoomOut();
 $('tilt-up').onclick = () => map.easeTo({pitch:Math.min(map.getMaxPitch(),map.getPitch()+15)});
