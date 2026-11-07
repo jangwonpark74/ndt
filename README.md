@@ -26,4 +26,4 @@ Makefile      Setup, run and validation commands
 pyproject.toml, uv.lock  Python environment definition
 ```
 
-`ndt/dist/` is checked-in application source and Toronto data, not a disposable build output. The local server initializes `ndt/var/regions.sqlite3` from the regional datasets and serves the region catalog and assets to the viewer. The SQLite service is required; a plain static server or the legacy static hosting configuration cannot serve this version. Research and preview material is in [`docs/`](docs/).
+`ndt/dist/` is checked-in application source and Toronto data, not a disposable build output. The local server initializes project-root `regions.sqlite3` from the regional datasets and serves the region catalog and assets to the viewer. Network locations are stored as individual database records. The SQLite service is required; a plain static server or the legacy static hosting configuration cannot serve this version. Research and preview material is in [`docs/`](docs/).

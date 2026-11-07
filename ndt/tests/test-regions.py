@@ -1,13 +1,14 @@
 import importlib.util
 from contextlib import closing
 import errno
+import io
 import json
 from pathlib import Path
 import sqlite3
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -99,7 +100,7 @@ class RegionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'regions.sqlite3'
             server.initialize(path)
-            with sqlite3.connect(path) as db:
+            with closing(sqlite3.connect(path)) as db, db:
                 regions = dict(db.execute('SELECT id, metadata FROM regions'))
                 self.assertEqual(set(regions), {'toronto', 'new-york'})
                 self.assertEqual(json.loads(regions['new-york'])['network'], 'nyc-poles')
@@ -111,10 +112,116 @@ class RegionTests(unittest.TestCase):
                 self.assertIsNone(db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', ('toronto', 'verizon-poles.geojson')).fetchone())
                 db.execute('INSERT INTO project_sites VALUES (?, ?, ?)', ('toronto', 'harbourfront', json.dumps(['example-site'])))
             server.initialize(path)
-            with sqlite3.connect(path) as db:
+            with closing(sqlite3.connect(path)) as db, db:
                 self.assertEqual(db.execute('SELECT count(*) FROM regions').fetchone()[0], 2)
                 self.assertEqual(db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', ('new-york', 'verizon-poles.geojson')).fetchone()[0], payload)
                 self.assertEqual(json.loads(db.execute('SELECT site_ids FROM project_sites WHERE region_id=? AND project_id=?', ('toronto', 'harbourfront')).fetchone()[0]), ['example-site'])
+
+    def test_network_records_preserve_source_and_serve_database_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            with closing(sqlite3.connect(path)) as db, db:
+                for region, dataset, count in [('toronto', 'bell-outdoor-sites.geojson', 1481),
+                                               ('toronto', 'telus-sites.geojson', 60),
+                                               ('new-york', 'verizon-poles.geojson', 701)]:
+                    source = json.loads(db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', (region, dataset)).fetchone()[0])
+                    self.assertEqual(server.network_collection(db, region, dataset), source)
+                    self.assertEqual(db.execute('SELECT count(*) FROM network_sites WHERE region_id=? AND dataset_path=?', (region, dataset)).fetchone()[0], count)
+                    site_id, longitude, latitude, feature = db.execute('SELECT site_id, longitude, latitude, feature FROM network_sites WHERE region_id=? AND dataset_path=? ORDER BY ordinal LIMIT 1', (region, dataset)).fetchone()
+                    self.assertEqual([longitude, latitude], json.loads(feature)['geometry']['coordinates'][:2])
+                    self.assertEqual(site_id, source['features'][0]['properties'].get('site_id', source['features'][0]['properties'].get('id')))
+                feature = json.loads(feature)
+                feature['properties']['database_test'] = 'retained'
+                feature['geometry']['coordinates'][0] += 0.001
+                db.execute('UPDATE network_sites SET feature=? WHERE region_id=? AND dataset_path=? AND site_id=?',
+                           (json.dumps(feature), region, dataset, site_id))
+            server.initialize(path)
+            with closing(sqlite3.connect(path)) as db, db:
+                result = server.network_collection(db, region, dataset)
+                self.assertEqual(result['features'][0], feature)
+                self.assertEqual(db.execute('SELECT longitude FROM network_sites WHERE region_id=? AND dataset_path=? AND site_id=?', (region, dataset, site_id)).fetchone()[0], feature['geometry']['coordinates'][0])
+                self.assertNotIn('database_test', json.loads(db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', (region, dataset)).fetchone()[0])['features'][0]['properties'])
+                self.assertIsNone(server.network_collection(db, 'toronto', 'verizon-poles.geojson'))
+
+    def test_existing_database_migrates_stored_snapshot_and_membership(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            with closing(sqlite3.connect(path)) as db, db:
+                db.execute('DROP TABLE network_sites')
+                db.execute('DROP TABLE network_datasets')
+                region, dataset = 'toronto', 'bell-outdoor-sites.geojson'
+                snapshot = json.loads(db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', (region, dataset)).fetchone()[0])
+                snapshot['features'][0]['properties']['migration_test'] = 'stored snapshot'
+                db.execute('UPDATE region_assets SET content=? WHERE region_id=? AND path=?', (json.dumps(snapshot).encode(), region, dataset))
+                db.execute('INSERT INTO project_sites VALUES (?, ?, ?)', (region, 'harbourfront', '["saved-id"]'))
+            server.initialize(path)
+            with closing(sqlite3.connect(path)) as db, db:
+                self.assertEqual(server.network_collection(db, region, dataset), snapshot)
+                self.assertEqual(db.execute('SELECT site_ids FROM project_sites').fetchone()[0], '["saved-id"]')
+
+    def test_invalid_refresh_rolls_back_existing_data(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            bad = Path(directory) / 'invalid.geojson'
+            bad.write_text(json.dumps({'type': 'FeatureCollection', 'features': [
+                {'type': 'Feature', 'properties': {'site_id': 'duplicate'}, 'geometry': {'type': 'Point', 'coordinates': [0, 0]}},
+                {'type': 'Feature', 'properties': {'site_id': 'duplicate'}, 'geometry': {'type': 'Point', 'coordinates': [1, 1]}}]}))
+            original_files = server.region_files
+            def changed_files(region):
+                for name, source in original_files(region):
+                    yield name, bad if region['id'] == 'toronto' and name == 'bell-outdoor-sites.geojson' else source
+            with closing(sqlite3.connect(path)) as db, db:
+                old_fingerprint = db.execute('SELECT fingerprint FROM regions WHERE id=?', ('toronto',)).fetchone()[0]
+                db.execute('INSERT INTO project_sites VALUES (?, ?, ?)', ('toronto', 'harbourfront', '["saved-id"]'))
+            with patch.object(server, 'region_files', side_effect=changed_files):
+                with self.assertRaisesRegex(ValueError, 'Invalid site'):
+                    server.initialize(path)
+            with closing(sqlite3.connect(path)) as db, db:
+                self.assertEqual(db.execute('SELECT fingerprint FROM regions WHERE id=?', ('toronto',)).fetchone()[0], old_fingerprint)
+                self.assertEqual(db.execute('SELECT count(*) FROM network_sites WHERE region_id=? AND dataset_path=?', ('toronto', 'bell-outdoor-sites.geojson')).fetchone()[0], 1481)
+                self.assertEqual(db.execute('SELECT site_ids FROM project_sites').fetchone()[0], '["saved-id"]')
+                refreshed = json.loads(db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', ('toronto', 'bell-outdoor-sites.geojson')).fetchone()[0])
+            refreshed['features'][0]['properties']['refresh_test'] = 'new source'
+            bad.write_text(json.dumps(refreshed))
+            with patch.object(server, 'region_files', side_effect=changed_files):
+                server.initialize(path)
+            with closing(sqlite3.connect(path)) as db:
+                self.assertEqual(server.network_collection(db, 'toronto', 'bell-outdoor-sites.geojson'), refreshed)
+                self.assertNotEqual(db.execute('SELECT fingerprint FROM regions WHERE id=?', ('toronto',)).fetchone()[0], old_fingerprint)
+                self.assertEqual(db.execute('SELECT site_ids FROM project_sites').fetchone()[0], '["saved-id"]')
+
+    def test_asset_endpoint_and_project_validation_use_site_rows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            with closing(sqlite3.connect(path)) as db, db:
+                site_id, feature = db.execute('SELECT site_id, feature FROM network_sites WHERE region_id=? AND dataset_path=? ORDER BY ordinal LIMIT 1', ('toronto', 'bell-outdoor-sites.geojson')).fetchone()
+                feature = json.loads(feature)
+                feature['properties']['endpoint_test'] = 'from row'
+                db.execute('UPDATE network_sites SET feature=? WHERE region_id=? AND dataset_path=? AND site_id=?', (json.dumps(feature), 'toronto', 'bell-outdoor-sites.geojson', site_id))
+            handler_type = server.handler_for(path)
+            handler = handler_type.__new__(handler_type)
+            handler.respond = Mock()
+            handler.send_error = Mock()
+            handler.path = '/api/regions/toronto/assets/bell-outdoor-sites.geojson'
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0])['features'][0]['properties']['endpoint_test'], 'from row')
+            handler.path = '/api/regions/toronto/projects/harbourfront/sites'
+            payload = json.dumps([site_id]).encode()
+            handler.headers = {'Content-Length': str(len(payload))}
+            handler.rfile = io.BytesIO(payload)
+            handler.do_PUT()
+            handler.send_error.assert_not_called()
+            with closing(sqlite3.connect(path)) as db:
+                self.assertEqual(json.loads(db.execute('SELECT site_ids FROM project_sites WHERE region_id=? AND project_id=?', ('toronto', 'harbourfront')).fetchone()[0]), [site_id])
+            payload = b'["unknown-site"]'
+            handler.headers = {'Content-Length': str(len(payload))}
+            handler.rfile = io.BytesIO(payload)
+            handler.do_PUT()
+            handler.send_error.assert_called_once_with(400, 'Unknown site ID')
 
     def test_verizon_filter_preserves_reported_status(self):
         rows = [dict(id='1', franchisee='NY SMSA', longitude='-73.98', latitude='40.75', status='Proposed'),

@@ -4,6 +4,7 @@ from contextlib import closing
 import errno
 import hashlib
 import json
+import math
 import mimetypes
 import os
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -47,15 +48,63 @@ def region_files(region):
                 yield path.relative_to(root).as_posix(), path
 
 
+def import_network_dataset(db, region_id, path, content):
+    """Import one complete source snapshot, retaining every feature and its order."""
+    collection = json.loads(content)
+    if not isinstance(collection, dict) or collection.get('type') != 'FeatureCollection' or not isinstance(collection.get('features'), list):
+        raise ValueError(f'Invalid network dataset: {region_id}/{path}')
+    features = collection.pop('features')
+    rows = []
+    seen = set()
+    for ordinal, feature in enumerate(features):
+        try:
+            properties = feature['properties']
+            site_id = properties.get('site_id', properties.get('id'))
+            geometry = feature['geometry']
+            coords = geometry['coordinates']
+            if (feature['type'] != 'Feature' or geometry['type'] != 'Point' or
+                not isinstance(site_id, str) or not site_id or site_id in seen or
+                not isinstance(coords, list) or len(coords) < 2 or
+                any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) for value in coords[:2]) or
+                not -180 <= coords[0] <= 180 or not -90 <= coords[1] <= 90):
+                raise ValueError('Invalid or duplicate site ID or coordinates')
+        except (KeyError, TypeError, AttributeError, ValueError) as error:
+            raise ValueError(f'Invalid site in {region_id}/{path} at index {ordinal}') from error
+        seen.add(site_id)
+        rows.append((region_id, path, site_id, ordinal, json.dumps(feature, ensure_ascii=False)))
+    db.execute('DELETE FROM network_sites WHERE region_id=? AND dataset_path=?', (region_id, path))
+    db.execute('INSERT INTO network_datasets VALUES (?, ?, ?) ON CONFLICT(region_id, path) DO UPDATE SET metadata=excluded.metadata',
+               (region_id, path, json.dumps(collection, ensure_ascii=False)))
+    db.executemany('INSERT INTO network_sites (region_id, dataset_path, site_id, ordinal, feature) VALUES (?, ?, ?, ?, ?)', rows)
+
+
+def network_collection(db, region_id, path):
+    row = db.execute('SELECT metadata FROM network_datasets WHERE region_id=? AND path=?', (region_id, path)).fetchone()
+    if row is None:
+        return None
+    collection = json.loads(row[0])
+    collection['features'] = [json.loads(feature) for (feature,) in db.execute(
+        'SELECT feature FROM network_sites WHERE region_id=? AND dataset_path=? ORDER BY ordinal', (region_id, path))]
+    return collection
+
+
 def initialize(db_path):
     db_path.parent.mkdir(parents=True, exist_ok=True)
     regions = json.loads((ROOT / 'regions.json').read_text())
-    with sqlite3.connect(db_path) as db:
+    with closing(sqlite3.connect(db_path)) as db, db:
         db.executescript('''CREATE TABLE IF NOT EXISTS regions (id TEXT PRIMARY KEY, metadata TEXT NOT NULL, fingerprint TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS region_assets (region_id TEXT NOT NULL, path TEXT NOT NULL, content BLOB NOT NULL,
             PRIMARY KEY (region_id, path), FOREIGN KEY (region_id) REFERENCES regions(id));
             CREATE TABLE IF NOT EXISTS project_sites (region_id TEXT NOT NULL, project_id TEXT NOT NULL, site_ids TEXT NOT NULL,
-            PRIMARY KEY (region_id, project_id), FOREIGN KEY (region_id) REFERENCES regions(id));''')
+            PRIMARY KEY (region_id, project_id), FOREIGN KEY (region_id) REFERENCES regions(id));
+            CREATE TABLE IF NOT EXISTS network_datasets (region_id TEXT NOT NULL, path TEXT NOT NULL, metadata TEXT NOT NULL,
+            PRIMARY KEY (region_id, path));
+            CREATE TABLE IF NOT EXISTS network_sites (region_id TEXT NOT NULL, dataset_path TEXT NOT NULL, site_id TEXT NOT NULL,
+            ordinal INTEGER NOT NULL, feature TEXT NOT NULL CHECK(json_valid(feature)),
+            longitude REAL GENERATED ALWAYS AS (json_extract(feature, '$.geometry.coordinates[0]')) STORED,
+            latitude REAL GENERATED ALWAYS AS (json_extract(feature, '$.geometry.coordinates[1]')) STORED,
+            PRIMARY KEY (region_id, dataset_path, site_id), UNIQUE (region_id, dataset_path, ordinal));
+            CREATE INDEX IF NOT EXISTS network_sites_location ON network_sites(region_id, dataset_path, longitude, latitude);''')
         for region in regions:
             files = list(region_files(region))
             required = {'trees/manifest.json', 'trees/overview.geojson', 'street-detail/manifest.json',
@@ -70,6 +119,14 @@ def initialize(db_path):
             if not old or old[0] != fingerprint:
                 db.execute('DELETE FROM region_assets WHERE region_id=?', (region['id'],))
                 db.executemany('INSERT INTO region_assets VALUES (?, ?, ?)', ((region['id'], name, path.read_bytes()) for name, path in files))
+                db.execute('DELETE FROM network_sites WHERE region_id=?', (region['id'],))
+                db.execute('DELETE FROM network_datasets WHERE region_id=?', (region['id'],))
+            for name in region['network_files']:
+                if not db.execute('SELECT 1 FROM network_datasets WHERE region_id=? AND path=?', (region['id'], name)).fetchone():
+                    asset = db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', (region['id'], name)).fetchone()
+                    if asset is None:
+                        raise RuntimeError(f'Missing stored network data: {region["id"]}/{name}')
+                    import_network_dataset(db, region['id'], name, asset[0])
     return regions
 
 
@@ -81,13 +138,13 @@ def handler_for(db_path):
         def do_GET(self):
             path = unquote(urlsplit(self.path).path)
             if path == '/api/regions':
-                with sqlite3.connect(db_path) as db:
+                with closing(sqlite3.connect(db_path)) as db, db:
                     body = json.dumps([json.loads(row[0]) for row in db.execute('SELECT metadata FROM regions ORDER BY rowid')]).encode()
                 return self.respond(body, 'application/json')
             if path.startswith('/api/regions/'):
                 parts = path.split('/', 5)
                 if len(parts) == 5 and parts[4] == 'projects':
-                    with sqlite3.connect(db_path) as db:
+                    with closing(sqlite3.connect(db_path)) as db, db:
                         if not db.execute('SELECT 1 FROM regions WHERE id=?', (parts[3],)).fetchone():
                             return self.send_error(404)
                         projects = {project_id: json.loads(site_ids) for project_id, site_ids in db.execute(
@@ -95,8 +152,10 @@ def handler_for(db_path):
                     return self.respond(json.dumps(projects).encode(), 'application/json')
                 if len(parts) != 6 or parts[4] != 'assets':
                     return self.send_error(404)
-                with sqlite3.connect(db_path) as db:
-                    row = db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', (parts[3], parts[5])).fetchone()
+                with closing(sqlite3.connect(db_path)) as db, db:
+                    collection = network_collection(db, parts[3], parts[5])
+                    row = (json.dumps(collection, ensure_ascii=False).encode(),) if collection is not None else db.execute(
+                        'SELECT content FROM region_assets WHERE region_id=? AND path=?', (parts[3], parts[5])).fetchone()
                 if row is None:
                     return self.send_error(404)
                 return self.respond(row[0], mimetypes.guess_type(parts[5])[0] or 'application/json')
@@ -115,13 +174,13 @@ def handler_for(db_path):
                     raise ValueError('Expected unique site IDs')
             except (ValueError, UnicodeDecodeError):
                 return self.send_error(400, 'Invalid site list')
-            with sqlite3.connect(db_path) as db:
+            with closing(sqlite3.connect(db_path)) as db, db:
                 region_row = db.execute('SELECT metadata FROM regions WHERE id=?', (parts[3],)).fetchone()
                 region = json.loads(region_row[0]) if region_row else None
                 if not region or region.get('network') != 'ised' or not any(project['id'] == parts[5] for project in region['projects']):
                     return self.send_error(404)
-                asset = db.execute('SELECT content FROM region_assets WHERE region_id=? AND path=?', (parts[3], 'bell-outdoor-sites.geojson')).fetchone()
-                valid_ids = {feature['properties']['site_id'] for feature in json.loads(asset[0])['features']}
+                valid_ids = {row[0] for row in db.execute('SELECT site_id FROM network_sites WHERE region_id=? AND dataset_path=?',
+                                                         (parts[3], 'bell-outdoor-sites.geojson'))}
                 if not set(site_ids) <= valid_ids:
                     return self.send_error(400, 'Unknown site ID')
                 db.execute('INSERT INTO project_sites VALUES (?, ?, ?) ON CONFLICT(region_id, project_id) DO UPDATE SET site_ids=excluded.site_ids',

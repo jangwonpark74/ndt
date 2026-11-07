@@ -17,6 +17,18 @@ make run
 
 The region catalog is in `regions.json`, with region-specific centers and project shortcuts. Toronto's assets are under `dist/`; New York's are under `data/new-york/`. The SQLite `regions` and `region_assets` tables isolate each region. A new region needs a catalog entry, regional roof/tree/street datasets in the same formats, and an appropriate network-data adapter; network sources are not interchangeable between jurisdictions.
 
+Each Toronto network site and New York reservation is also stored individually in `network_sites`, keyed by region, dataset path and site ID. Its `feature` JSON retains all original properties and geometry; `longitude` and `latitude` are indexed generated columns. `network_datasets` retains the collection metadata and the server builds network GeoJSON responses from these rows. `region_assets` keeps the imported source snapshot. Existing databases are upgraded from their stored snapshots on startup when the source fingerprint is unchanged, preserving project assignments. With unchanged source files, site rows survive restarts. When any regional source asset changes, the server reimports that region's network records from the source files; back up the database before refreshing if its records have been changed. Import failure rolls the refresh back. Site editing and audit history are not provided by the viewer.
+
+For example, inspect the stored site and reservation counts with:
+
+```sql
+SELECT region_id, dataset_path, COUNT(*) AS locations
+FROM network_sites
+GROUP BY region_id, dataset_path;
+```
+
+New York records are NYC pole reservations associated with Verizon, not a verified inventory of operating radio sites.
+
 If you moved or renamed the project and use the virtual environment's activation scripts, recreate the environment with `uv venv --clear` followed by `make setup`; activation scripts contain absolute paths.
 
 Drag to pan, right-drag to rotate, and scroll to zoom. The camera controls also provide zoom, tilt, rotation, a north reset and a return to the city overview; they can be used with a keyboard or touch. Use the region and project shortcuts in the left sidebar to navigate, or submit a location search in the header and choose a result. Search sends the query and current map center to the [Photon public demo service](https://github.com/komoot/photon#demo-server), which may be unavailable or rate-limited; it uses OpenStreetMap data. Click a visible feature to mark it on the map. Open Map Settings in the sidebar to toggle buildings, streets, trees, terrain and street details independently. The illustrative light comes from the southeast; optional building shadows project away from it and are off by default. MapLibre GL JS and Three.js are bundled; fonts load from Google Fonts when available.
