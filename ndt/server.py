@@ -7,6 +7,7 @@ import json
 import math
 import mimetypes
 import os
+import re
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import sqlite3
@@ -108,6 +109,9 @@ def initialize(db_path):
             CREATE TABLE IF NOT EXISTS project_use_cases (region_id TEXT NOT NULL, project_id TEXT NOT NULL,
             use_case TEXT NOT NULL CHECK(use_case IN ('virtual-drive-test', 'parameter-ab-test', 'ai-ran-benchmark')),
             PRIMARY KEY (region_id, project_id), FOREIGN KEY (region_id) REFERENCES regions(id));
+            CREATE TABLE IF NOT EXISTS virtual_ues (region_id TEXT NOT NULL, project_id TEXT NOT NULL, ue_id TEXT NOT NULL,
+            name TEXT NOT NULL, longitude REAL NOT NULL, latitude REAL NOT NULL,
+            PRIMARY KEY (region_id, project_id, ue_id), FOREIGN KEY (region_id) REFERENCES regions(id));
             CREATE TABLE IF NOT EXISTS network_datasets (region_id TEXT NOT NULL, path TEXT NOT NULL, metadata TEXT NOT NULL,
             PRIMARY KEY (region_id, path));
             CREATE TABLE IF NOT EXISTS network_sites (region_id TEXT NOT NULL, dataset_path TEXT NOT NULL, site_id TEXT NOT NULL,
@@ -150,6 +154,13 @@ def handler_for(db_path):
         def do_GET(self):
             path = unquote(urlsplit(self.path).path)
             task_parts = path.split('/')
+            if len(task_parts) == 7 and task_parts[1:3] == ['api', 'regions'] and task_parts[4] == 'projects' and task_parts[6] == 'virtual-ues':
+                with closing(connect(db_path)) as db:
+                    if not self.known_project(db, task_parts[3], task_parts[5]):
+                        return self.send_error(404)
+                    rows = db.execute('SELECT ue_id, name, longitude, latitude FROM virtual_ues WHERE region_id=? AND project_id=? ORDER BY name, ue_id', (task_parts[3], task_parts[5]))
+                    ues = [{'id':ue_id, 'name':name, 'longitude':longitude, 'latitude':latitude} for ue_id, name, longitude, latitude in rows]
+                return self.respond(json.dumps(ues, ensure_ascii=False).encode(), 'application/json')
             if len(task_parts) == 7 and task_parts[1:3] == ['api', 'regions'] and task_parts[4] == 'projects' and task_parts[6] == 'tasks':
                 with closing(connect(db_path)) as db:
                     if not self.known_project(db, task_parts[3], task_parts[5]):
@@ -188,6 +199,27 @@ def handler_for(db_path):
 
         def do_PUT(self):
             parts = unquote(urlsplit(self.path).path).split('/')
+            if len(parts) == 8 and parts[1:3] == ['api', 'regions'] and parts[4] == 'projects' and parts[6] == 'virtual-ues':
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 2000:
+                        raise ValueError('Invalid request size')
+                    ue = json.loads(self.rfile.read(length))
+                    if not isinstance(ue, dict) or set(ue) != {'name', 'longitude', 'latitude'}:
+                        raise ValueError('Expected name, longitude and latitude')
+                    name, lon, lat = ue['name'], ue['longitude'], ue['latitude']
+                    if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}', parts[7]) or not isinstance(name, str) or not name.strip() or len(name) > 120:
+                        raise ValueError('Invalid UE ID or name')
+                    if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in (lon, lat)) or not -180 <= lon <= 180 or not -90 <= lat <= 90:
+                        raise ValueError('Invalid longitude or latitude')
+                except (ValueError, UnicodeDecodeError, OverflowError) as error:
+                    return self.send_error(400, str(error))
+                with closing(connect(db_path)) as db, db:
+                    if not self.known_project(db, parts[3], parts[5]):
+                        return self.send_error(404)
+                    db.execute('INSERT INTO virtual_ues VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(region_id, project_id, ue_id) DO UPDATE SET name=excluded.name, longitude=excluded.longitude, latitude=excluded.latitude',
+                               (parts[3], parts[5], parts[7], name.strip(), lon, lat))
+                return self.respond(json.dumps({'id':parts[7], 'name':name.strip(), 'longitude':lon, 'latitude':lat}, ensure_ascii=False).encode(), 'application/json')
             if len(parts) == 7 and parts[1:3] == ['api', 'regions'] and parts[4] == 'projects' and parts[6] == 'use-case':
                 try:
                     length = int(self.headers.get('Content-Length', '0'))
@@ -246,6 +278,16 @@ def handler_for(db_path):
                     return self.send_error(400, 'Unknown site ID')
                 db.execute('INSERT INTO project_sites VALUES (?, ?, ?) ON CONFLICT(region_id, project_id) DO UPDATE SET site_ids=excluded.site_ids',
                            (parts[3], parts[5], json.dumps(site_ids)))
+            return self.respond(b'{}', 'application/json')
+
+        def do_DELETE(self):
+            parts = unquote(urlsplit(self.path).path).split('/')
+            if len(parts) != 8 or parts[1:3] != ['api', 'regions'] or parts[4] != 'projects' or parts[6] != 'virtual-ues':
+                return self.send_error(404)
+            with closing(connect(db_path)) as db, db:
+                if not self.known_project(db, parts[3], parts[5]):
+                    return self.send_error(404)
+                db.execute('DELETE FROM virtual_ues WHERE region_id=? AND project_id=? AND ue_id=?', (parts[3], parts[5], parts[7]))
             return self.respond(b'{}', 'application/json')
 
         def do_POST(self):

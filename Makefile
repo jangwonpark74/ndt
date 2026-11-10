@@ -55,6 +55,7 @@ test-ui:
 
 check: test
 	cd ndt && $(NODE) --check dist/task-data.mjs
+	cd ndt && $(NODE) --check dist/virtual-ue-view.mjs
 	cd ndt && $(NODE) --check dist/task-model.mjs
 	cd ndt && $(NODE) --check dist/task-view-model.mjs
 	cd ndt && $(NODE) --check dist/task-view.mjs

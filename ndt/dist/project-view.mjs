@@ -1,7 +1,7 @@
 import {openContextPanel, showProjectOverview, hideProjectOverview} from './context-panel.mjs';
 import {PROJECT_USE_CASES} from './project-data.mjs';
 
-export function createProjectView({region, map, viewModel:projectViewModel, siteLocations, emptyFeatures, taskView}) {
+export function createProjectView({region, map, viewModel:projectViewModel, siteLocations, emptyFeatures, taskView, virtualUeView}) {
 const $ = id => document.getElementById(id);
 let projectPopup = null;
 for (const id of ['project-use-case','overview-use-case']) {
@@ -63,6 +63,7 @@ async function selectProject(project) {
   $('project-title').textContent = project.name; $('task-project-title').textContent = project.name; $('project-sites').replaceChildren();
   $('overview-open').disabled = false;
   taskView.selectProject(project);
+  virtualUeView.selectProject(project);
   if (!overviewVisible) openContextPanel('task-panel');
   $('project-sites-heading').hidden = region.network !== 'ised';
   if (window.innerWidth <= 700) document.querySelector('.network-settings').open = false;
@@ -146,6 +147,7 @@ function closeOverview() {
 }
 $('overview-back').onclick = closeOverview;
 $('overview-tasks').onclick = () => {openContextPanel('task-panel'); (document.getElementById('task-form').hidden ? $('task-new') : $('task-name')).focus();};
+$('overview-ues').onclick = () => {openContextPanel('ue-panel'); $('ue-new').focus();};
 $('project-overview').addEventListener('keydown',event => {if (event.key === 'Escape') closeOverview();});
 return {initialize, selectProject, updateProjectCoverage, showProjectSiteMenu};
 }

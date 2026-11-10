@@ -20,6 +20,7 @@ import { bindNavigationView } from './navigation-view.mjs';
 import { createTaskModel } from './task-model.mjs';
 import { createTaskViewModel } from './task-view-model.mjs';
 import { createTaskView } from './task-view.mjs';
+import { createVirtualUeView } from './virtual-ue-view.mjs';
 import { bindContextPanel } from './context-panel.mjs';
 
 const $ = id => document.getElementById(id);
@@ -46,7 +47,7 @@ const lighting = lightPresets.southeast;
 const emptyFeatures = {type:'FeatureCollection', features:[]};
 const sceneViewModel = createMapSceneViewModel();
 const sceneView = createMapSceneView({map,region,assetBase,lighting,emptyFeatures,viewModel:sceneViewModel,
-  getMapView:()=>mapView,getMapViewModel:()=>mapViewModel,getNetworkView:()=>networkView,getProjectView:()=>projectView,getTaskView:()=>taskView});
+  getMapView:()=>mapView,getMapViewModel:()=>mapViewModel,getNetworkView:()=>networkView,getProjectView:()=>projectView,getTaskView:()=>taskView,getVirtualUeView:()=>virtualUeView});
 const mapViewModel = createMapControlsViewModel(CITY,{
   buildings:$('buildings-toggle').checked,streets:$('streets-toggle').checked,trees:$('trees-toggle').checked,
   terrain:$('terrain-toggle').checked,streetDetails:$('street-detail-toggle').checked,shadows:$('shadows-toggle').checked,
@@ -57,7 +58,8 @@ const mapView = createMapControlsView({map,viewModel:mapViewModel,lighting,empty
 const networkViewModel = createNetworkViewModel(createNetworkModel(assetBase));
 const projectViewModel = createProjectViewModel(createProjectModel(region,assetBase),region.projects);
 const taskView = createTaskView({map,viewModel:createTaskViewModel(createTaskModel(region.id))});
-const projectView = createProjectView({region,map,viewModel:projectViewModel,siteLocations,emptyFeatures,taskView});
+const virtualUeView = createVirtualUeView({map,regionId:region.id});
+const projectView = createProjectView({region,map,viewModel:projectViewModel,siteLocations,emptyFeatures,taskView,virtualUeView});
 const networkView = createNetworkView({map,viewModel:networkViewModel,projectView,setLayers:mapView.setLayers,getNetworkLayer:sceneView.getNetworkLayer,emptyFeatures});
 bindSearchView({form:$('location-search'), query:$('location-query'), panel:$('search-results'), status:$('search-status'), list:$('search-list')}, createSearchViewModel(searchLocations), map);
 sceneView.start();

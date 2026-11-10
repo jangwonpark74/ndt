@@ -37,7 +37,26 @@
     <button id="active-project" class="active-project" type="button" hidden><span>Active project</span><strong></strong><span>Overview ↗</span></button>
 
     <aside id="context-panel" class="network-panel panel" aria-label="Map details" hidden>
-      <div class="context-header"><div class="context-switch" role="group" aria-label="Details view"><button id="project-tab" type="button" aria-controls="task-panel" aria-pressed="false" disabled>Tasks</button><button id="network-tab" type="button" aria-controls="network-panel" aria-pressed="false">Network</button></div><button id="context-close" class="context-close" type="button" aria-label="Close details" title="Close details">×</button></div>
+      <div class="context-header"><div class="context-switch" role="group" aria-label="Details view"><button id="project-tab" type="button" aria-controls="task-panel" aria-pressed="false" disabled>Tasks</button><button id="ue-tab" type="button" aria-controls="ue-panel" aria-pressed="false" disabled>Virtual UEs</button><button id="network-tab" type="button" aria-controls="network-panel" aria-pressed="false">Network</button></div><button id="context-close" class="context-close" type="button" aria-label="Close details" title="Close details">×</button></div>
+    <section id="ue-panel" class="context-panel task-panel" aria-label="Virtual UE editor" hidden>
+      <div class="network-title"><div><h2>Virtual UE editor</h2><p id="ue-project-title"></p></div></div>
+      <button id="ue-overview" class="text-button" type="button">Open project overview ↗</button>
+      <p id="ue-status" role="status" aria-live="polite"></p>
+      <button id="ue-retry" type="button" hidden>Retry loading virtual UEs</button>
+      <div id="ue-list" role="group" aria-label="Virtual UEs"></div>
+      <button id="ue-new" class="task-primary" type="button" disabled>New virtual UE</button>
+      <form id="ue-form" hidden>
+        <div class="task-form-header"><h3>Virtual UE details</h3><span id="ue-save-state"></span></div>
+        <label for="ue-name">UE name</label><input id="ue-name" required maxlength="120" autocomplete="off" placeholder="e.g. Test UE 1">
+        <label for="ue-latitude">Latitude (WGS84)</label><input id="ue-latitude" type="number" min="-90" max="90" step="any" required>
+        <label for="ue-longitude">Longitude (WGS84)</label><input id="ue-longitude" type="number" min="-180" max="180" step="any" required>
+        <div class="task-actions"><button id="ue-place" type="button">Place on map</button><button id="ue-cancel-place" type="button" hidden>Cancel placement</button></div>
+        <p id="ue-place-status" class="network-note" hidden>Click the map to set the UE location. Press Escape to cancel.</p>
+        <p id="ue-error" role="alert" hidden></p>
+        <div class="task-actions"><button id="ue-save" class="task-primary" type="submit">Save UE</button><button id="ue-discard" type="button">Discard changes</button><button id="ue-delete" class="task-danger" type="button" hidden>Delete UE</button></div>
+      </form>
+      <p class="network-note">Virtual UEs are planning locations; they do not simulate radio performance.</p>
+    </section>
     <section id="task-panel" class="context-panel task-panel" aria-label="Project tasks" hidden>
       <div class="network-title"><div><h2 id="task-project-title">Project tasks</h2></div></div>
       <button id="task-overview" class="text-button" type="button">Open project overview ↗</button>
@@ -113,6 +132,7 @@
           <p id="overview-task-empty" class="network-note">No saved tasks. Choose New task to create one.</p>
           <p class="network-note">Use Save to apply task changes. Expand a route count for route and speed-case details; use Edit routes on map to draw or fit paths. Duration excludes traffic, stops and transfers. Distances containing unfitted paths are provisional.</p>
         </section>
+        <section class="overview-card overview-ue-card" aria-labelledby="overview-ue-title"><div><h2 id="overview-ue-title">Virtual UEs</h2><p>Manage virtual UE locations for this project.</p></div><button id="overview-ues" class="task-primary" type="button">Virtual UE editor</button></section>
       </div>
     </section>
 

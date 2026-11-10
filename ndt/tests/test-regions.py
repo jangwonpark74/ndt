@@ -20,6 +20,49 @@ spec.loader.exec_module(extractor)
 
 
 class RegionTests(unittest.TestCase):
+    def test_virtual_ues_are_validated_isolated_and_persistent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            handler_type = server.handler_for(path)
+            handler = handler_type.__new__(handler_type)
+            handler.respond, handler.send_error = Mock(), Mock()
+            base = '/api/regions/toronto/projects/northyork/virtual-ues'
+            def put(payload, url=base + '/ue-1'):
+                body = json.dumps(payload).encode()
+                handler.path, handler.headers, handler.rfile = url, {'Content-Length':str(len(body))}, io.BytesIO(body)
+                handler.send_error.reset_mock()
+                handler.do_PUT()
+            ue = {'name':'Test UE', 'longitude':-79.4, 'latitude':43.7}
+            put(ue)
+            handler.send_error.assert_not_called()
+            put({'name':'NY UE', 'longitude':-73.9, 'latitude':40.7}, '/api/regions/new-york/projects/manhattan/virtual-ues/ue-1')
+            handler.send_error.assert_not_called()
+            for invalid in ({**ue, 'latitude':91}, {**ue, 'longitude':True}, {**ue, 'name':'  '}, {**ue, 'longitude':float('nan')}, {**ue, 'extra':1}):
+                put(invalid)
+                handler.send_error.assert_called_once()
+                self.assertEqual(handler.send_error.call_args.args[0], 400)
+            put(ue, base + '/bad%20id')
+            handler.send_error.assert_called_once()
+            self.assertEqual(handler.send_error.call_args.args[0], 400)
+            put(ue, '/api/regions/toronto/projects/unknown/virtual-ues/ue-1')
+            handler.send_error.assert_called_once_with(404)
+            server.initialize(path)
+            handler.path = base
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), [{'id':'ue-1', **ue}])
+            handler.path = base + '/ue-1'
+            handler.do_DELETE()
+            handler.send_error.reset_mock()
+            handler.do_DELETE()
+            handler.send_error.assert_not_called()
+            handler.path = base
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), [])
+            handler.path = '/api/regions/new-york/projects/manhattan/virtual-ues'
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0])[0]['name'], 'NY UE')
+
     def test_project_use_cases_are_validated_isolated_and_persistent(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'regions.sqlite3'

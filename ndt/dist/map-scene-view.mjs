@@ -7,7 +7,7 @@ import {createStreetDetailLayer} from './street-detail.mjs';
 import {createNetworkLayer} from './network-layer.mjs';
 import {createNycReservations} from './nyc-reservations.mjs?v=2';
 
-export function createMapSceneView({map,region,assetBase,lighting,emptyFeatures,viewModel,getMapView,getMapViewModel,getNetworkView,getProjectView,getTaskView}) {
+export function createMapSceneView({map,region,assetBase,lighting,emptyFeatures,viewModel,getMapView,getMapViewModel,getNetworkView,getProjectView,getTaskView,getVirtualUeView}) {
 const $ = id => document.getElementById(id);
 let markerLayer, roofLayer, treeLayer, streetDetailLayer, networkLayer, nycReservations;
 let streetLayers = [], buildingLayers = [];
@@ -42,6 +42,7 @@ function createMarkerLayer() {
 }
 
 function showFeature(event) {
+  if (getVirtualUeView().click(event)) return;
   if (getTaskView().click(event)) return;
   if (nycReservations?.click(event)) return;
   if (getNetworkView().click(event)) return;
@@ -130,6 +131,7 @@ map.on('load', () => {
   if ($('network-toggle').checked || $('bell-toggle').checked) getNetworkView().showNetwork();
   getProjectView().initialize();
   getTaskView().initialize();
+  getVirtualUeView().initialize();
   if (region.network === 'nyc-poles') nycReservations = createNycReservations(map,assetBase);
   markerLayer = createMarkerLayer(); map.addLayer(markerLayer);
   viewModel.loaded();
