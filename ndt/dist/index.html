@@ -5,31 +5,26 @@
   <meta name="theme-color" content="#101c21"><meta name="description" content="Explore city regions in 3D using OpenStreetMap and terrain data.">
   <title>Samsung CongitV NDT · City regions in 3D</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./vendor/maplibre-gl.css">
   <link rel="stylesheet" href="./style.css?v=projects-2">
-  <script src="./vendor/maplibre-gl.js"></script>
+  <script defer src="./vendor/maplibre-gl.js" onerror="startupFailed()"></script>
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/"}}</script>
 </head>
 <body>
   <main class="app">
     <div id="map" aria-label="Interactive 3D map of Toronto"></div>
-    <div class="topbar"><div class="brand"><span class="brand-icon">✳</span><span>Samsung <b>CongitV NDT</b></span></div><div class="topright"><form id="location-search" class="location-search" role="search"><label class="visually-hidden" for="location-query">Search locations</label><input id="location-query" type="search" placeholder="Search locations" autocomplete="off" maxlength="200" required><button type="submit" aria-label="Search locations" title="Search locations"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></button><div id="search-results" class="search-results" hidden><div id="search-status" role="status" aria-live="polite"></div><ul id="search-list" aria-label="Search results"></ul><div class="search-credit">Search by <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> · © OpenStreetMap contributors</div></div></form><span id="coordinates">43.7001° N &nbsp; 79.4163° W</span></div></div>
-    <nav class="intro panel" aria-label="Map navigation">
+    <div class="topbar"><div class="brand-group"><button id="navigation-toggle" class="navigation-toggle" type="button" aria-controls="map-navigation" aria-expanded="false" aria-label="Open map navigation"><span aria-hidden="true">☰</span></button><div class="brand"><span class="brand-icon">✳</span><span>Samsung <b>CongitV NDT</b></span></div></div><div class="topright"><form id="location-search" class="location-search" role="search"><label class="visually-hidden" for="location-query">Search locations</label><input id="location-query" type="search" placeholder="Search" autocomplete="off" maxlength="200" required><button type="submit" aria-label="Search locations" title="Search locations"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></button><div id="search-results" class="search-results" hidden><div id="search-status" role="status" aria-live="polite"></div><ul id="search-list" aria-label="Search results"></ul><div class="search-credit">Search by <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> · © OpenStreetMap contributors</div></div></form><span id="coordinates">43.7001° N &nbsp; 79.4163° W</span></div></div>
+    <nav id="map-navigation" class="intro panel" aria-label="Map navigation">
       <div class="navigation-label">VIEWS</div>
       <div class="region-picker" role="group" aria-label="Choose region"><span>Region</span><div id="region-choices"></div></div>
-      <div class="locations">
-        <button class="location" id="city-view"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 20h18M5 20V8l7-4 7 4v12M9 20v-6h6v6M9 9h.01M15 9h.01"/></svg><span>Region overview</span><span class="location-arrow" aria-hidden="true">↗</span></button>
-      </div>
       <div class="navigation-label">PROJECTS</div>
-      <div class="districts" aria-label="Projects">
-        <button id="harbourfront"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>Harbourfront</button>
-        <button id="etobicoke"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>Etobicoke</button>
-        <button id="northyork"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>North York</button>
-        <button id="scarborough"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg>Scarborough</button>
-      </div>
-      <section id="project-summary" class="project-summary" aria-label="Simulation project" hidden><strong id="project-title"></strong><p id="project-status" role="status" aria-live="polite"></p><ol id="project-sites"></ol></section>
+      <label class="visually-hidden" for="project-picker">Project</label><select id="project-picker" class="project-picker"><option value="" selected disabled>Select a project</option></select>
+      <button id="overview-open" class="overview-nav" type="button" disabled>Project overview ↗</button>
+      <label class="navigation-label" for="project-use-case">USE CASES</label>
+      <select id="project-use-case" class="project-picker" aria-describedby="project-use-case-status" disabled><option value="">Uncategorized</option></select>
+      <p id="project-use-case-status" class="use-case-status" role="status" aria-live="polite">Select a project first.</p><button id="project-use-case-retry" class="text-button" type="button" hidden>Retry loading use cases</button>
       <details class="map-settings network-settings">
         <summary><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 14v7M8 21h8M9 14l3-9 3 9M5 6a10 10 0 0 0 0 10M19 6a10 10 0 0 1 0 10M8 9a5 5 0 0 0 0 5M16 9a5 5 0 0 1 0 5"/></svg><span>Network</span></summary>
         <div class="layers" aria-label="Network layers"><label><span><span class="layer-icon">⌁</span> TELUS sites</span><input id="network-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">⌁</span> Bell outdoor</span><input id="bell-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">◔</span> Sector fans</span><input id="sector-fans-toggle" type="checkbox" checked><i></i></label></div>
@@ -40,10 +35,41 @@
         <div class="layers" aria-label="Map layers"><label><span><span class="layer-icon building-icon">▥</span> Buildings</span><input id="buildings-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon street-icon">╱</span> Streets</span><input id="streets-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">♣</span> Trees</span><input id="trees-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">△</span> Terrain</span><input id="terrain-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">♧</span> Street details</span><input id="street-detail-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">◒</span> Shadows</span><input id="shadows-toggle" type="checkbox"><i></i></label><div id="shadow-status" hidden class="source-note">Lighting, shadows and street models are illustrative.</div><div id="terrain-status" hidden class="layer-note">Loading terrain…</div><div id="roof-status" hidden class="source-note">Zoom in to see mapped roof shapes.</div><div id="tree-status" hidden class="source-note">Zoom in for OSM trees.</div><div id="street-status" hidden class="source-note">Zoom in for mapped street details.</div></div>
       </details>
     </nav>
+    <button id="active-project" class="active-project" type="button" hidden><span>Active project</span><strong></strong><span>Overview ↗</span></button>
 
-    <aside id="network-panel" class="network-panel panel" aria-label="Network infrastructure" hidden>
-      <div class="network-title"><div><span>NETWORK CONTEXT</span><h2>Licensed site locations</h2></div><button id="network-close" aria-label="Close network view" title="Close network view">×</button></div>
+    <aside id="context-panel" class="network-panel panel" aria-label="Map details" hidden>
+      <div class="context-header"><div class="context-switch" role="group" aria-label="Details view"><button id="project-tab" type="button" aria-controls="task-panel" aria-pressed="false" disabled>Tasks</button><button id="network-tab" type="button" aria-controls="network-panel" aria-pressed="false">Network</button></div><button id="context-close" class="context-close" type="button" aria-label="Close details" title="Close details">×</button></div>
+    <section id="task-panel" class="context-panel task-panel" aria-label="Project tasks" hidden>
+      <div class="network-title"><div><h2 id="task-project-title">Project tasks</h2></div></div>
+      <button id="task-overview" class="text-button" type="button">Open project overview ↗</button>
+      <p id="task-status" role="status" aria-live="polite"></p>
+      <button id="tasks-retry" type="button" hidden>Retry loading tasks</button>
+      <div id="task-list" role="group" aria-label="Tasks"></div>
+      <button id="task-new" class="task-primary" type="button">New task</button>
+      <form id="task-form" hidden>
+        <div class="task-form-header"><h3>Task details</h3><span id="task-save-state"></span></div>
+        <label for="task-id">Task ID</label><input id="task-id" required maxlength="64" pattern="[A-Za-z0-9_-]+" autocomplete="off">
+        <label for="task-name">Task name</label><input id="task-name" required maxlength="120" autocomplete="off" placeholder="e.g. Morning drive test">
+        <h3>Drive plan</h3>
+        <label for="task-speed">Drive speeds (km/h)</label><input id="task-speed" type="text" maxlength="1000" placeholder="e.g. 20, 40, 60" aria-describedby="task-drive-note">
+        <div id="task-drive-metrics"></div><div id="task-speed-results" hidden></div>
+        <p id="task-drive-note" class="network-note">Enter comma-separated speeds to compare cases on the same routes (0.1–200 km/h, up to 20 unique speeds). Durations exclude traffic, stops and gaps between routes. GPS uses the first/last route points. Leave speeds blank if unknown.</p>
+        <p id="task-drive-quality" class="network-note" hidden>Provisional distance and duration: includes paths not fitted to roads.</p>
+        <h3>Drive-test routes</h3><p class="network-note">Click map waypoints or import GeoJSON to follow driving roads automatically. Start and End move onto the fitted path. Solid blue: road fitted; dashed amber: not fitted. Add waypoints to guide the road choice.</p>
+        <p class="network-note route-attribution">Road routing: <a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM</a> / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a> · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">Fix the map</a>. <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">Default service &amp; privacy</a>. Guide coordinates are sent to the configured service. Road access may differ from the data.</p>
+        <div id="road-fit-progress" hidden><p id="road-fit-status" role="status" aria-live="polite"></p><button id="road-fit-cancel" type="button">Stop road fitting</button></div>
+        <div id="task-routes"></div>
+        <label for="route-name">New route name</label><input id="route-name" maxlength="120" placeholder="e.g. Yonge Street loop">
+        <div class="task-actions"><button id="route-draw" type="button">Draw on map</button><label class="file-button" for="route-import">Import GeoJSON<input id="route-import" type="file" accept=".geojson,.json,application/geo+json,application/json"></label></div>
+        <div id="route-drawing" hidden><p id="route-draw-status" role="status" aria-live="polite"></p><div class="task-actions"><button id="route-finish" type="button">Finish route</button><button id="route-undo" type="button">Undo point</button><button id="route-cancel" type="button">Cancel drawing</button></div></div>
+        <p id="task-error" role="alert" hidden></p>
+        <div class="task-actions"><button id="task-save" class="task-primary" type="submit">Save task</button><button id="task-discard" type="button">Discard changes</button><button id="task-delete" class="task-danger" type="button">Delete task</button></div>
+      </form>
+    </section>
+    <section id="network-panel" class="context-panel" aria-label="Network infrastructure" hidden>
+      <div class="network-title"><div><h2>Licensed site locations</h2></div></div>
       <p class="network-note">ISED extract · 2026-11-03 · Toronto area</p>
+      <div class="network-search"><label for="network-search">Find a licensed site</label><input id="network-search" type="search" placeholder="Location, site ID or cell ID" autocomplete="off" maxlength="100"><p id="network-list-status" role="status" aria-live="polite">Nearby locations</p><div id="network-list" aria-label="Network locations"></div></div>
       <div class="network-legend"><span><i class="network-dot indoor"></i>TELUS indoor</span><span><i class="network-dot outdoor"></i>TELUS outdoor</span><span><i class="network-dot bell"></i>Bell outdoor</span><span><i class="network-dot other"></i>TELUS other/mixed</span></div>
       <div class="network-symbol-key"><span><b aria-hidden="true">◎</b> TELUS non-directional</span><span><b aria-hidden="true">↑</b> Reported TX bearing · zoom 14+</span></div>
       <div class="network-symbol-key sector-key"><span><i class="sector-swatch sector-one"></i>Bearing 1</span><span><i class="sector-swatch sector-two"></i>Bearing 2</span><span><i class="sector-swatch sector-three"></i>Bearing 3</span></div>
@@ -51,7 +77,6 @@
       <div class="coverage-controls" aria-label="Network map display"><strong>Map display</strong><label class="coverage-focus"><input id="coverage-focus" type="checkbox"> Show fans for selected site only</label><label for="fan-intensity">Fan intensity (relative) <output id="fan-intensity-value" for="fan-intensity">100%</output><input id="fan-intensity" type="range" min="25" max="150" step="5" value="100"></label></div>
       <section id="sector-selection" aria-label="Selected sector" hidden><strong id="sector-site"></strong><p id="sector-info" role="status" aria-live="polite"></p><div id="sector-choices" aria-label="Select a reported bearing"></div></section>
       <div id="network-detail" hidden></div>
-      <div class="network-search"><label for="network-search">Find a licensed site</label><input id="network-search" type="search" placeholder="Location, site ID or cell ID" autocomplete="off" maxlength="100"><p id="network-list-status" role="status" aria-live="polite">Nearby locations</p><div id="network-list" aria-label="Network locations"></div></div>
       <p class="network-note">Selecting a site highlights all of its fans with usable reported direction, beamwidth and frequency. Click a fan or use the bearing buttons to emphasize one sector; colors repeat after three bearings. For visualization only, each fan is drawn at 5/12 of its original calculated radius; the full estimate is shown in the selected-sector details. Width uses the widest reported beamwidth, enlarged to at least 15° for visibility. TELUS use of an individual Bell site is unverified.</p>
       <div class="coverage-controls" aria-label="3GPP planning assumptions">
         <strong>3GPP TR 38.901 · UMa</strong>
@@ -61,16 +86,36 @@
         <p id="coverage-status" role="status" aria-live="polite">Loading network records…</p>
         <a href="https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf" target="_blank" rel="noopener noreferrer">3GPP model reference</a>
       </div>
-    </aside>
-    <aside id="nyc-panel" class="network-panel panel" aria-label="Verizon pole reservations" hidden>
-      <div class="network-title"><div><span>NETWORK CONTEXT</span><h2>Verizon pole reservations</h2></div><button id="nyc-close" aria-label="Close Verizon reservations" title="Close Verizon reservations">×</button></div>
+    </section>
+    <section id="nyc-panel" class="context-panel" aria-label="Verizon pole reservations" hidden>
+      <div class="network-title"><div><h2>Verizon pole reservations</h2></div></div>
       <p class="network-note">NYC Open Data · NY SMSA · downloaded 2026-11-07. Proposed reservations remain searchable but are hidden from the map. Pole reservations are not a complete site inventory; installed status does not establish live service. Bearings, frequencies and coverage are unavailable.</p>
       <div class="network-legend"><span><i class="network-dot nyc-installed"></i>Installed</span><span><i class="network-dot nyc-approved"></i>Approved</span></div>
       <p id="nyc-status" role="status" aria-live="polite">Loading reservations…</p>
       <div id="nyc-detail" hidden></div>
       <div class="network-search"><label for="nyc-search">Find a reservation</label><input id="nyc-search" type="search" placeholder="Street, borough, ID or status" autocomplete="off" maxlength="100"><p id="nyc-list-status" role="status" aria-live="polite"></p><div id="nyc-list" aria-label="Verizon reservations"></div></div>
       <p class="network-note"><a href="https://data.cityofnewyork.us/City-Government/Mobile-Telecommunications-Franchise-Pole-Reservati/tbgj-tdd6" target="_blank" rel="noopener noreferrer">NYC source data</a> · <a href="https://www.nyc.gov/assets/oti/downloads/pdf/mobile-telecom-franchises/new-york-smsa-limited-partnership-mtf-agreement-2020.pdf" target="_blank" rel="noopener noreferrer">Franchise agreement</a></p>
+    </section>
     </aside>
+
+    <section id="project-overview" class="project-overview" aria-labelledby="project-title" tabindex="-1" hidden>
+      <div class="overview-content">
+        <header class="overview-header"><div><p class="eyebrow">PROJECT OVERVIEW</p><h1 id="project-title"></h1></div><button id="overview-back" type="button">Back to map</button></header>
+        <div class="overview-grid">
+          <section class="overview-card project-context-card"><div><h2>Project context</h2><label class="use-case-label" for="overview-use-case">Use case</label><select id="overview-use-case" class="project-picker" aria-describedby="overview-use-case-status" disabled><option value="">Uncategorized</option></select><p id="overview-use-case-status" class="use-case-status" role="status" aria-live="polite"></p><button id="overview-use-case-retry" class="text-button" type="button" hidden>Retry loading use cases</button><p id="project-status" role="status" aria-live="polite"></p></div><details class="overview-site-list" open><summary id="project-sites-heading">Project sites</summary><ol id="project-sites" tabindex="0" aria-label="Project sites"></ol></details></section>
+        </div>
+        <section class="overview-card overview-tasks-card" aria-labelledby="task-table-title">
+          <div class="overview-card-header"><h2 id="task-table-title">Drive-test tasks</h2><div class="task-actions"><button id="overview-task-new" class="task-primary" type="button">New task</button><button id="overview-tasks" type="button">Map task editor</button><button id="overview-resume" type="button" hidden>Resume draft</button><button id="overview-task-retry" type="button" hidden>Retry loading tasks</button></div></div>
+          <p id="overview-task-status" role="status" aria-live="polite"></p><p id="overview-task-error" role="alert" hidden></p>
+          <form id="overview-task-form"></form><p class="task-scroll-note">Scroll horizontally for all columns. Task IDs stay visible.</p>
+          <div id="overview-task-list" class="task-table-scroll" role="region" aria-label="Drive-task data table" tabindex="0">
+            <table class="task-table"><caption class="visually-hidden">Tasks in the selected project; GPS coordinates use WGS84 latitude and longitude</caption><thead><tr><th scope="col">Task ID / name</th><th scope="col">Speed cases (km/h)</th><th scope="col">Routes</th><th scope="col">Distance</th><th scope="col">Estimated duration</th><th scope="col">Start GPS (WGS84)</th><th scope="col">End GPS (WGS84)</th><th scope="col">Actions</th></tr></thead><tbody id="overview-task-rows"></tbody></table>
+          </div>
+          <p id="overview-task-empty" class="network-note">No saved tasks. Choose New task to create one.</p>
+          <p class="network-note">Use Save to apply task changes. Expand a route count for route and speed-case details; use Edit routes on map to draw or fit paths. Duration excludes traffic, stops and transfers. Distances containing unfitted paths are provisional.</p>
+        </section>
+      </div>
+    </section>
 
     <nav class="map-controls" aria-label="Camera controls">
       <button id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
@@ -81,5 +126,16 @@
       <button id="north" aria-label="Reset bearing to north" title="Reset bearing to north"><span aria-hidden="true">▲</span></button><button id="reset" aria-label="Reset camera to Toronto overview" title="Reset camera to Toronto overview">⌂</button>
     </nav>
     <div id="loading" class="loading"><span class="spinner"></span><b>Preparing your view</b><small>Loading map and terrain data</small></div><div id="error" class="error panel" hidden><b>Map data could not be loaded.</b><p>The map needs a connection to the map and elevation tile services.</p><button id="retry">Try again</button></div>
-  </main><script type="module" src="./app.js?v=cluster-7"></script>
+  </main>
+  <script>
+    function startupFailed() {
+      const loading = document.getElementById('loading'), error = document.getElementById('error');
+      if (loading.hidden) return;
+      loading.hidden = true; error.hidden = false;
+      error.querySelector('p').textContent = 'The viewer could not start. Check the local service and try again.';
+    }
+    document.getElementById('retry').onclick = () => location.reload();
+    setTimeout(startupFailed, 35000);
+  </script>
+  <script type="module" src="./app.js?v=cluster-7" onerror="startupFailed()"></script>
 </body></html>

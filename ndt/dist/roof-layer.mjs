@@ -11,8 +11,9 @@ const colors = {brick:'#ad8271',stone:'#b9b5a7',tiles:'#b77f70',glass:'#a8c3cc',
 export const roofFeatureIds = roof => roof.type === 'relation' ? [roof.id * 10 + 3] : [roof.id * 10, roof.id * 10 + 2];
 function colour(value, material, fallback) {
   const candidate = (value || colors[String(material || '').toLowerCase()] || fallback).toLowerCase();
-  return /^#[\da-f]{3}([\da-f]{3})?$/i.test(candidate) || Object.hasOwn(THREE.Color.NAMES, candidate)
+  const color = /^#[\da-f]{3}([\da-f]{3})?$/i.test(candidate) || Object.hasOwn(THREE.Color.NAMES, candidate)
     ? new THREE.Color(candidate) : new THREE.Color(fallback);
+  return color.getHex() === 0xff0000 ? new THREE.Color('#b09b8b') : color;
 }
 function prepare(geometry, color, elevation) {
   if (!geometry.getAttribute('position')?.count) { geometry.dispose(); return null; }

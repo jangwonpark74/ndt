@@ -20,6 +20,47 @@ spec.loader.exec_module(extractor)
 
 
 class RegionTests(unittest.TestCase):
+    def test_project_use_cases_are_validated_isolated_and_persistent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            handler = server.handler_for(path).__new__(server.handler_for(path))
+            handler.respond, handler.send_error = Mock(), Mock()
+            def put(value, project='northyork', region='toronto'):
+                handler.path = f'/api/regions/{region}/projects/{project}/use-case'
+                payload = json.dumps({'useCase':value}).encode()
+                handler.headers = {'Content-Length':str(len(payload))}
+                handler.rfile = io.BytesIO(payload)
+                handler.send_error.reset_mock()
+                handler.do_PUT()
+            for value in ('virtual-drive-test', 'parameter-ab-test', 'ai-ran-benchmark'):
+                put(value)
+                handler.send_error.assert_not_called()
+                self.assertEqual(json.loads(handler.respond.call_args.args[0]), {'useCase':value})
+            for invalid in ('bad', [], {}, True, 1):
+                put(invalid)
+                self.assertEqual(handler.send_error.call_args.args[0], 400)
+            put('parameter-ab-test', 'manhattan', 'new-york')
+            handler.send_error.assert_not_called()
+            put('virtual-drive-test', 'unknown')
+            handler.send_error.assert_called_with(404)
+            server.initialize(path)
+            handler.path = '/api/regions/toronto/project-use-cases'
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), {'northyork':'ai-ran-benchmark'})
+            handler.path = '/api/regions/new-york/project-use-cases'
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), {'manhattan':'parameter-ab-test'})
+            put(None)
+            handler.send_error.assert_not_called()
+            handler.path = '/api/regions/toronto/project-use-cases'
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), {})
+            with closing(server.connect(path)) as db:
+                self.assertEqual(db.execute('SELECT count(*) FROM drive_tasks').fetchone()[0], 0)
+                self.assertEqual(db.execute('SELECT count(*) FROM project_sites').fetchone()[0], 0)
+                self.assertEqual(db.execute('PRAGMA foreign_key_check').fetchall(), [])
+
     def test_migration_preserves_edits_and_does_not_overwrite(self):
         with tempfile.TemporaryDirectory() as directory:
             legacy = Path(directory) / 'old.sqlite3'
@@ -79,18 +120,18 @@ class RegionTests(unittest.TestCase):
     def test_default_port_fallback_and_exact_port(self):
         in_use = OSError(errno.EADDRINUSE, 'in use')
         sentinel = object()
-        with patch.object(server, 'ThreadingHTTPServer', side_effect=[in_use, sentinel]) as bind:
+        with patch.object(server, 'ViewerHTTPServer', side_effect=[in_use, sentinel]) as bind:
             self.assertIs(server.bind_server('127.0.0.1', None, object), sentinel)
             self.assertEqual([call.args[0][1] for call in bind.call_args_list], [5179, 5180])
-        with patch.object(server, 'ThreadingHTTPServer', side_effect=OSError(errno.EADDRINUSE, 'in use')) as bind:
+        with patch.object(server, 'ViewerHTTPServer', side_effect=OSError(errno.EADDRINUSE, 'in use')) as bind:
             with self.assertRaisesRegex(OSError, 'Port 5179 is already in use'):
                 server.bind_server('127.0.0.1', 5179, object)
             self.assertEqual(bind.call_count, 1)
-        with patch.object(server, 'ThreadingHTTPServer', side_effect=OSError(errno.EADDRINUSE, 'in use')) as bind:
+        with patch.object(server, 'ViewerHTTPServer', side_effect=OSError(errno.EADDRINUSE, 'in use')) as bind:
             with self.assertRaisesRegex(OSError, 'All default ports 5179–5189'):
                 server.bind_server('127.0.0.1', None, object)
             self.assertEqual(bind.call_count, 11)
-        with patch.object(server, 'ThreadingHTTPServer', side_effect=OSError(errno.EACCES, 'denied')) as bind:
+        with patch.object(server, 'ViewerHTTPServer', side_effect=OSError(errno.EACCES, 'denied')) as bind:
             with self.assertRaises(OSError) as caught:
                 server.bind_server('127.0.0.1', None, object)
             self.assertEqual(caught.exception.errno, errno.EACCES)
@@ -222,6 +263,49 @@ class RegionTests(unittest.TestCase):
             handler.rfile = io.BytesIO(payload)
             handler.do_PUT()
             handler.send_error.assert_called_once_with(400, 'Unknown site ID')
+
+    def test_project_tasks_are_validated_isolated_and_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'regions.sqlite3'
+            server.initialize(path)
+            handler_type = server.handler_for(path)
+            handler = handler_type.__new__(handler_type)
+            handler.respond, handler.send_error = Mock(), Mock()
+            task = dict(id='DT-1', name='Morning test', driveSpeedKmh=30.5, routes=[dict(id='route-1', name='Main road', coordinates=[[-79.4, 43.7], [-79.41, 43.72]], waypoints=[[-79.4, 43.7], [-79.41, 43.72]], roadFit='fitted', fitMessage='Road fitted')])
+            def put(tasks, project='northyork', region='toronto'):
+                handler.path = f'/api/regions/{region}/projects/{project}/tasks'
+                payload = json.dumps(tasks).encode()
+                handler.headers = {'Content-Length': str(len(payload))}
+                handler.rfile = io.BytesIO(payload)
+                handler.send_error.reset_mock()
+                handler.do_PUT()
+            put([task])
+            handler.send_error.assert_not_called()
+            handler.do_GET()
+            accepted = json.loads(handler.respond.call_args.args[0])
+            self.assertEqual([{k:v for k,v in item.items() if k not in ('driveMetrics','speedCases')} for item in accepted], [task])
+            self.assertGreater(accepted[0]['driveMetrics']['distanceKm'],0)
+            for tasks in ([task, task], [{**task, 'id': '../bad'}], [{**task, 'routes': [dict(id='r', name='Bad', coordinates=[[True, 0], [1, 2]])]}], [{**task, 'routes': [dict(id='r', name='Bad', coordinates=[[1, 2], [1, 2]])]}]):
+                put(tasks)
+                self.assertEqual(handler.send_error.call_args.args[0], 400)
+            for speed in (0, -1, 200.1, True, '30', float('inf')):
+                put([{**task, 'driveSpeedKmh':speed}])
+                self.assertEqual(handler.send_error.call_args.args[0], 400)
+            put([task], 'unknown')
+            handler.send_error.assert_called_with(404)
+            handler.path = '/api/regions/toronto/projects/etobicoke/tasks'
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), [])
+            put([task], 'manhattan', 'new-york')
+            handler.send_error.assert_not_called()
+            server.initialize(path)
+            with closing(sqlite3.connect(path)) as db:
+                self.assertEqual([{k:v for k,v in item.items() if k not in ('driveMetrics','speedCases')} for item in server.read_tasks(db,'toronto','northyork')], [task])
+                self.assertEqual(db.execute('SELECT count(*) FROM drive_tasks').fetchone()[0], 2)
+            put([])
+            handler.send_error.assert_not_called()
+            handler.do_GET()
+            self.assertEqual(json.loads(handler.respond.call_args.args[0]), [])
 
     def test_verizon_filter_preserves_reported_status(self):
         rows = [dict(id='1', franchisee='NY SMSA', longitude='-73.98', latitude='40.75', status='Proposed'),

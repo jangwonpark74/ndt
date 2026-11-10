@@ -13,3 +13,20 @@ export function searchResults(data) {
     return label ? [{label, coordinates:coordinates.slice(0,2)}] : [];
   }).slice(0,5);
 }
+
+export async function searchLocations(query, center, signal) {
+  const params = new URLSearchParams({q:query, limit:'5', lat:String(center.lat), lon:String(center.lng)});
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  if (signal?.aborted) abort();
+  else signal?.addEventListener('abort', abort, {once:true});
+  const timeout = setTimeout(abort, 10000);
+  try {
+    const response = await fetch(`https://photon.komoot.io/api/?${params}`, {signal:controller.signal});
+    if (!response.ok) throw new Error('Search service unavailable');
+    return searchResults(await response.json());
+  } finally {
+    clearTimeout(timeout);
+    signal?.removeEventListener('abort', abort);
+  }
+}

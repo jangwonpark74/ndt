@@ -19,7 +19,8 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['mob
     await expect.poll(() => page.evaluate(() => window.testMap.getSource('project-coverage')._data.features.length), {timeout:30000}).toBe(4);
     await page.screenshot({ path: testInfo.outputPath(`${name}.png`) });
     await expect(page.locator('.maplibregl-canvas')).toBeVisible();
-    await page.getByRole('button', { name: 'Harbourfront' }).click();
+    if (name === 'mobile') await page.getByRole('button', {name:'Open map navigation'}).click();
+    await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
     await expect(page.locator('#project-status')).toContainText('7 Bell locations', {timeout:15000});
     await expect.poll(() => page.evaluate(() => !window.testMap.isMoving()), {timeout:15000}).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`${name}-harbourfront.png`) });
@@ -52,7 +53,7 @@ test('live New York region loads with Verizon reservations', async ({ page }, te
   await expect(page.locator('#loading')).toBeHidden({timeout:30000});
   await expect(page.locator('#error')).toBeHidden();
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:30000});
-  await page.getByRole('button', {name:'Manhattan', exact:true}).click();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Manhattan'});
   await expect(page.locator('#coordinates')).toContainText('40.7484', {timeout:15000});
   await page.screenshot({path:testInfo.outputPath('new-york-manhattan.png')});
 });

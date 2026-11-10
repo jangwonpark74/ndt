@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import {createRegionModel} from '../dist/region-model.mjs';
+import {createRegionViewModel} from '../dist/region-view-model.mjs';
+
+const regions = [{id:'toronto',name:'Toronto'},{id:'new-york',name:'New York'}];
+let calls = 0;
+const model = createRegionModel(async url => {calls++; assert.equal(url,'/api/regions'); return {ok:true,json:async()=>regions};});
+const vm = createRegionViewModel(model,'unknown');
+let state;
+vm.subscribe(value=>{state=value;});
+assert.deepEqual(await vm.load(),regions[0]);
+assert.equal(calls,1);
+assert.equal(state.loading,false);
+assert.equal(state.error,false);
+assert.equal(vm.assetBase(),'/api/regions/toronto/assets');
+assert.equal(vm.regionUrl('toronto','https://example.test/?other=1'),null);
+assert.equal(vm.regionUrl('unknown','https://example.test/'),null);
+assert.equal(vm.regionUrl('new-york','https://example.test/?other=1'), 'https://example.test/?other=1&region=new-york');
+const selected = createRegionViewModel(model,'new-york');
+assert.deepEqual(await selected.load(),regions[1]);
+const invalid = createRegionViewModel(createRegionModel(async()=>({ok:true,json:async()=>[]})),'toronto');
+await assert.rejects(invalid.load(),/Invalid region catalog/);
+assert.equal(invalid.getState().error,true);
+const offline = createRegionModel(async()=>({ok:false}));
+await assert.rejects(offline.load(),/Region catalog unavailable/);
+console.log('Region model and view-model passed.');

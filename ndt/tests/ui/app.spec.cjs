@@ -36,16 +36,37 @@ test('location search presents results, handles failures and supports Escape', a
   await expect(query).toBeFocused();
 });
 
+test('dismissing a pending location search keeps its results closed', async ({ page }) => {
+  let release;
+  const wait = new Promise(resolve => { release = resolve; });
+  let started;
+  const requestStarted = new Promise(resolve => { started = resolve; });
+  await page.route('https://photon.komoot.io/api/**', async route => {
+    started();
+    await wait;
+    await route.fulfill({json:{features:[]}}).catch(() => {});
+  });
+  const query = page.getByRole('searchbox', {name:'Search locations'});
+  await query.fill('Toronto');
+  await query.press('Enter');
+  await requestStarted;
+  await expect(page.locator('#search-status')).toHaveText('Searching…');
+  await query.press('Escape');
+  await expect(page.locator('#search-results')).toBeHidden();
+  await expect(page.locator('#location-search button[type="submit"]')).toBeEnabled();
+  release();
+  await expect(page.locator('#search-results')).toBeHidden();
+});
+
 test('network and map controls expose usable states', async ({ page }) => {
-  const network = page.getByRole('complementary', { name: 'Network infrastructure' });
+  const network = page.getByRole('region', { name: 'Network infrastructure' });
   await expect(network).toBeVisible();
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
   await page.getByRole('button', { name: 'Close network view' }).click();
   await expect(network).toBeHidden();
-  await page.getByText('Network', { exact: true }).click();
+  await page.locator('.network-settings > summary').click();
   const telus = page.getByLabel('TELUS sites');
-  await expect(telus).not.toBeChecked();
-  await telus.check();
+  await expect(telus).toBeChecked();
   await expect(network).toBeVisible();
   await page.getByText('Map Settings', { exact: true }).click();
   const buildings = page.getByLabel('Buildings');
@@ -54,6 +75,90 @@ test('network and map controls expose usable states', async ({ page }) => {
   await expect(buildings).not.toBeChecked();
   await buildings.check();
   await expect(buildings).toBeChecked();
+});
+
+test('closing network details preserves visible sites, fans and the selected bearing', async ({page})=>{
+  await page.route('**/app.js*',async route=>{
+    const response = await route.fetch();
+    await route.fulfill({response,body:(await response.text()).replace('const map = new maplibregl.Map','const map = window.testMap = new maplibregl.Map')});
+  });
+  await page.reload();
+  await expect(page.locator('#network-status')).toContainText('In view:',{timeout:20000});
+  await page.getByLabel('Find a licensed site').fill('5205 Timberlea Boulevard');
+  await page.locator('#network-list button').first().click();
+  await expect(page.locator('#network-detail')).toContainText('5205 Timberlea Boulevard');
+  await page.locator('#sector-choices button').first().click();
+  const snapshot = () => page.evaluate(()=>{
+    const map=window.testMap;
+    return {markers:map.getSource('network-sites')._data.features.length,
+      fans:map.getSource('network-sector-fans')._data.features.length,
+      selected:map.getSource('network-site-fans-selected')._data.features,
+      bearing:map.getSource('network-sector-selected')._data.features,
+      markerVisibility:map.getLayoutProperty('network-sites','visibility'),
+      fanVisibility:map.getLayoutProperty('network-sector-fans','visibility')};
+  });
+  const before=await snapshot();
+  expect(before.markers).toBeGreaterThan(0); expect(before.fans).toBeGreaterThan(0);
+  expect(before.selected.length).toBeGreaterThan(0); expect(before.bearing).toHaveLength(1);
+  await page.getByRole('button',{name:'Close network view'}).click();
+  await expect(page.locator('#network-panel')).toBeHidden();
+  expect(await snapshot()).toEqual(before);
+  await page.evaluate(siteId=>{
+    const map=window.testMap, original=map.queryRenderedFeatures;
+    map.queryRenderedFeatures=()=>[{properties:{site_id:siteId},layer:{id:'network-sites'}}];
+    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
+    map.queryRenderedFeatures=original;
+  },before.selected[0].properties.site_id);
+  await expect(page.locator('#network-panel')).toBeVisible();
+  await expect(page.locator('#network-detail')).toContainText('5205 Timberlea Boulevard');
+  await page.getByRole('button',{name:'Close network view'}).click();
+  await page.locator('.network-settings > summary').click();
+  await expect(page.locator('#network-panel')).toBeVisible();
+  await expect(page.getByLabel('TELUS sites')).toBeChecked();
+  await expect(page.getByLabel('Bell outdoor')).toBeChecked();
+  await page.getByLabel('TELUS sites').uncheck();
+  await page.getByLabel('Bell outdoor').uncheck();
+  await expect(page.locator('#network-panel')).toBeHidden();
+  await expect.poll(()=>page.evaluate(()=>window.testMap.getLayoutProperty('network-sites','visibility'))).toBe('none');
+});
+
+test('region catalog failure exposes reload recovery', async ({ page }) => {
+  await page.route('**/api/regions', route => route.fulfill({status:503}));
+  await page.reload();
+  await expect(page.locator('#error')).toContainText('regional data service is unavailable');
+  await page.unroute('**/api/regions');
+  await page.locator('#retry').click();
+  await expect(page.locator('#error')).toBeHidden({timeout:20000});
+  await expect(page.locator('#network-status')).toContainText('In view:', {timeout:20000});
+});
+
+test('map feature selection presents the building marker and clears it', async ({ page }) => {
+  await page.route('**/app.js*', async route => {
+    const response = await route.fetch();
+    await route.fulfill({response,body:(await response.text()).replace('const map = new maplibregl.Map','const map = window.testMap = new maplibregl.Map')});
+  });
+  await page.route('**/map-scene-view.mjs', async route => {
+    const response = await route.fetch();
+    await route.fulfill({response,body:(await response.text()).replace('markerLayer = createMarkerLayer();','markerLayer = window.testMarker = createMarkerLayer();')});
+  });
+  await page.reload();
+  await expect(page.locator('#network-status')).toContainText('In view:', {timeout:20000});
+  await page.getByRole('button',{name:'Close network view'}).click();
+  const calls = await page.evaluate(() => {
+    const map = window.testMap, layer = window.testMarker, originalSet = layer.setLocation, originalQuery = map.queryRenderedFeatures;
+    const calls = [];
+    layer.setLocation = function(location,height) {calls.push({location,height}); return originalSet.call(this,location,height);};
+    map.queryRenderedFeatures = () => [
+      {source:'openmaptiles',sourceLayer:'transportation',properties:{}},
+      {source:'openmaptiles',sourceLayer:'building',properties:{render_height:42}},
+    ];
+    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
+    map.queryRenderedFeatures = () => [];
+    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
+    map.queryRenderedFeatures = originalQuery; layer.setLocation = originalSet;
+    return calls;
+  });
+  expect(calls).toEqual([{location:{lng:-79.4,lat:43.7},height:42},{location:null,height:0}]);
 });
 
 test('site markers retain indoor locations and require outdoor fans', async ({ page }) => {
@@ -82,8 +187,8 @@ test('switch regions and inspect Verizon reservations without Toronto data', asy
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
   await page.getByRole('button', {name:'New York City region'}).click();
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', { timeout: 20000 });
-  await expect(page.getByRole('complementary', {name:'Network infrastructure'})).toBeHidden();
-  await expect(page.getByRole('complementary', {name:'Verizon pole reservations'})).toBeVisible();
+  await expect(page.getByRole('region', {name:'Network infrastructure'})).toBeHidden();
+  await expect(page.getByRole('region', {name:'Verizon pole reservations'})).toBeVisible();
   await expect(page.getByRole('button', {name:'New York City region'})).toHaveAttribute('aria-pressed','true');
   await expect(page.getByLabel('Reset camera to New York City overview')).toBeVisible();
   const accessibility = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();
@@ -93,11 +198,11 @@ test('switch regions and inspect Verizon reservations without Toronto data', asy
   await page.locator('#nyc-list button').click();
   await expect(page.locator('#nyc-detail')).toContainText('Installed');
   await expect(page.locator('#nyc-detail')).toContainText('49 STREET');
-  await page.getByRole('button', {name:'Manhattan', exact:true}).click();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Manhattan'});
   await expect(page.locator('#coordinates')).toContainText('40.7484', {timeout:10000});
   await page.getByRole('button', {name:'Toronto region'}).click();
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
-  await expect(page.getByRole('complementary', {name:'Verizon pole reservations'})).toBeHidden();
+  await expect(page.getByRole('region', {name:'Verizon pole reservations'})).toBeHidden();
 });
 
 test('proposed reservations are searchable but do not render as markers', async ({ page }) => {
@@ -114,6 +219,18 @@ test('proposed reservations are searchable but do not render as markers', async 
   await expect(page.locator('#nyc-list button').first()).toContainText('Proposed');
 });
 
+test('New York reservation data failure can be retried', async ({ page }) => {
+  await page.route('**/verizon-poles.geojson', route => route.fulfill({status:503}));
+  await page.goto('/?region=new-york');
+  await expect(page.locator('#nyc-status')).toContainText('Reservation data unavailable', {timeout:20000});
+  await page.unroute('**/verizon-poles.geojson');
+  await page.getByText('Verizon reservations', {exact:true}).first().click();
+  const toggle = page.getByRole('checkbox', {name:'Pole reservations'});
+  await toggle.uncheck();
+  await toggle.check();
+  await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:20000});
+});
+
 test('Toronto projects outline seven full-radius sites and react to invalid assumptions', async ({ page }) => {
   await page.route('**/app.js*', async route => {
     const response = await route.fetch();
@@ -125,7 +242,7 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
   const snapshot = () => page.evaluate(() => ({boundary:window.testMap.getSource('project-coverage')._data, sites:window.testMap.getSource('project-sites')._data}));
   await expect.poll(async () => (await snapshot()).boundary.features.length).toBe(4);
   expect((await snapshot()).boundary.features.map(f=>f.properties.project_id).sort()).toEqual(['etobicoke','harbourfront','northyork','scarborough']);
-  await page.getByRole('button',{name:'Harbourfront'}).click();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
   await expect(page.locator('#project-status')).toContainText('7 Bell locations');
   await expect(page.locator('#project-sites li')).toHaveCount(7);
   await expect.poll(async () => (await snapshot()).sites.features.length).toBe(7);
@@ -137,6 +254,7 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
   expect(await page.evaluate(() => window.testMap.getPaintProperty('project-boundary','line-dasharray'))).toEqual([2,2]);
   expect(await page.evaluate(() => window.testMap.getLayoutProperty('project-boundary','line-cap'))).toBe('round');
   expect(initial.sites.features).toHaveLength(7);
+  await page.locator('.network-settings > summary').click();
   await page.getByLabel('Assumed EIRP (dBm)').fill('100');
   await expect(page.locator('#project-status')).toContainText('Boundary unavailable');
   expect((await snapshot()).boundary.features).toHaveLength(0);
@@ -145,7 +263,7 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
   await expect(page.locator('#project-status')).toContainText('7 Bell locations');
   expect((await snapshot()).boundary.features).toHaveLength(4);
   expect((await snapshot()).sites.features.map(f=>f.properties.site_id)).toEqual(initial.sites.features.map(f=>f.properties.site_id));
-  await page.getByRole('button',{name:'North York'}).click();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'North York'});
   await expect(page.locator('#project-title')).toHaveText('North York');
   expect((await snapshot()).boundary.features).toHaveLength(4);
 });
@@ -153,7 +271,8 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
 test('New York projects disclose missing radio parameters', async ({ page }) => {
   await page.goto('/?region=new-york');
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:20000});
-  await page.getByRole('button',{name:'Manhattan',exact:true}).click();
+  await expect(page.locator('#project-picker option')).toHaveText(['Select a project','Manhattan','Brooklyn','Queens','The Bronx','Staten Island']);
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Manhattan'});
   await expect(page.locator('#project-status')).toContainText('Coverage boundary unavailable');
   await expect(page.locator('#project-sites li')).toHaveCount(0);
 });
@@ -165,7 +284,7 @@ test('right-click removes and restores a project site, including after reload', 
   });
   await page.reload();
   await expect.poll(() => page.evaluate(() => window.testMap?.getSource('project-coverage')?._data.features.length)).toBe(4);
-  await page.getByRole('button',{name:'Harbourfront'}).click();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
   await expect(page.locator('#project-sites li')).toHaveCount(7);
   await expect.poll(() => page.evaluate(() => window.testMap.getSource('project-sites')._data.features.length)).toBe(7);
   const initial = await page.evaluate(() => window.testMap.getSource('project-sites')._data.features.map(f=>({id:f.properties.site_id,coordinates:f.geometry.coordinates})));
@@ -214,7 +333,7 @@ test('right-click removes and restores a project site, including after reload', 
     expect(saved.harbourfront).not.toContain(site.id);
     await page.reload();
     await expect.poll(() => page.evaluate(() => window.testMap?.getSource('project-coverage')?._data.features.length)).toBe(4);
-    await page.getByRole('button',{name:'Harbourfront'}).click();
+    await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
     await expect(page.locator('#project-sites li')).toHaveCount(6);
     await rightClickSite();
     await page.getByRole('button',{name:'Add site to project'}).click();
@@ -232,7 +351,7 @@ test('right-click removes and restores a project site, including after reload', 
   }
 });
 
-for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
+for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:320,height:568}]) {
   test(`project selection fits the boundary in the visible map at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.route('**/app.js*', async route => {
@@ -242,23 +361,30 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
     await page.reload();
     await expect.poll(() => page.evaluate(() => window.testMap?.getSource('project-coverage')?._data.features.length)).toBe(4);
     for (const [name,id] of [['Harbourfront','harbourfront'],['Etobicoke','etobicoke'],['North York','northyork'],['Scarborough','scarborough']]) {
-      await page.getByRole('button',{name,exact:true}).click();
+      if (viewport.width <= 700) await page.getByRole('button',{name:'Open map navigation'}).click();
+      await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:name});
       await expect(page.locator('#project-title')).toHaveText(name);
+      await expect(page.locator('#task-panel')).toBeVisible();
+      await expect(page.locator('#map-navigation #task-panel')).toHaveCount(0);
       await expect.poll(() => page.evaluate(id => {
         const map = window.testMap, boundary = map.getSource('project-coverage')._data.features.find(feature=>feature.properties.project_id === id);
         if (!boundary || map.isMoving()) return false;
         const sidebar = document.querySelector('.intro').getBoundingClientRect();
-        const panel = document.querySelector('#network-panel');
-        const right = Math.min(document.querySelector('.map-controls').getBoundingClientRect().left,panel.hidden ? innerWidth : panel.getBoundingClientRect().left);
-        return boundary.geometry.coordinates[0].every(point=>{
-          const p = map.project(point);
-          return p.x >= sidebar.right && p.x <= right && p.y >= 76 && p.y <= innerHeight;
-        });
+        const panel = document.querySelector('#context-panel').getBoundingClientRect();
+        const controls = document.querySelector('.map-controls').getBoundingClientRect();
+        const mobile = innerWidth <= 700;
+        const right = mobile ? innerWidth : Math.min(controls.left,panel.left);
+        const top = mobile ? panel.bottom : 76;
+        const projected = boundary.geometry.coordinates[0].map(point=>map.project(point));
+        const xs = projected.map(p=>p.x), ys = projected.map(p=>p.y);
+        return Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)) > 70 && projected.every(p=>
+          p.x >= (mobile ? 0 : sidebar.right) && p.x <= right && p.y >= top && p.y <= (mobile ? controls.top : innerHeight));
       },id), {timeout:15000}).toBe(true);
     }
     if (viewport.width <= 700) {
       await expect(page.locator('#network-panel')).toBeHidden();
-      await page.getByText('Network',{exact:true}).click();
+      await page.getByRole('button',{name:'Open map navigation'}).click();
+      await page.locator('.network-settings > summary').click();
       await expect(page.locator('#network-panel')).toBeVisible();
     }
   });
@@ -266,25 +392,112 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
 
 test('New York controls remain reachable on a phone', async ({ page }) => {
   await page.setViewportSize({width:390,height:844});
+  await page.getByRole('button',{name:'Open map navigation'}).click();
   await page.getByRole('button', {name:'New York City region'}).click();
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:20000});
-  const panel = await page.locator('#nyc-panel').boundingBox();
+  const panel = await page.locator('#context-panel').boundingBox();
   const controls = await page.getByRole('navigation', {name:'Camera controls'}).boundingBox();
   expect(panel.y + panel.height).toBeLessThanOrEqual(controls.y);
   await page.getByRole('button', {name:'Close Verizon reservations'}).click();
   await expect(page.locator('#nyc-panel')).toBeHidden();
 });
 
+test('project tasks and separate overview preserve map state',async ({page})=>{
+  await page.route('**/app.js*',async route=>{
+    const response=await route.fetch();
+    await route.fulfill({response,body:(await response.text()).replace('const map = new maplibregl.Map','const map = window.testMap = new maplibregl.Map')});
+  });
+  await page.reload();
+  await expect.poll(()=>page.evaluate(()=>window.testMap?.getSource('project-coverage')?._data.features.length)).toBe(4);
+  await expect(page.locator('#project-picker option')).toHaveText(['Select a project','Harbourfront','Etobicoke','North York','Scarborough']);
+  await expect(page.locator('#project-tab')).toBeDisabled();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'North York'});
+  const panel=page.getByRole('region',{name:'Project tasks'});
+  await expect(panel).toBeVisible();
+  await expect(page.locator('#context-panel .context-close')).toHaveCount(1);
+  await expect(page.locator('#project-tab')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#project-status')).toContainText('Bell locations');
+  await expect(page.locator('#project-sites li')).toHaveCount(7);
+  expect((await panel.boundingBox()).x).toBeGreaterThan(700);
+  await expect(page.getByRole('button',{name:'Region overview',exact:true})).toHaveCount(0);
+  const accessibility=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();
+  expect(accessibility.violations).toEqual([]);
+  const snapshot=()=>page.evaluate(()=>({boundaries:window.testMap.getSource('project-coverage')._data,sites:window.testMap.getSource('project-sites')._data}));
+  const before=await snapshot();
+  await page.getByRole('button',{name:'Close project tasks'}).click();
+  await expect(panel).toBeHidden();
+  expect(await snapshot()).toEqual(before);
+  await page.getByRole('button',{name:/Active project North York Overview/}).click();
+  await expect(page.locator('#project-overview')).toBeVisible();
+  await expect(panel).toBeHidden();
+  await page.getByRole('button',{name:'Back to map'}).click();
+  await page.locator('.network-settings > summary').click();
+  await expect(panel).toBeHidden();
+  await expect(page.locator('#network-panel')).toBeVisible();
+  await page.getByRole('button',{name:'Tasks',exact:true}).click();
+  await expect(page.locator('#network-panel')).toBeHidden();
+  await expect(page.locator('#project-sites li')).toHaveCount(7);
+});
+
+test('closing reservation details keeps markers and allows reopening',async ({page})=>{
+  await page.route('**/app.js*',async route=>{
+    const response=await route.fetch();
+    await route.fulfill({response,body:(await response.text()).replace('const map = new maplibregl.Map','const map = window.testMap = new maplibregl.Map')});
+  });
+  await page.goto('/?region=new-york');
+  await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot',{timeout:20000});
+  await page.getByRole('button',{name:'Close Verizon reservations'}).click();
+  await expect(page.locator('#nyc-panel')).toBeHidden();
+  const visible=await page.evaluate(()=>window.testMap.getLayoutProperty('nyc-reservations','visibility'));
+  expect(visible).not.toBe('none');
+  await page.evaluate(()=>{
+    const map=window.testMap, feature=map.getSource('nyc-reservations')._data.features.find(f=>f.properties.status !== 'Proposed');
+    const original=map.queryRenderedFeatures;
+    map.queryRenderedFeatures=()=>[{properties:{id:feature.properties.id},layer:{id:'nyc-reservations'}}];
+    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-74,lat:40.7}});
+    map.queryRenderedFeatures=original;
+  });
+  await expect(page.locator('#nyc-detail')).toContainText('reservation');
+  await expect(page.locator('#nyc-panel')).toBeVisible();
+  await page.getByRole('button',{name:'Close Verizon reservations'}).click();
+  await page.getByText('Verizon reservations',{exact:true}).click();
+  await expect(page.getByRole('checkbox',{name:'Pole reservations',exact:true})).toBeChecked();
+  await expect(page.locator('#nyc-panel')).toBeVisible();
+  await expect(page.locator('#nyc-detail')).toContainText('reservation');
+  await page.getByRole('checkbox',{name:'Pole reservations',exact:true}).uncheck();
+  await expect(page.locator('#nyc-panel')).toBeHidden();
+  await expect.poll(()=>page.evaluate(()=>window.testMap.getLayoutProperty('nyc-reservations','visibility'))).toBe('none');
+});
+
 test('mobile navigation and camera controls remain reachable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Close network view' }).click();
-  const navigation = page.getByRole('navigation', { name: 'Map navigation' });
+  const navigation = page.locator('#map-navigation');
   const controls = page.getByRole('navigation', { name: 'Camera controls' });
+  const toggle = page.locator('#navigation-toggle');
+  await expect(navigation).toBeHidden();
+  await toggle.focus();
+  await page.keyboard.press('Enter');
   await expect(navigation).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-expanded','true');
+  await page.keyboard.press('Escape');
+  await expect(navigation).toBeHidden();
+  await expect(toggle).toBeFocused();
+  await toggle.click();
   await expect(controls).toBeVisible();
-  const harbourfront = page.getByRole('button', { name: 'Harbourfront' });
-  await harbourfront.click();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
+  await expect(navigation).toBeHidden();
   await expect(page.locator('#project-status')).toContainText('7 Bell locations', { timeout: 10000 });
+  await expect(page.locator('#task-panel')).toBeVisible();
+  await page.getByRole('button',{name:'Close project tasks'}).click();
+  const project = page.getByRole('button',{name:/Active project Harbourfront Overview/});
+  await expect(project).toBeVisible();
+  await project.click();
+  await expect(navigation).toBeHidden();
+  await expect(page.locator('#project-overview')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#task-panel')).toBeHidden();
+  await expect(page.getByRole('button',{name:'Open map navigation'})).toBeFocused();
   await page.getByRole('button', { name: 'Reset camera to Toronto overview' }).click();
   await expect(page.locator('#coordinates')).toContainText('43.7000', { timeout: 10000 });
   const box = await controls.boundingBox();
@@ -338,7 +551,7 @@ test('network data failure gives a retry path', async ({ page }) => {
   await page.reload();
   await expect(page.locator('#network-status')).toContainText('Network data unavailable', { timeout: 20000 });
   await page.unroute('**/bell-outdoor-sites.geojson*');
-  await page.getByText('Network', { exact: true }).click();
+  await page.locator('.network-settings > summary').click();
   await page.getByLabel('Bell outdoor').uncheck();
   await page.getByLabel('Bell outdoor').check();
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
@@ -444,7 +657,7 @@ test('search results remain clickable above the network panel on a phone', async
 
 test('open controls pass automated WCAG A and AA checks', async ({ page }) => {
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
-  await page.getByText('Network', { exact: true }).click();
+  await page.locator('.network-settings > summary').click();
   await page.getByText('Map Settings', { exact: true }).click();
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(result.violations.map(({ id, impact, nodes }) => ({ id, impact, targets: nodes.map(node => node.target) }))).toEqual([]);
@@ -454,7 +667,7 @@ for (const width of [320, 390, 768, 1440]) {
   test(`network panel and camera controls do not overlap at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
-    const panel = page.locator('#network-panel');
+    const panel = page.locator('#context-panel');
     const controls = page.getByRole('navigation', { name: 'Camera controls' });
     const a = await panel.boundingBox(), b = await controls.boundingBox();
     expect(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y).toBeTruthy();

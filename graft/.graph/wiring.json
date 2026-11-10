@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": 1,
-    "nodeCount": 103,
-    "edgeCount": 244,
+    "nodeCount": 184,
+    "edgeCount": 453,
     "languages": [
       "javascript",
       "python"
@@ -19,6 +19,63 @@
     ]
   },
   "nodes": [
+    {
+      "id": "ndt/road_routing.py",
+      "name": "road_routing.py",
+      "kind": "file",
+      "path": "ndt/road_routing.py",
+      "span": "L1-L78",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5cd9a53b1afa05473de6cb3375032a2f3561cab7bae3a7c5b45b9520ad0d2944",
+      "chars": 3712,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/road_routing.py#driving_route",
+      "name": "driving_route",
+      "kind": "function",
+      "path": "ndt/road_routing.py",
+      "span": "L35-L77",
+      "signature": "def driving_route(points)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "51549a930c0f120657201c5b9b026fa0d89b4fb586aa65bb8a477f2b6b53054c",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/road_routing.py#RoutingUnavailable",
+      "name": "RoutingUnavailable",
+      "kind": "class",
+      "path": "ndt/road_routing.py",
+      "span": "L18-L19",
+      "signature": "class RoutingUnavailable(Exception)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f684269eecb73d5c34eaa383fd5537c7aacbec809a9409b4e5c22aa72f564802",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/road_routing.py#validate_points",
+      "name": "validate_points",
+      "kind": "function",
+      "path": "ndt/road_routing.py",
+      "span": "L22-L32",
+      "signature": "def validate_points(points, maximum=100)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2955b130d4376b1fd2c69a53957d3dd25e4f0e8d009f56ad7e23d17c55c78a3e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
     {
       "id": "ndt/scripts/convert_osm.py",
       "name": "convert_osm.py",
@@ -692,12 +749,12 @@
       "name": "server.py",
       "kind": "file",
       "path": "ndt/server.py",
-      "span": "L1-L120",
+      "span": "L1-L323",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "bcebc0e7b9acb1ef6e9ffffe2c79871f09c0aa10ae7dd9ba78fc498568232c36",
-      "chars": 5441,
+      "body_hash": "8348276607186debafd05dd109a39f39412f5dd6cf1845b805a0ac93ff7207d1",
+      "chars": 18938,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -707,11 +764,11 @@
       "name": "bind_server",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L82-L92",
+      "span": "L280-L290",
       "signature": "def bind_server(host, port, handler)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "124b1131838173f6cf2e1e4c525e86a51432bd8e3e404dcdd257a8f59602247b",
+      "body_hash": "666861d0b6722d3523414708415a8a9f60d15e36c4b7e4a51589ce6a4114ea9c",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -721,11 +778,11 @@
       "name": "handler_for",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L51-L79",
+      "span": "L145-L277",
       "signature": "def handler_for(db_path)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "be865ab51aeffc1877b4669a2e7cf9696cda4bd81094e95cb2c682d86cfc5dd6",
+      "body_hash": "2221c790cd0342c82d53a1cae1049ad219d103af1efc34993939b29db034d7dd",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -735,11 +792,11 @@
       "name": "Handler",
       "kind": "class",
       "path": "ndt/server.py",
-      "span": "L52-L78",
+      "span": "L146-L276",
       "signature": "class Handler(SimpleHTTPRequestHandler)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "1fe40c57f4378b52e6858a85ad8880c035622480299a9795760fd514c523c214",
+      "body_hash": "37b0b3a70f4ac084df0404ca08385d43709fbe70bb56b7402fa89f77db87ff4b",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -749,7 +806,7 @@
       "name": "__init__",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L53-L54",
+      "span": "L147-L148",
       "signature": "def __init__(self, *args, **kwargs)",
       "exported": false,
       "origin": "ast",
@@ -764,11 +821,56 @@
       "name": "do_GET",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L56-L71",
+      "span": "L150-L187",
       "signature": "def do_GET(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "3312fa56a396ab8b788aab6800b99ffde4148c639e93596c4cd85db7b39fa772",
+      "body_hash": "60fbfd79303b92cd0cbfd234ad09d4401f30acdd6020210ab3cfb074be48f5da",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.do_POST",
+      "name": "do_POST",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L251-L265",
+      "signature": "def do_POST(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "87be82e7496f318998dd69705f92ad252c92c52cffb32f59fa126f488a807e05",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.do_PUT",
+      "name": "do_PUT",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L189-L249",
+      "signature": "def do_PUT(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c3cbba2251a3401abfc0fb54fbbc89785364bc49ae91ace975d45977ffe28017",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.known_project",
+      "name": "known_project",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L267-L269",
+      "signature": "def known_project(self, db, region_id, project_id)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "438449f8eb8baeec815a3bef2d6e60326eab91232755cb643cdbece4ea6e9a65",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -779,26 +881,40 @@
       "name": "respond",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L73-L78",
-      "signature": "def respond(self, body, content_type)",
+      "span": "L271-L276",
+      "signature": "def respond(self, body, content_type, status=200)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "f32e5206cae37b996f510a7ee60c241b60e7b56d3cc98c54b6dc0c0b4a663642",
+      "body_hash": "85635ae11a44429e0df637f7c581c5f331831427407e7d99763bc204b75a743b",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
       "owner": "Handler"
     },
     {
+      "id": "ndt/server.py#import_network_dataset",
+      "name": "import_network_dataset",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L59-L86",
+      "signature": "def import_network_dataset(db, region_id, path, content)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6871b09a388fab49c8612a714fe49caeeb3402abca4ec3ce28a940a55a7c00ff",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/server.py#initialize",
       "name": "initialize",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L27-L48",
+      "span": "L99-L142",
       "signature": "def initialize(db_path)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "26620dfbf4d5103d63ed9274eea29c1d54e352f3bb8fc06e1f67f5e957e5a5f8",
+      "body_hash": "f6c4a9684563acd12152bc5aa152c440279f8a35d858dcc65d87e5da89aacffa",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -808,11 +924,39 @@
       "name": "main",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L95-L115",
+      "span": "L293-L318",
       "signature": "def main()",
       "exported": true,
       "origin": "ast",
-      "body_hash": "0c7aa3e311b5d000c215e668c3a321eb7d1fe66a44d5c87c2acd72b04762f96d",
+      "body_hash": "fcced894dfcecd5d8d087155739de011c608da87866c36f3b3d366c252caa252",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#migrate_database",
+      "name": "migrate_database",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L31-L46",
+      "signature": "def migrate_database(legacy, destination)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c85b04e58eacbe14437ffc56d54847f2b9efdef645b2ab05d62a0b8537fab983",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#network_collection",
+      "name": "network_collection",
+      "kind": "function",
+      "path": "ndt/server.py",
+      "span": "L89-L96",
+      "signature": "def network_collection(db, region_id, path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "4cf5682285c99bebc90c55b37b05b964b44bcc6436c1b90482651ba944ef670c",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -822,11 +966,166 @@
       "name": "region_files",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L17-L24",
+      "span": "L49-L56",
       "signature": "def region_files(region)",
       "exported": true,
       "origin": "ast",
       "body_hash": "abd02a9f4465ad69a70b6b83063b8ff5584f43715264da3547707c36e60b8b65",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/server.py#ViewerHTTPServer",
+      "name": "ViewerHTTPServer",
+      "kind": "class",
+      "path": "ndt/server.py",
+      "span": "L25-L27",
+      "signature": "class ViewerHTTPServer(ThreadingHTTPServer): # ES-module imports arrive in bursts; the default backlog of five drops connections on cold starts.",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "675e08a50437e74e6828e0f4b6ace708bf3e3e687729670189dc499a97dd8e59",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py",
+      "name": "task_store.py",
+      "kind": "file",
+      "path": "ndt/task_store.py",
+      "span": "L1-L257",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c27ef4a74642c3092e7e16d3e39a766c5b516707d86f51cebf6ee7597ad1a5c2",
+      "chars": 18678,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#attributes",
+      "name": "attributes",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L205-L206",
+      "signature": "def attributes(value, known)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9259e349f7120b65af56fa4be988e09b59f1c3675cbb830168b513af834e02d7",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#connect",
+      "name": "connect",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L9-L12",
+      "signature": "def connect(path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "7c44e9207cd82fa5e01465c179b855fd3f104f59c763607dfebaf9af04dd5ec1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#initialize_tasks",
+      "name": "initialize_tasks",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L172-L202",
+      "signature": "def initialize_tasks(db)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d60c58761c24bc3e83829308c5bff8e388a59c13964bf87115ee1beac0ee1d2e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#metrics",
+      "name": "metrics",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L224-L227",
+      "signature": "def metrics(row)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a51a8ea3f914787b3cf581c68b42c6bb6055b9e6704a8c9548b43625def7ca83",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#read_tasks",
+      "name": "read_tasks",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L230-L256",
+      "signature": "def read_tasks(db, region_id, project_id)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f2261ac65a1cd8c5cdd066cf5fd785c873f2c91b1255d78adc32b0191beb377f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#speed_cases",
+      "name": "speed_cases",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L15-L42",
+      "signature": "def speed_cases(task)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "df0e21e9f42052958685f588f0ab4e9114c1347b20d330b3aab1984d4a43467e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#speed_cases.legacy",
+      "name": "legacy",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L17-L18",
+      "signature": "def legacy(speed)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "062a3b0ac58afecdb407bd9a9c517cf644c71dc93f14c700ba7e7e6f81c58711",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#validate_tasks",
+      "name": "validate_tasks",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L45-L92",
+      "signature": "def validate_tasks(tasks)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "dfcb4e11dd19b8433805a9de52721b3927a6bfdd370ede891045939553d5ce79",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/task_store.py#write_tasks",
+      "name": "write_tasks",
+      "kind": "function",
+      "path": "ndt/task_store.py",
+      "span": "L209-L221",
+      "signature": "def write_tasks(db, region_id, project_id, tasks)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "076373b7dd08d0a62618f0a6faf9305ff0e2f2912fda517e68e16bb48fec90de",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -964,16 +1263,105 @@
       "crux": null
     },
     {
+      "id": "ndt/tests/test-map-controls-view-model.mjs",
+      "name": "test-map-controls-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-map-controls-view-model.mjs",
+      "span": "L1-L57",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cb9bcffb90e875b4f0b2a02393116aa2abcf61b193e7677a4de7ad530a3568c0",
+      "chars": 2812,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-map-scene-view-model.mjs",
+      "name": "test-map-scene-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-map-scene-view-model.mjs",
+      "span": "L1-L31",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b4355df0d3ce449d0a88c1279f0a392df74188fc32b27e559d2cef7aa9104cd2",
+      "chars": 1276,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-mvvm-boundaries.mjs",
+      "name": "test-mvvm-boundaries.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-mvvm-boundaries.mjs",
+      "span": "L1-L25",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d7506dd552afbacbcfcc8e6c50067cb982c2868f397faf411dcc73b37a3c5d06",
+      "chars": 1183,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-mvvm-boundaries.mjs#verify",
+      "name": "verify",
+      "kind": "function",
+      "path": "ndt/tests/test-mvvm-boundaries.mjs",
+      "span": "L11-L21",
+      "signature": "function verify(file)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "fd2676f2a0e0672eb5e8a2a3839288fe54415902196cacefa59e05876c1571ea",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-navigation-view-model.mjs",
+      "name": "test-navigation-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-navigation-view-model.mjs",
+      "span": "L1-L13",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "daae6557d225d1df82256855b2ae78ccad7823ee3cd18e304ffad446041f38c9",
+      "chars": 445,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/test-network-symbols.mjs",
       "name": "test-network-symbols.mjs",
       "kind": "file",
       "path": "ndt/tests/test-network-symbols.mjs",
-      "span": "L1-L65",
+      "span": "L1-L69",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "0d9aeff7ff150123f81f7ee47038556eb23b01e13f89ed899caf9f63d005163a",
-      "chars": 6649,
+      "body_hash": "ba51ab2339b32472cd30ed12022adda9a7e1e592086e83cdd52a712658dc0aba",
+      "chars": 7163,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-network-view-model.mjs",
+      "name": "test-network-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-network-view-model.mjs",
+      "span": "L1-L59",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a4d63418aa28ba1d91b208995487cf4a04b4ec917bef1edbe13bc99a0e82d1f3",
+      "chars": 2996,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -994,6 +1382,78 @@
       "crux": null
     },
     {
+      "id": "ndt/tests/test-project-coverage.mjs",
+      "name": "test-project-coverage.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-project-coverage.mjs",
+      "span": "L1-L45",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "19f67e281fc62e3e16ee123118b69dd5bc662ac44a75a2ad4f125565a68f064b",
+      "chars": 3309,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-project-coverage.mjs#insideHull",
+      "name": "insideHull",
+      "kind": "function",
+      "path": "ndt/tests/test-project-coverage.mjs",
+      "span": "L12-L17",
+      "signature": "function insideHull(point, ring)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "56311efc36e31a95f5181019684cec0748c3a0399dfd7c2aa28b780205b2b015",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-project-view-model.mjs",
+      "name": "test-project-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-project-view-model.mjs",
+      "span": "L1-L107",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b0482dd5596459ac2021860e6cc3ad789e009496fe841430de0ef64b50851904",
+      "chars": 5965,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-project-view-model.mjs#load",
+      "name": "load",
+      "kind": "method",
+      "path": "ndt/tests/test-project-view-model.mjs",
+      "span": "L10-L10",
+      "signature": "load()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "aa0dc243fc0ab8f136707ee659152ecb0062ccf30be2a8949a81dd28b952e1f6",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-project-view-model.mjs#save",
+      "name": "save",
+      "kind": "method",
+      "path": "ndt/tests/test-project-view-model.mjs",
+      "span": "L11-L11",
+      "signature": "save(id, ids)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "4f29799ba39528e13b24ad99af96b51f26c549862ff4f09e4841060ca6ae9f16",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/test-radio-model.mjs",
       "name": "test-radio-model.mjs",
       "kind": "file",
@@ -1009,16 +1469,31 @@
       "crux": null
     },
     {
+      "id": "ndt/tests/test-region-view-model.mjs",
+      "name": "test-region-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-region-view-model.mjs",
+      "span": "L1-L27",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "53cfdee43d96590d4ded415333c60cb92a348ef76ca083729981af4169bd59b1",
+      "chars": 1462,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/test-regions.py",
       "name": "test-regions.py",
       "kind": "file",
       "path": "ndt/tests/test-regions.py",
-      "span": "L1-L71",
+      "span": "L1-L321",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "5ee639d367c8ed228c3072db800d20042e7b8e19222dc8e4db7609db418d8b96",
-      "chars": 3925,
+      "body_hash": "a610ce4b489732ca1be797711b8b8341a1f86a6c803f8fb46cbbce178413cd85",
+      "chars": 21781,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1028,40 +1503,232 @@
       "name": "RegionTests",
       "kind": "class",
       "path": "ndt/tests/test-regions.py",
-      "span": "L20-L66",
+      "span": "L22-L316",
       "signature": "class RegionTests(unittest.TestCase)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "0d1af2c4d31a7d604c22c907160a4c276fac787be42a76cd4ee770cc050f5522",
+      "body_hash": "2b8fe9f39c9b0e50931e1476141116a1c93eb83de786431d0d5801d4250c81bd",
       "summary_state": "pending",
       "summary": null,
       "crux": null
     },
     {
-      "id": "ndt/tests/test-regions.py#RegionTests.test_default_port_fallback_and_exact_port",
-      "name": "test_default_port_fallback_and_exact_port",
+      "id": "ndt/tests/test-regions.py#RegionTests.test_asset_endpoint_and_project_validation_use_site_rows",
+      "name": "test_asset_endpoint_and_project_validation_use_site_rows",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L21-L39",
-      "signature": "def test_default_port_fallback_and_exact_port(self)",
+      "span": "L237-L265",
+      "signature": "def test_asset_endpoint_and_project_validation_use_site_rows(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "cc42e421daebb1dedab61f8a041bd830025d43fca13683cbbe1ed87229b01148",
+      "body_hash": "2901a8a90bf5e7f4c8aac8692b17ad992e4cc33fac232b6fd28177e674802199",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
       "owner": "RegionTests"
     },
     {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_custom_database_does_not_migrate_default",
+      "name": "test_custom_database_does_not_migrate_default",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L95-L105",
+      "signature": "def test_custom_database_does_not_migrate_default(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "710da48ce0cd9167fd7900848f6ae810c2e56a479e27443bee00585eda2ccc7c",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_default_database_is_in_project_directory",
+      "name": "test_default_database_is_in_project_directory",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L107-L118",
+      "signature": "def test_default_database_is_in_project_directory(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ac1c836275d25a542e61c89b69c04c5a668bba52919506363e3c33c12e915f5b",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_default_port_fallback_and_exact_port",
+      "name": "test_default_port_fallback_and_exact_port",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L120-L138",
+      "signature": "def test_default_port_fallback_and_exact_port(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0a7485a0a9a6d3f1279d8f44934443e1ed7934f23797a4bda144da266f242e8d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_existing_database_migrates_stored_snapshot_and_membership",
+      "name": "test_existing_database_migrates_stored_snapshot_and_membership",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L188-L203",
+      "signature": "def test_existing_database_migrates_stored_snapshot_and_membership(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "def81d0f41beacf04779e451681ba9310c40e1a0525033f4c72e531f8e476e0e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data",
+      "name": "test_invalid_refresh_rolls_back_existing_data",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L205-L235",
+      "signature": "def test_invalid_refresh_rolls_back_existing_data(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a6efbd6ce6a32c4a22f7a388c0250aaa351ffba0ce0b147c9b373d663205d9c1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data.changed_files",
+      "name": "changed_files",
+      "kind": "function",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L214-L216",
+      "signature": "def changed_files(region)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "1d0b095384b5972addd8d646c6008759272aaeb3a058d7fb4cc0bbf5413f214a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_migration_preserves_edits_and_does_not_overwrite",
+      "name": "test_migration_preserves_edits_and_does_not_overwrite",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L64-L82",
+      "signature": "def test_migration_preserves_edits_and_does_not_overwrite(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "02409154bacd5773e6c3a4ae265e09e44dc5fb267f5a0b3860d6143f560424ab",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_missing_or_invalid_legacy_database",
+      "name": "test_missing_or_invalid_legacy_database",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L84-L93",
+      "signature": "def test_missing_or_invalid_legacy_database(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a053c5f01dfb88e09ff693b6eda0dc9fcf1334ec952c27fc3b667be3a11be494",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_network_records_preserve_source_and_serve_database_changes",
+      "name": "test_network_records_preserve_source_and_serve_database_changes",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L161-L186",
+      "signature": "def test_network_records_preserve_source_and_serve_database_changes(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "858807c15c07b8bcc7e6dc8ceefff2ff85611d620cf996e27c5255346974bb7f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_project_tasks_are_validated_isolated_and_preserved",
+      "name": "test_project_tasks_are_validated_isolated_and_preserved",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L267-L308",
+      "signature": "def test_project_tasks_are_validated_isolated_and_preserved(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2937341c2ae00a1a684cf62722da64f9421734ae8b1b375640069f5b7a8aae03",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_project_tasks_are_validated_isolated_and_preserved.put",
+      "name": "put",
+      "kind": "function",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L275-L281",
+      "signature": "def put(tasks, project='northyork', region='toronto')",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "09da81222d70054c22128223549a3399706ecd7ce442618de66130d21261e823",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent",
+      "name": "test_project_use_cases_are_validated_isolated_and_persistent",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L23-L62",
+      "signature": "def test_project_use_cases_are_validated_isolated_and_persistent(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "49a98708f4c49c45c9ad71428fff5d09e1ea8c44d85dcfab494579af30319694",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent.put",
+      "name": "put",
+      "kind": "function",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L29-L35",
+      "signature": "def put(value, project='northyork', region='toronto')",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8b0b397350d1a3d65710da3d46697356eefe907270ea469732c0390beb0c2978",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/test-regions.py#RegionTests.test_sqlite_region_assets_and_restart",
       "name": "test_sqlite_region_assets_and_restart",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L41-L58",
+      "span": "L140-L159",
       "signature": "def test_sqlite_region_assets_and_restart(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "5c271d2359744bf72027ca0c34e1187654ef277f34c7760f759ffbfbe788a4d0",
+      "body_hash": "8cc6dec90c9bd3f7ca942159ee8e25cf84406fae5b04f014edc03ae78a120c6a",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -1072,7 +1739,7 @@
       "name": "test_verizon_filter_preserves_reported_status",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L60-L66",
+      "span": "L310-L316",
       "signature": "def test_verizon_filter_preserves_reported_status(self)",
       "exported": true,
       "origin": "ast",
@@ -1083,16 +1750,178 @@
       "owner": "RegionTests"
     },
     {
+      "id": "ndt/tests/test-reservations-view-model.mjs",
+      "name": "test-reservations-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-reservations-view-model.mjs",
+      "span": "L1-L41",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9b0257226fcc3df7efbd1dc194cb4935b518211c4ae43e3f9965f1f924447470",
+      "chars": 2029,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-reservations-view-model.mjs#reservation",
+      "name": "reservation",
+      "kind": "function",
+      "path": "ndt/tests/test-reservations-view-model.mjs",
+      "span": "L5-L5",
+      "signature": "reservation = (id,status,lon)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "fe27947bb6c5949fe3f2b53469d80b92fb10c574aa78dffdec46921590336e67",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py",
+      "name": "test-road-routing.py",
+      "kind": "file",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L1-L82",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f0eeab6ad16210d69b59dc22d699839a0501938a1f08566ba141e5dd54f6f532",
+      "chars": 4012,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests",
+      "name": "RoutingTests",
+      "kind": "class",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L18-L78",
+      "signature": "class RoutingTests(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "25c3577b0675e0fa86824a36698437a41d07dca2d6c61d700fdffc075b0f5895",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.response",
+      "name": "response",
+      "kind": "method",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L24-L28",
+      "signature": "def response(self, geometry=FITTED)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "417f4a42ed329d571d7d531c4ff0ebdb27d9c6760951aba6275f9b9acfbc71a4",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RoutingTests"
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.setUp",
+      "name": "setUp",
+      "kind": "method",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L19-L22",
+      "signature": "def setUp(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "860f17da629b5ee334c871f5c4e10d5cb4777e2d6fcf1958ab692da3e18fe554",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RoutingTests"
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.test_driving_geometry_is_bounded_attributed_rate_limited_and_cached",
+      "name": "test_driving_geometry_is_bounded_attributed_rate_limited_and_cached",
+      "kind": "method",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L30-L41",
+      "signature": "def test_driving_geometry_is_bounded_attributed_rate_limited_and_cached(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "07fb2d081dd9a7d4420de8f4e71b88809907862048894188c3980f535e159a6a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RoutingTests"
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure",
+      "name": "test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure",
+      "kind": "method",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L60-L78",
+      "signature": "def test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "485303e5765aea8eff2e338aa16d586a1fb964b6da2fee8d78650cbc2e38e943",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RoutingTests"
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure.post",
+      "name": "post",
+      "kind": "function",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L64-L69",
+      "signature": "def post(points)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0ca1afe4a2cc62039a9f9b3b547c8a883ef8aa060a53ad6888cb66fba8fb2812",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.test_rejects_bad_inputs_before_using_the_network",
+      "name": "test_rejects_bad_inputs_before_using_the_network",
+      "kind": "method",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L43-L47",
+      "signature": "def test_rejects_bad_inputs_before_using_the_network(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d431360e94b6a7f31da040c46f5261d280acc58c5e418277db30625f93363116",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RoutingTests"
+    },
+    {
+      "id": "ndt/tests/test-road-routing.py#RoutingTests.test_service_failures_and_invalid_geometry_do_not_return_a_fitted_route",
+      "name": "test_service_failures_and_invalid_geometry_do_not_return_a_fitted_route",
+      "kind": "method",
+      "path": "ndt/tests/test-road-routing.py",
+      "span": "L49-L58",
+      "signature": "def test_service_failures_and_invalid_geometry_do_not_return_a_fitted_route(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8e29bb4faff523bff18cb22ba522a273c7c07484da646260270c129864e40062",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RoutingTests"
+    },
+    {
       "id": "ndt/tests/test-roofs.mjs",
       "name": "test-roofs.mjs",
       "kind": "file",
       "path": "ndt/tests/test-roofs.mjs",
-      "span": "L1-L80",
+      "span": "L1-L94",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "6b34ba4e0be357201074bef2f0ea3558519f5dbabb361ce83be425ddd230d87e",
-      "chars": 6080,
+      "body_hash": "fe88f9bfc77fb5051f3f5f829473b082bce49d6dc18062da83e9348ea1534db1",
+      "chars": 7334,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1121,6 +1950,21 @@
       "exported": false,
       "origin": "ast",
       "body_hash": "b545e785741affb49fc29e9849880b3392569151215d530ef6020b59386a5ef2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-search-view-model.mjs",
+      "name": "test-search-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-search-view-model.mjs",
+      "span": "L1-L41",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9b6b769770dd6e1cef0704daa8cdb3ca4e845832e84d39031bad28a7c6ecbb0c",
+      "chars": 1490,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1166,6 +2010,170 @@
       "origin": "ast",
       "body_hash": "fc45f39a58629d2e1fb9e3b0a70fb1b7d33cf365378bea798b5d1e8ef0e343e3",
       "chars": 797,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-task-store.py",
+      "name": "test-task-store.py",
+      "kind": "file",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L1-L106",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a06dfc25f09bf5e75133ac14f901c12d42bd6c9882c901860e973f8b81bdff06",
+      "chars": 7438,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "name": "TaskStoreTests",
+      "kind": "class",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L15-L103",
+      "signature": "class TaskStoreTests(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0ed0d86df96c1e76b06f77c5453c63242f0680077583f5d29083e9ef21017a64",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "name": "database",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L16-L17",
+      "signature": "def database(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ec4b38c6bc85f788d00a266e3d839d2d6f3ba1a3e332b7ac957326d47f1e780f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_constraints_and_failed_write_preserve_saved_data",
+      "name": "test_constraints_and_failed_write_preserve_saved_data",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L60-L67",
+      "signature": "def test_constraints_and_failed_write_preserve_saved_data(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "00c92dce662a9751e4e8608da736ac342797b03b9c8f176c2851d8a00320f5ea",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_invalid_migration_rolls_back_and_preserves_original_json",
+      "name": "test_invalid_migration_rolls_back_and_preserves_original_json",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L37-L43",
+      "signature": "def test_invalid_migration_rolls_back_and_preserves_original_json(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c9a87c2e29e1719d7043ae5fa2f8203bc07744862099768c34013a835fdc0733",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_legacy_single_speed_clients_update_the_primary_case",
+      "name": "test_legacy_single_speed_clients_update_the_primary_case",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L95-L103",
+      "signature": "def test_legacy_single_speed_clients_update_the_primary_case(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "dae36730c2104e9c45012919c5881dbd30b8c3299f056bde26fb6a749f01059f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "name": "test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L19-L35",
+      "signature": "def test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3a42826d73280e8a5221a99d44a919cc063d3451974359d30ea20551daba1568",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "name": "test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L69-L82",
+      "signature": "def test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3675aef5e9204a956822ea0dde21975441f400929f69cde9daefb292333a3388",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_single_speed_relational_upgrade_preserves_speeds",
+      "name": "test_single_speed_relational_upgrade_preserves_speeds",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L84-L93",
+      "signature": "def test_single_speed_relational_upgrade_preserves_speeds(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f42299916666f11457745c9a7b6c15c3695b12bcbcef1b7f5398c234624c574a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-task-store.py#TaskStoreTests.test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "name": "test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "kind": "method",
+      "path": "ndt/tests/test-task-store.py",
+      "span": "L45-L58",
+      "signature": "def test_sql_views_compute_distance_duration_gps_and_follow_database_changes(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "7c89aa91cc4da78355f823cda1c195dfb14021befd9410a7bef838a54eac5693",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TaskStoreTests"
+    },
+    {
+      "id": "ndt/tests/test-tasks.mjs",
+      "name": "test-tasks.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-tasks.mjs",
+      "span": "L1-L98",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "abdd182c22d002c58c5020ce1593b344302481fdaa72003dd267abd422edf270",
+      "chars": 9686,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1439,12 +2447,26 @@
       "name": "app.spec.cjs",
       "kind": "file",
       "path": "ndt/tests/ui/app.spec.cjs",
-      "span": "L1-L322",
+      "span": "L1-L697",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "2ce8e8cd22f88a1dcf4604c2b8900d9840c2d751267bc5324ad1d575ca6fbd3a",
-      "chars": 18838,
+      "body_hash": "7bc61b5b078875fc57adf8da47ae6038642afb88fc6717494f84ce9fa7d01f51",
+      "chars": 43034,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs#boundary",
+      "name": "boundary",
+      "kind": "function",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L301-L301",
+      "signature": "boundary = ()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "0b464810d2afdea3f9e873601aac6a23248aee044979e218d4c29924a70b76d8",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1454,11 +2476,67 @@
       "name": "markers",
       "kind": "function",
       "path": "ndt/tests/ui/app.spec.cjs",
-      "span": "L67-L67",
+      "span": "L172-L172",
       "signature": "markers = ()",
       "exported": false,
       "origin": "ast",
       "body_hash": "54f5132ef0fe0b3b40ead498c637c7cba2c72a13e8af053e65adf079eeded657",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs#rightClickSite",
+      "name": "rightClickSite",
+      "kind": "function",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L304-L309",
+      "signature": "async function rightClickSite()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "c9899ccb7809f028d76748c91d0d828a2d9d81b0f41d7565c023f008d7a47fb6",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs#snapshot",
+      "name": "snapshot",
+      "kind": "function",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L91-L99",
+      "signature": "snapshot = ()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "53527d96938ba3fecdd0ad2db8d1d4b1f2dfe92fcb58e91ff31002b73631e75f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs#snapshot~2",
+      "name": "snapshot",
+      "kind": "function",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L242-L242",
+      "signature": "snapshot = ()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "14cb200086286c4dc9ca6971866c0515098d49ae50f46d07a4f18738a253c36f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/app.spec.cjs#snapshot~3",
+      "name": "snapshot",
+      "kind": "function",
+      "path": "ndt/tests/ui/app.spec.cjs",
+      "span": "L425-L425",
+      "signature": "snapshot=()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "f50d1297b27a0078599edadb0b932e82e5982fcf5c3bfeba3bf0b37f3127719a",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1483,12 +2561,12 @@
       "name": "live.spec.cjs",
       "kind": "file",
       "path": "ndt/tests/ui/live.spec.cjs",
-      "span": "L1-L46",
+      "span": "L1-L60",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "a909973915d92238e35cf79102ac29ce656ea65aa9a6646d7b5deef0b21e9689",
-      "chars": 2722,
+      "body_hash": "64e8e72597595945ef72efdc4e6a4b6eec6675b107cfa6649ea7916095026579",
+      "chars": 4139,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1504,6 +2582,107 @@
       "origin": "ast",
       "body_hash": "c5416a3d8b295fc5a2ee9e3703be79ab4ac6d219022039870dc2be05f8c1b6ed",
       "chars": 1165,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/startup.spec.cjs",
+      "name": "startup.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/startup.spec.cjs",
+      "span": "L1-L70",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "461df48b14519fc5543e723237370b29a7a5a2c882383233bd5d7778b42aade2",
+      "chars": 3289,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/tasks.spec.cjs",
+      "name": "tasks.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/tasks.spec.cjs",
+      "span": "L1-L191",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d48f89f85aa43413350ea15bfe63db51f1c56b6c186e29a1b75bbc8ad4575fe5",
+      "chars": 23487,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/tasks.spec.cjs#select",
+      "name": "select",
+      "kind": "function",
+      "path": "ndt/tests/ui/tasks.spec.cjs",
+      "span": "L12-L16",
+      "signature": "async function select(page,name)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "c8494c208394797cb0052b177e2eeb3686f3cee4b2a0dce3f6129b12f66e17e3",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/tasks.spec.cjs#selectWithFailure",
+      "name": "selectWithFailure",
+      "kind": "function",
+      "path": "ndt/tests/ui/tasks.spec.cjs",
+      "span": "L76-L76",
+      "signature": "async function selectWithFailure()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "d910e305216ded1996b780b986ed822add10900253ec004767add2da9444fbf6",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/tasks.spec.cjs#upload",
+      "name": "upload",
+      "kind": "function",
+      "path": "ndt/tests/ui/tasks.spec.cjs",
+      "span": "L18-L18",
+      "signature": "async function upload(page,data=geojson)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "5294371c25edfd8450f606bd76ac9f1ef283cf660de11a75dd3aeb6b16d4cff0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/use-cases.spec.cjs",
+      "name": "use-cases.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/use-cases.spec.cjs",
+      "span": "L1-L76",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "153d2d401cc5bcb6eb0a67a114adfe045e7f7f07e5f2a3c541aa220d162586c9",
+      "chars": 5441,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/use-cases.spec.cjs#navigate",
+      "name": "navigate",
+      "kind": "function",
+      "path": "ndt/tests/ui/use-cases.spec.cjs",
+      "span": "L8-L11",
+      "signature": "async function navigate(page)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "6dd444f5487369cd908198ef56aafc2483ae7b2dfd2ab4679ec8fc59bb678707",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1525,6 +2704,96 @@
     }
   ],
   "edges": [
+    {
+      "source": "ndt/road_routing.py",
+      "target": "ndt/road_routing.py#driving_route",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "ndt/road_routing.py#RoutingUnavailable",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "ndt/road_routing.py#validate_points",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "http.client",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "os",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "threading",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "time",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "urllib.error",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "urllib.parse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py",
+      "target": "urllib.request",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py#driving_route",
+      "target": "ndt/road_routing.py#RoutingUnavailable",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py#driving_route",
+      "target": "ndt/road_routing.py#validate_points",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/road_routing.py#RoutingUnavailable",
+      "target": "Exception",
+      "relation": "extends",
+      "confidence": "inferred"
+    },
     {
       "source": "ndt/scripts/convert_osm.py",
       "target": "json",
@@ -2265,6 +3534,12 @@
     },
     {
       "source": "ndt/server.py",
+      "target": "ndt/server.py#import_network_dataset",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "ndt/server.py#initialize",
       "relation": "contains",
       "confidence": "extracted"
@@ -2277,13 +3552,37 @@
     },
     {
       "source": "ndt/server.py",
+      "target": "ndt/server.py#migrate_database",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "ndt/server.py#network_collection",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "ndt/server.py#region_files",
       "relation": "contains",
       "confidence": "extracted"
     },
     {
       "source": "ndt/server.py",
+      "target": "ndt/server.py#ViewerHTTPServer",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "argparse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "contextlib",
       "relation": "imports",
       "confidence": "extracted"
     },
@@ -2313,13 +3612,31 @@
     },
     {
       "source": "ndt/server.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "mimetypes",
       "relation": "imports",
       "confidence": "extracted"
     },
     {
       "source": "ndt/server.py",
+      "target": "os",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "road_routing",
       "relation": "imports",
       "confidence": "extracted"
     },
@@ -2337,8 +3654,26 @@
     },
     {
       "source": "ndt/server.py",
+      "target": "task_store",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "urllib.parse",
       "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#bind_server",
+      "target": "ndt/server.py#ViewerHTTPServer",
+      "relation": "calls",
       "confidence": "extracted"
     },
     {
@@ -2361,6 +3696,24 @@
     },
     {
       "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.do_POST",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.do_PUT",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.known_project",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
       "target": "ndt/server.py#handler_for.Handler.respond",
       "relation": "contains",
       "confidence": "extracted"
@@ -2373,7 +3726,91 @@
     },
     {
       "source": "ndt/server.py#handler_for.Handler.do_GET",
+      "target": "ndt/server.py#handler_for.Handler.known_project",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_GET",
       "target": "ndt/server.py#handler_for.Handler.respond",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_GET",
+      "target": "ndt/server.py#network_collection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_GET",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_GET",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_POST",
+      "target": "ndt/road_routing.py#driving_route",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_POST",
+      "target": "ndt/road_routing.py#validate_points",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_POST",
+      "target": "ndt/server.py#handler_for.Handler.respond",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/server.py#handler_for.Handler.known_project",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/server.py#handler_for.Handler.respond",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/task_store.py#validate_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#initialize",
+      "target": "ndt/server.py#import_network_dataset",
       "relation": "calls",
       "confidence": "extracted"
     },
@@ -2382,6 +3819,18 @@
       "target": "ndt/server.py#region_files",
       "relation": "calls",
       "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#initialize",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#initialize",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
     },
     {
       "source": "ndt/server.py#main",
@@ -2398,6 +3847,162 @@
     {
       "source": "ndt/server.py#main",
       "target": "ndt/server.py#initialize",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#main",
+      "target": "ndt/server.py#migrate_database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#ViewerHTTPServer",
+      "target": "ThreadingHTTPServer",
+      "relation": "extends",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#attributes",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#connect",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#metrics",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#speed_cases",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#validate_tasks",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "re",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "road_routing",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#initialize_tasks",
+      "target": "ndt/task_store.py#speed_cases",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#initialize_tasks",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#read_tasks",
+      "target": "ndt/task_store.py#metrics",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#read_tasks",
+      "target": "ndt/task_store.py#validate_tasks",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#speed_cases",
+      "target": "ndt/task_store.py#speed_cases.legacy",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#speed_cases",
+      "target": "ndt/task_store.py#speed_cases.legacy",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#validate_tasks",
+      "target": "ndt/road_routing.py#validate_points",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/task_store.py#validate_tasks",
+      "target": "ndt/task_store.py#speed_cases",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#write_tasks",
+      "target": "ndt/task_store.py#attributes",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#write_tasks",
+      "target": "ndt/task_store.py#speed_cases",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/task_store.py#write_tasks",
+      "target": "ndt/task_store.py#validate_tasks",
       "relation": "calls",
       "confidence": "extracted"
     },
@@ -2534,6 +4139,84 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/tests/test-map-controls-view-model.mjs",
+      "target": "../dist/map-controls-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-map-controls-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-map-scene-view-model.mjs",
+      "target": "../dist/map-scene-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-map-scene-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs",
+      "target": "ndt/tests/test-mvvm-boundaries.mjs#verify",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs",
+      "target": "ndt/tests/test-mvvm-boundaries.mjs#verify",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs",
+      "target": "node:fs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs",
+      "target": "node:path",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs",
+      "target": "node:url",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-mvvm-boundaries.mjs#verify",
+      "target": "ndt/tests/test-mvvm-boundaries.mjs#verify",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-navigation-view-model.mjs",
+      "target": "../dist/navigation-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-navigation-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-network-symbols.mjs",
       "target": "../dist/network-symbols.mjs",
       "relation": "imports",
@@ -2558,6 +4241,36 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/tests/test-network-view-model.mjs",
+      "target": "../dist/network-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-view-model.mjs",
+      "target": "../dist/network-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-view-model.mjs",
+      "target": "../dist/radio-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-network-view-model.mjs",
+      "target": "node:fs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-network.mjs",
       "target": "../dist/network-layer.mjs",
       "relation": "imports",
@@ -2576,6 +4289,78 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "ndt/tests/test-project-coverage.mjs#insideHull",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "ndt/tests/test-project-coverage.mjs#insideHull",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "../dist/network-symbols.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "../dist/project-coverage.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "../dist/radio-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-coverage.mjs",
+      "target": "node:fs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-view-model.mjs",
+      "target": "ndt/tests/test-project-view-model.mjs#load",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-view-model.mjs",
+      "target": "ndt/tests/test-project-view-model.mjs#save",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-view-model.mjs",
+      "target": "../dist/project-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-view-model.mjs",
+      "target": "../dist/project-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-project-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-radio-model.mjs",
       "target": "../dist/radio-model.mjs",
       "relation": "imports",
@@ -2588,9 +4373,33 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/tests/test-region-view-model.mjs",
+      "target": "../dist/region-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-region-view-model.mjs",
+      "target": "../dist/region-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-region-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-regions.py",
       "target": "ndt/tests/test-regions.py#RegionTests",
       "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "contextlib",
+      "relation": "imports",
       "confidence": "extracted"
     },
     {
@@ -2602,6 +4411,12 @@
     {
       "source": "ndt/tests/test-regions.py",
       "target": "importlib.util",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py",
+      "target": "io",
       "relation": "imports",
       "confidence": "extracted"
     },
@@ -2655,7 +4470,67 @@
     },
     {
       "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_asset_endpoint_and_project_validation_use_site_rows",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_custom_database_does_not_migrate_default",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_default_database_is_in_project_directory",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
       "target": "ndt/tests/test-regions.py#RegionTests.test_default_port_fallback_and_exact_port",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_existing_database_migrates_stored_snapshot_and_membership",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_migration_preserves_edits_and_does_not_overwrite",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_missing_or_invalid_legacy_database",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_network_records_preserve_source_and_serve_database_changes",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_project_tasks_are_validated_isolated_and_preserved",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent",
       "relation": "contains",
       "confidence": "extracted"
     },
@@ -2669,6 +4544,180 @@
       "source": "ndt/tests/test-regions.py#RegionTests",
       "target": "ndt/tests/test-regions.py#RegionTests.test_verizon_filter_preserves_reported_status",
       "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data.changed_files",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests.test_project_tasks_are_validated_isolated_and_preserved",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_project_tasks_are_validated_isolated_and_preserved.put",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent.put",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-reservations-view-model.mjs",
+      "target": "ndt/tests/test-reservations-view-model.mjs#reservation",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-reservations-view-model.mjs",
+      "target": "ndt/tests/test-reservations-view-model.mjs#reservation",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-reservations-view-model.mjs",
+      "target": "../dist/reservations-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-reservations-view-model.mjs",
+      "target": "../dist/reservations-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-reservations-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "http.client",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "road_routing",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "server",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "unittest.mock",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py",
+      "target": "urllib.error",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.response",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.setUp",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.test_driving_geometry_is_bounded_attributed_rate_limited_and_cached",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.test_rejects_bad_inputs_before_using_the_network",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.test_service_failures_and_invalid_geometry_do_not_return_a_fitted_route",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests.test_driving_geometry_is_bounded_attributed_rate_limited_and_cached",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.response",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure.post",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.test_post_endpoint_keeps_request_coordinates_out_of_the_url_and_reports_failure.post",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-road-routing.py#RoutingTests.test_service_failures_and_invalid_geometry_do_not_return_a_fitted_route",
+      "target": "ndt/tests/test-road-routing.py#RoutingTests.response",
+      "relation": "calls",
       "confidence": "extracted"
     },
     {
@@ -2691,6 +4740,18 @@
     },
     {
       "source": "ndt/tests/test-roofs.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-search-view-model.mjs",
+      "target": "../dist/search-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-search-view-model.mjs",
       "target": "node:assert/strict",
       "relation": "imports",
       "confidence": "extracted"
@@ -2728,6 +4789,288 @@
     {
       "source": "ndt/tests/test-street-detail.mjs",
       "target": "node:fs/promises",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "contextlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "task_store",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_constraints_and_failed_write_preserve_saved_data",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_invalid_migration_rolls_back_and_preserves_original_json",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_legacy_single_speed_clients_update_the_primary_case",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_single_speed_relational_upgrade_preserves_speeds",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_constraints_and_failed_write_preserve_saved_data",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_constraints_and_failed_write_preserve_saved_data",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_constraints_and_failed_write_preserve_saved_data",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_constraints_and_failed_write_preserve_saved_data",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_invalid_migration_rolls_back_and_preserves_original_json",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_invalid_migration_rolls_back_and_preserves_original_json",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_legacy_single_speed_clients_update_the_primary_case",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_legacy_single_speed_clients_update_the_primary_case",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_legacy_single_speed_clients_update_the_primary_case",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_legacy_single_speed_clients_update_the_primary_case",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_migration_is_lossless_idempotent_and_does_not_restore_deleted_tasks",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_multiple_speed_cases_share_geometry_and_have_sql_comparison_rows",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_single_speed_relational_upgrade_preserves_speeds",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_single_speed_relational_upgrade_preserves_speeds",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_single_speed_relational_upgrade_preserves_speeds",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-task-store.py#TaskStoreTests.test_sql_views_compute_distance_duration_gps_and_follow_database_changes",
+      "target": "ndt/tests/test-task-store.py#TaskStoreTests.database",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tasks.mjs",
+      "target": "../dist/task-data.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tasks.mjs",
+      "target": "../dist/task-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tasks.mjs",
+      "target": "../dist/task-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-tasks.mjs",
+      "target": "node:assert/strict",
       "relation": "imports",
       "confidence": "extracted"
     },
@@ -2979,13 +5322,103 @@
     },
     {
       "source": "ndt/tests/ui/app.spec.cjs",
-      "target": "ndt/tests/ui/app.spec.cjs#markers",
+      "target": "ndt/tests/ui/app.spec.cjs#boundary",
       "relation": "calls",
       "confidence": "extracted"
     },
     {
       "source": "ndt/tests/ui/app.spec.cjs",
       "target": "ndt/tests/ui/app.spec.cjs#markers",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#rightClickSite",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#boundary",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#markers",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#rightClickSite",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#snapshot",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#snapshot~2",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/app.spec.cjs",
+      "target": "ndt/tests/ui/app.spec.cjs#snapshot~3",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/tasks.spec.cjs",
+      "target": "ndt/tests/ui/tasks.spec.cjs#select",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/tasks.spec.cjs",
+      "target": "ndt/tests/ui/tasks.spec.cjs#selectWithFailure",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/tasks.spec.cjs",
+      "target": "ndt/tests/ui/tasks.spec.cjs#upload",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/tasks.spec.cjs",
+      "target": "ndt/tests/ui/tasks.spec.cjs#select",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/tasks.spec.cjs",
+      "target": "ndt/tests/ui/tasks.spec.cjs#selectWithFailure",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/tasks.spec.cjs",
+      "target": "ndt/tests/ui/tasks.spec.cjs#upload",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/use-cases.spec.cjs",
+      "target": "ndt/tests/ui/use-cases.spec.cjs#navigate",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/use-cases.spec.cjs",
+      "target": "ndt/tests/ui/use-cases.spec.cjs#navigate",
       "relation": "contains",
       "confidence": "extracted"
     }

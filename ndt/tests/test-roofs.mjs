@@ -55,6 +55,20 @@ actual.roof.dispose(); actual.wall.dispose();
 console.log('Toronto OSM roof fixture passed.');
 
 const { buildRoofParts, roofFeatureIds } = await import('../dist/roof-layer.mjs');
+const { Color } = await import('../dist/vendor/three.module.js');
+for (const [source, expected] of [['red','#b09b8b'],['#F00','#b09b8b'],['#FF0000','#b09b8b'],['blue','#0000ff'],['brown','#a52a2a'],['darkred','#8b0000'],['#C4957F','#c4957f']]) {
+  const result = buildRoofParts({shape:'gabled',ring:rect,tags:{height:'20','roof:height':'4','roof:colour':source,'building:colour':source}}, {render_height:20}, 0, identity);
+  const color = new Color(expected);
+  for (const part of result.parts) {
+    const actual = part.getAttribute('color');
+    assert.ok(Math.abs(actual.getX(0)-color.r)<1e-6 && Math.abs(actual.getY(0)-color.g)<1e-6 && Math.abs(actual.getZ(0)-color.b)<1e-6, `${source} keeps its original color except pure red`);
+    part.dispose();
+  }
+}
+const brick = buildRoofParts({shape:'flat',ring:rect,tags:{height:'10','roof:material':'brick'}}, {render_height:10}, 0, identity);
+const brickColor = new Color('#ad8271'), brickAttribute = brick.parts[0].getAttribute('color');
+assert.ok(Math.abs(brickAttribute.getX(0)-brickColor.r)<1e-6 && Math.abs(brickAttribute.getY(0)-brickColor.g)<1e-6 && Math.abs(brickAttribute.getZ(0)-brickColor.b)<1e-6, 'the original brick material palette is preserved');
+brick.parts.forEach(part=>part.dispose());
 const relation = dataset.roofs.find(roof => roof.type === 'relation' && roof.id === 37964);
 assert.ok(relation?.polygons[0].length > 1, 'Osgoode Hall keeps its mapped courtyard');
 assert.deepEqual(roofFeatureIds(relation), [379643], 'the sampled relation matches the Toronto tile ID');

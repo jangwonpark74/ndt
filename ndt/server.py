@@ -13,11 +13,19 @@ import sqlite3
 import sys
 import tempfile
 from urllib.parse import unquote, urlsplit
+from road_routing import driving_route, validate_points, RoutingUnavailable
+from task_store import connect, validate_tasks, initialize_tasks, read_tasks, write_tasks
 
 ROOT = Path(__file__).resolve().parent
 DIST = ROOT / 'dist'
 DEFAULT_DB = ROOT.parent / 'regions.sqlite3'
 LEGACY_DB = ROOT / 'var' / 'regions.sqlite3'
+
+
+class ViewerHTTPServer(ThreadingHTTPServer):
+    # ES-module imports arrive in bursts; the default backlog of five drops connections on cold starts.
+    request_queue_size = 64
+
 
 
 def migrate_database(legacy, destination):
@@ -91,11 +99,14 @@ def network_collection(db, region_id, path):
 def initialize(db_path):
     db_path.parent.mkdir(parents=True, exist_ok=True)
     regions = json.loads((ROOT / 'regions.json').read_text())
-    with closing(sqlite3.connect(db_path)) as db, db:
+    with closing(connect(db_path)) as db, db:
         db.executescript('''CREATE TABLE IF NOT EXISTS regions (id TEXT PRIMARY KEY, metadata TEXT NOT NULL, fingerprint TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS region_assets (region_id TEXT NOT NULL, path TEXT NOT NULL, content BLOB NOT NULL,
             PRIMARY KEY (region_id, path), FOREIGN KEY (region_id) REFERENCES regions(id));
             CREATE TABLE IF NOT EXISTS project_sites (region_id TEXT NOT NULL, project_id TEXT NOT NULL, site_ids TEXT NOT NULL,
+            PRIMARY KEY (region_id, project_id), FOREIGN KEY (region_id) REFERENCES regions(id));
+            CREATE TABLE IF NOT EXISTS project_use_cases (region_id TEXT NOT NULL, project_id TEXT NOT NULL,
+            use_case TEXT NOT NULL CHECK(use_case IN ('virtual-drive-test', 'parameter-ab-test', 'ai-ran-benchmark')),
             PRIMARY KEY (region_id, project_id), FOREIGN KEY (region_id) REFERENCES regions(id));
             CREATE TABLE IF NOT EXISTS network_datasets (region_id TEXT NOT NULL, path TEXT NOT NULL, metadata TEXT NOT NULL,
             PRIMARY KEY (region_id, path));
@@ -127,6 +138,7 @@ def initialize(db_path):
                     if asset is None:
                         raise RuntimeError(f'Missing stored network data: {region["id"]}/{name}')
                     import_network_dataset(db, region['id'], name, asset[0])
+        initialize_tasks(db)
     return regions
 
 
@@ -137,14 +149,27 @@ def handler_for(db_path):
 
         def do_GET(self):
             path = unquote(urlsplit(self.path).path)
+            task_parts = path.split('/')
+            if len(task_parts) == 7 and task_parts[1:3] == ['api', 'regions'] and task_parts[4] == 'projects' and task_parts[6] == 'tasks':
+                with closing(connect(db_path)) as db:
+                    if not self.known_project(db, task_parts[3], task_parts[5]):
+                        return self.send_error(404)
+                    tasks = read_tasks(db, task_parts[3], task_parts[5])
+                return self.respond(json.dumps(tasks, ensure_ascii=False).encode(), 'application/json')
             if path == '/api/regions':
-                with closing(sqlite3.connect(db_path)) as db, db:
+                with closing(connect(db_path)) as db, db:
                     body = json.dumps([json.loads(row[0]) for row in db.execute('SELECT metadata FROM regions ORDER BY rowid')]).encode()
                 return self.respond(body, 'application/json')
             if path.startswith('/api/regions/'):
                 parts = path.split('/', 5)
+                if len(parts) == 5 and parts[4] == 'project-use-cases':
+                    with closing(connect(db_path)) as db:
+                        if not db.execute('SELECT 1 FROM regions WHERE id=?', (parts[3],)).fetchone():
+                            return self.send_error(404)
+                        categories = dict(db.execute('SELECT project_id, use_case FROM project_use_cases WHERE region_id=?', (parts[3],)))
+                    return self.respond(json.dumps(categories).encode(), 'application/json')
                 if len(parts) == 5 and parts[4] == 'projects':
-                    with closing(sqlite3.connect(db_path)) as db, db:
+                    with closing(connect(db_path)) as db, db:
                         if not db.execute('SELECT 1 FROM regions WHERE id=?', (parts[3],)).fetchone():
                             return self.send_error(404)
                         projects = {project_id: json.loads(site_ids) for project_id, site_ids in db.execute(
@@ -152,7 +177,7 @@ def handler_for(db_path):
                     return self.respond(json.dumps(projects).encode(), 'application/json')
                 if len(parts) != 6 or parts[4] != 'assets':
                     return self.send_error(404)
-                with closing(sqlite3.connect(db_path)) as db, db:
+                with closing(connect(db_path)) as db, db:
                     collection = network_collection(db, parts[3], parts[5])
                     row = (json.dumps(collection, ensure_ascii=False).encode(),) if collection is not None else db.execute(
                         'SELECT content FROM region_assets WHERE region_id=? AND path=?', (parts[3], parts[5])).fetchone()
@@ -163,6 +188,42 @@ def handler_for(db_path):
 
         def do_PUT(self):
             parts = unquote(urlsplit(self.path).path).split('/')
+            if len(parts) == 7 and parts[1:3] == ['api', 'regions'] and parts[4] == 'projects' and parts[6] == 'use-case':
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 1000:
+                        raise ValueError('Invalid request size')
+                    payload = json.loads(self.rfile.read(length))
+                    if not isinstance(payload, dict) or set(payload) != {'useCase'}:
+                        raise ValueError('Expected useCase')
+                    use_case = payload['useCase']
+                    if use_case is not None and use_case not in ('virtual-drive-test', 'parameter-ab-test', 'ai-ran-benchmark'):
+                        raise ValueError('Unknown project use case')
+                except (ValueError, UnicodeDecodeError) as error:
+                    return self.send_error(400, str(error))
+                with closing(connect(db_path)) as db, db:
+                    if not self.known_project(db, parts[3], parts[5]):
+                        return self.send_error(404)
+                    if use_case is None:
+                        db.execute('DELETE FROM project_use_cases WHERE region_id=? AND project_id=?', (parts[3], parts[5]))
+                    else:
+                        db.execute('INSERT INTO project_use_cases VALUES (?, ?, ?) ON CONFLICT(region_id, project_id) DO UPDATE SET use_case=excluded.use_case',
+                                   (parts[3], parts[5], use_case))
+                return self.respond(json.dumps({'useCase':use_case}).encode(), 'application/json')
+            if len(parts) == 7 and parts[1:3] == ['api', 'regions'] and parts[4] == 'projects' and parts[6] == 'tasks':
+                try:
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= 2000000:
+                        raise ValueError('Invalid request size')
+                    tasks = validate_tasks(json.loads(self.rfile.read(length)))
+                except (ValueError, UnicodeDecodeError) as error:
+                    return self.send_error(400, str(error))
+                with closing(connect(db_path)) as db, db:
+                    if not self.known_project(db, parts[3], parts[5]):
+                        return self.send_error(404)
+                    write_tasks(db, parts[3], parts[5], tasks)
+                    saved = read_tasks(db, parts[3], parts[5])
+                return self.respond(json.dumps(saved, ensure_ascii=False).encode(), 'application/json')
             if len(parts) != 7 or parts[1:3] != ['api', 'regions'] or parts[4] != 'projects' or parts[6] != 'sites':
                 return self.send_error(404)
             try:
@@ -174,7 +235,7 @@ def handler_for(db_path):
                     raise ValueError('Expected unique site IDs')
             except (ValueError, UnicodeDecodeError):
                 return self.send_error(400, 'Invalid site list')
-            with closing(sqlite3.connect(db_path)) as db, db:
+            with closing(connect(db_path)) as db, db:
                 region_row = db.execute('SELECT metadata FROM regions WHERE id=?', (parts[3],)).fetchone()
                 region = json.loads(region_row[0]) if region_row else None
                 if not region or region.get('network') != 'ised' or not any(project['id'] == parts[5] for project in region['projects']):
@@ -187,8 +248,28 @@ def handler_for(db_path):
                            (parts[3], parts[5], json.dumps(site_ids)))
             return self.respond(b'{}', 'application/json')
 
-        def respond(self, body, content_type):
-            self.send_response(200)
+        def do_POST(self):
+            if urlsplit(self.path).path != '/api/road-route':
+                return self.send_error(404)
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 12000:
+                    raise ValueError('Invalid request size')
+                points = validate_points(json.loads(self.rfile.read(length)))
+            except (ValueError, UnicodeDecodeError):
+                return self.send_error(400, 'Invalid route guide points')
+            try:
+                result = driving_route(points)
+            except RoutingUnavailable as error:
+                return self.respond(json.dumps({'error':str(error)}).encode(), 'application/json', 503)
+            return self.respond(json.dumps({'coordinates':result}).encode(), 'application/json')
+
+        def known_project(self, db, region_id, project_id):
+            row = db.execute('SELECT metadata FROM regions WHERE id=?', (region_id,)).fetchone()
+            return row and any(project['id'] == project_id for project in json.loads(row[0])['projects'])
+
+        def respond(self, body, content_type, status=200):
+            self.send_response(status)
             self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
@@ -200,7 +281,7 @@ def bind_server(host, port, handler):
     ports = range(5179, 5190) if port is None else (port,)
     for candidate in ports:
         try:
-            return ThreadingHTTPServer((host, candidate), handler)
+            return ViewerHTTPServer((host, candidate), handler)
         except OSError as error:
             if error.errno != errno.EADDRINUSE:
                 raise
