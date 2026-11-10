@@ -185,11 +185,11 @@ test('site markers retain indoor locations and require outdoor fans', async ({ p
 
 test('switch regions and inspect Verizon reservations without Toronto data', async ({ page }) => {
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
-  await page.getByRole('button', {name:'New York City region'}).click();
+  await page.getByLabel('REGION').selectOption('new-york');
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', { timeout: 20000 });
   await expect(page.getByRole('region', {name:'Network infrastructure'})).toBeHidden();
   await expect(page.getByRole('region', {name:'Verizon pole reservations'})).toBeVisible();
-  await expect(page.getByRole('button', {name:'New York City region'})).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByLabel('REGION')).toHaveValue('new-york');
   await expect(page.getByLabel('Reset camera to New York City overview')).toBeVisible();
   const accessibility = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();
   expect(accessibility.violations).toEqual([]);
@@ -200,7 +200,7 @@ test('switch regions and inspect Verizon reservations without Toronto data', asy
   await expect(page.locator('#nyc-detail')).toContainText('49 STREET');
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Manhattan'});
   await expect(page.locator('#coordinates')).toContainText('40.7484', {timeout:10000});
-  await page.getByRole('button', {name:'Toronto region'}).click();
+  await page.getByLabel('REGION').selectOption('toronto');
   await expect(page.locator('#network-status')).toContainText('In view:', { timeout: 20000 });
   await expect(page.getByRole('region', {name:'Verizon pole reservations'})).toBeHidden();
 });
@@ -393,7 +393,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:32
 test('New York controls remain reachable on a phone', async ({ page }) => {
   await page.setViewportSize({width:390,height:844});
   await page.getByRole('button',{name:'Open map navigation'}).click();
-  await page.getByRole('button', {name:'New York City region'}).click();
+  await page.getByLabel('REGION').selectOption('new-york');
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot', {timeout:20000});
   const panel = await page.locator('#context-panel').boundingBox();
   const controls = await page.getByRole('navigation', {name:'Camera controls'}).boundingBox();

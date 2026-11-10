@@ -15,7 +15,7 @@ test('a stalled optional font service does not block startup', async ({page})=>{
   try {
     await page.goto('/',{waitUntil:'domcontentloaded',timeout:10000});
     await expect(page.locator('#loading')).toBeHidden({timeout:15000});
-    await expect(page.locator('#region-choices button')).toHaveCount(2);
+    await expect(page.locator('#region-choices option')).toHaveCount(2);
     await expect(page.locator('#error')).toBeHidden();
     expect(release).toBeDefined();
   } finally { release?.(); }
@@ -52,7 +52,7 @@ test('a stalled region catalog reports a retry instead of loading indefinitely',
     await page.unroute('**/api/regions');
     await page.locator('#retry').click();
     await expect(page.locator('#error')).toBeHidden({timeout:15000});
-    await expect(page.locator('#region-choices button')).toHaveCount(2);
+    await expect(page.locator('#region-choices option')).toHaveCount(2);
   } finally { release?.(); }
 });
 
@@ -65,5 +65,5 @@ test('a missing application module reports a retry', async ({page})=>{
   await page.unroute('**/navigation-view.mjs');
   await page.locator('#retry').click();
   await expect(page.locator('#error')).toBeHidden({timeout:15000});
-  await expect(page.locator('#region-choices button')).toHaveCount(2);
+  await expect(page.locator('#region-choices option')).toHaveCount(2);
 });

@@ -8,12 +8,13 @@ export function showRegionError() {
 export function renderRegionView(viewModel) {
   const $ = id => document.getElementById(id);
   const {regions,region} = viewModel.getState(), choices = $('region-choices');
+  choices.replaceChildren();
   for (const item of regions) {
-    const button = document.createElement('button'); button.type = 'button'; button.textContent = item.name;
-    button.setAttribute('aria-label',`${item.name} region`); button.setAttribute('aria-pressed',String(item.id === region.id));
-    button.onclick = () => { const url = viewModel.regionUrl(item.id,location.href); if (url) location.assign(url); };
-    choices.append(button);
+    const option = document.createElement('option'); option.value = item.id; option.textContent = item.name;
+    choices.append(option);
   }
+  choices.value = region.id; choices.disabled = false;
+  choices.onchange = () => { const url = viewModel.regionUrl(choices.value,location.href); if (url) location.assign(url); };
   document.title = `Samsung CongitV NDT · ${region.name} in 3D`;
   $('map').setAttribute('aria-label',`Interactive 3D map of ${region.name}`);
   $('reset').setAttribute('aria-label',`Reset camera to ${region.name} overview`);

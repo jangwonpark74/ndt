@@ -60,7 +60,7 @@ test('use case loading retries and New York saves independently of radio site da
   await page.unroute('**/api/regions/toronto/project-use-cases');
   await page.locator('#project-use-case-retry').click();
   await expect(page.locator('#project-use-case')).toBeEnabled();
-  await page.getByRole('button',{name:'New York City region',exact:true}).click();
+  await page.getByLabel('REGION').selectOption('new-york');
   await expect(page.locator('#loading')).toBeHidden({timeout:20000});
   await page.locator('#project-picker').selectOption('manhattan');
   const endpoint='/api/regions/new-york/projects/manhattan/use-case';

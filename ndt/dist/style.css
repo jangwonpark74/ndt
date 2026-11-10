@@ -85,7 +85,7 @@
 .topbar{z-index:3}
 body:has(#network-panel:not([hidden])) .map-controls{right:318px}
 body:has(#nyc-panel:not([hidden])) .map-controls{right:318px}
-.region-picker{display:block;font-size:10px;font-weight:700;color:#526b60}#region-choices{display:grid;gap:4px;margin:5px 0 8px}#region-choices button{width:100%;min-height:34px;padding:6px 8px;border:1px solid #cbdad0;border-radius:4px;background:#fff;color:#263e36;text-align:left;font:inherit;cursor:pointer}#region-choices button[aria-pressed=true]{background:#e2efdc;border-color:#819f77}#region-choices button:hover{background:#e8f0e4}#region-choices button:focus-visible{outline:2px solid #273e2b;outline-offset:2px}
+.region-picker{display:block;font-size:10px;font-weight:700;color:#526b60}.region-picker label{display:block}
 .districts button[aria-pressed=true]{background:#e2efdc;border-color:#819f77}
 #nyc-status,#nyc-list-status{font-size:11px;font-weight:700}#nyc-detail{border-top:1px solid #e1e8df;padding:10px 0;font-size:11px;line-height:1.5}#nyc-list{max-height:180px;overflow:auto}#nyc-list button{display:block;width:100%;border:0;border-bottom:1px solid #e9eee8;background:transparent;text-align:left;padding:8px 3px;color:#344c3e;font:600 11px 'DM Sans',sans-serif;cursor:pointer}#nyc-list button:focus-visible{outline:2px solid #819f77}
 .network-dot.nyc-installed{background:#ad3138}.network-dot.nyc-approved{background:#dc812a}
@@ -103,8 +103,7 @@ body:has(#context-panel:not([hidden])) .active-project{display:none}
 .intro{width:200px;padding:20px 12px 80px;background:rgba(250,252,248,.97)}
 .navigation-label{font-size:10px;letter-spacing:.12em;color:#526c5b;margin:18px 8px 8px}
 .region-picker{font-size:12px;color:#405b4c;margin:0 4px}
-#region-choices{gap:6px;margin:7px 0 10px}
-#region-choices button{min-height:38px;padding:8px 10px;border-radius:6px;font-size:12px}
+#region-choices{width:100%;margin:7px 0 10px}
 .project-picker{display:block;width:calc(100% - 8px);min-height:42px;margin:0 4px;padding:9px 8px;border:1px solid #cbdad0;border-radius:6px;background:#fff;color:#263e36;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
 .project-picker:focus-visible{outline:2px solid #225f43;outline-offset:2px}
 .use-case-label{display:block;margin:14px 0 6px;font-size:12px;font-weight:600;color:#34574a}.use-case-status{margin:5px 4px 0;font-size:11px;line-height:1.5;color:#536c61}.use-case-status:empty{display:none}.project-context-card .project-picker{width:100%;max-width:360px;margin:0}.navigation-label[for="project-use-case"]{display:block}
