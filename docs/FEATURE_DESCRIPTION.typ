@@ -1,6 +1,6 @@
-#set document(title: "Regional NDT Viewer - Feature Description", author: "Toronto NDT project")
+#set document(title: "Regional NDT Viewer - Feature Description", author: "NDT project")
 #set page(paper: "a4", margin: (x: 21mm, top: 22mm, bottom: 19mm),
-  header: context text(size: 8pt, fill: rgb("647c72"))[TORONTO NDT  /  FEATURE DESCRIPTION],
+  header: context text(size: 8pt, fill: rgb("647c72"))[NDT  /  FEATURE DESCRIPTION],
   footer: context align(right, text(size: 8pt, fill: rgb("647c72"))[#counter(page).display()]))
 #set text(font: ("Arial", "New Computer Modern"), size: 10pt, fill: rgb("1c3030"))
 #set par(leading: 0.65em, spacing: 0.8em)

@@ -1,5 +1,5 @@
 {
-  "name": "toronto-ndt-tests",
+  "name": "ndt-tests",
   "private": true,
   "scripts": {
     "test:ui": "playwright test"

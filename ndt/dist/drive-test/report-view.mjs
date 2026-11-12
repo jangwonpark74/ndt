@@ -51,7 +51,7 @@ export function renderReport(vm, snapshot) {
       <h3>Route and time series</h3>
       <div class="report-split">
         <div><canvas id="report-map" class="report-graphic" role="img" aria-label="GPS route and threshold status"></canvas>
-          <p class="note">${within ? 'Toronto NDT snapshot · © OpenStreetMap contributors' : 'WGS84 GPS trace · north up'}</p></div>
+          <p class="note">${within ? 'NDT snapshot · © OpenStreetMap contributors' : 'WGS84 GPS trace · north up'}</p></div>
         <div><canvas id="report-chart" class="report-graphic" role="img" aria-label="Selected metric over elapsed time"></canvas>
           <p class="note">${esc(def.label)} (${esc(def.unit)}) by elapsed time · dashed thresholds</p></div>
       </div>

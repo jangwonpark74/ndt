@@ -1,6 +1,6 @@
-# Toronto NDT
+# NDT
 
-Toronto NDT is a regional 3D city and network visualization project with Toronto and New York City regions. The [viewer README](ndt/README.md) documents its data, limitations and detailed setup.
+NDT is a regional 3D city and network visualization project with Toronto and New York City regions. The [viewer README](ndt/README.md) documents its data, limitations and detailed setup.
 
 The integrated **Drive tests** workspace combines saved Task routes with DM capture replay, investigation, reporting, virtual drives and planning-power Parameter A/B comparison. Open it from project navigation, Project Overview or a saved Task route. See the [integration plan and delivery status](docs/VIRTUAL_DRIVE_TEST_INTEGRATION_PLAN.md).
 

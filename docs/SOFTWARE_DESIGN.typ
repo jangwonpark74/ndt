@@ -1,6 +1,6 @@
-#set document(title: "Regional NDT Viewer - Software Design", author: "Toronto NDT project")
+#set document(title: "Regional NDT Viewer - Software Design", author: "NDT project")
 #set page(paper: "a4", margin: (x: 21mm, top: 22mm, bottom: 19mm),
-  header: context text(size: 8pt, fill: rgb("647c72"))[TORONTO NDT  /  SOFTWARE DESIGN],
+  header: context text(size: 8pt, fill: rgb("647c72"))[NDT  /  SOFTWARE DESIGN],
   footer: context align(right, text(size: 8pt, fill: rgb("647c72"))[#counter(page).display()]))
 #set text(font: ("Arial", "New Computer Modern"), size: 9.7pt, fill: rgb("1c3030"))
 #set par(leading: 0.65em, spacing: 0.78em)
@@ -17,7 +17,7 @@
 #v(5mm)
 #line(length: 100%, stroke: 1.3pt + rgb("6f9a7d"))
 
-*Baseline.* Git revision `836eec2` of `toronto-ndt`, including subsequent MVVM, Task planning and integrated DM changes through 12 November 2026. The document describes the implementation. A bounded local drive-test job queue and uncalibrated planning-power engine are implemented. Authentication, calibrated RF/mobility/service simulation and multi-user planning-edit conflict resolution are unavailable; DM analysis profiles and experiment submissions have their own conflict/idempotency checks.
+*Baseline.* Git revision `836eec2` of `ndt`, including subsequent MVVM, Task planning and integrated DM changes through 12 November 2026. The document describes the implementation. A bounded local drive-test job queue and uncalibrated planning-power engine are implemented. Authentication, calibrated RF/mobility/service simulation and multi-user planning-edit conflict resolution are unavailable; DM analysis profiles and experiment submissions have their own conflict/idempotency checks.
 
 #table(columns: (1fr, 2.5fr),
   [*Runtime*], [Python 3.14 or later on macOS/Linux with POSIX worker locking; browser JavaScript modules; MapLibre GL JS and Three.js bundled in `ndt/dist/vendor/`],

@@ -12,7 +12,7 @@ Status: Initial integration implemented, 12 November 2026. The delivery ledger b
 
 The implemented baseline is documented in `FEATURE_DESCRIPTION.typ`, `SOFTWARE_DESIGN.typ` and the 167-entry feature inventory. Their descriptions take precedence over future capabilities in this plan.
 
-Integrate DM as a drive-test workspace within Toronto NDT. NDT owns saved Projects, Tasks, routes and network inputs; DM owns captures, replay, investigation and comparison. Both measured and simulated tests must reference an immutable snapshot of the selected Task route. Parameter A/B experiments run against that same snapshot and record exactly which parameters changed.
+Integrate DM as a drive-test workspace within NDT. NDT owns saved Projects, Tasks, routes and network inputs; DM owns captures, replay, investigation and comparison. Both measured and simulated tests must reference an immutable snapshot of the selected Task route. Parameter A/B experiments run against that same snapshot and record exactly which parameters changed.
 
 The initial Parameter A/B scope assumes radio configuration changes while route, speed and evaluation criteria remain fixed. Speed comparisons use the existing Task speed cases as a separate experiment dimension. The design also permits later UE and traffic comparisons when the simulation model supports them.
 

@@ -2,7 +2,7 @@
 
 A regional viewer combining MapLibre GL JS, Three.js and OpenStreetMap-derived vector tiles. Choose Toronto or New York City with the Region buttons in the left sidebar. The viewer loads map and elevation tiles as you move around either region and beyond; it does not use F4 Map assets or endpoints.
 
-The project identifier is `toronto-ndt`. This directory contains the viewer, its data preparation scripts and its tests.
+The project identifier is `ndt`. This directory contains the viewer, its data preparation scripts and its tests.
 
 ## Run locally
 
