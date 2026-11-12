@@ -17,8 +17,17 @@ function Invoke-Checked([string]$Program, [string[]]$Arguments) {
     if ($LASTEXITCODE -ne 0) { throw "'$Program' failed with exit code $LASTEXITCODE" }
 }
 
+function Initialize-TestPython {
+    if (-not $env:PYTHON) {
+        $pythonPath = & $Uv 'run' '--locked' 'python' '-c' "import base64, sys; print(base64.b64encode(sys.executable.encode('utf-8')).decode('ascii'))"
+        if ($LASTEXITCODE -ne 0) { throw "'$Uv' could not prepare the Python environment (exit code $LASTEXITCODE)" }
+        $env:PYTHON = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(($pythonPath | Select-Object -Last 1)))
+    }
+}
+
 # The test and check lists below mirror the Makefile; keep both entry points in sync.
 function Invoke-Tests {
+    Initialize-TestPython
     Push-Location (Join-Path $root 'ndt')
     try {
         foreach ($file in $javascriptTests) { Invoke-Checked $Node @($file) }
@@ -38,6 +47,7 @@ function Invoke-Checks {
 }
 
 function Invoke-UiTests {
+    Initialize-TestPython
     $browser = if ($env:NDT_BROWSER) { $env:NDT_BROWSER } else { 'chromium' }
     if ($browser -notin @('chromium', 'firefox', 'webkit')) {
         throw "Unsupported NDT_BROWSER '$browser'. Choose chromium, firefox, or webkit."
@@ -145,8 +155,9 @@ $syntaxFiles = @(
     'dist/radio-model.mjs'
     'dist/street-detail.mjs'
 )
-$pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"
+$pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"
 
+$originalPython = $env:PYTHON
 Push-Location $root
 try {
     switch ($Target) {
@@ -168,4 +179,4 @@ try {
         'test-ui' { Invoke-UiTests }
         'check' { Invoke-Checks }
     }
-} finally { Pop-Location }
+} finally { $env:PYTHON = $originalPython; Pop-Location }

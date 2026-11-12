@@ -52,7 +52,7 @@ def main():
     parser.add_argument('output', type=Path)
     parser.add_argument('--ised-date', required=True)
     args = parser.parse_args()
-    osm = json.loads(args.osm.read_text())
+    osm = json.loads(args.osm.read_text(encoding='utf-8'))
     features = osm['features']
     lons = [f['geometry']['coordinates'][0] for f in features]
     lats = [f['geometry']['coordinates'][1] for f in features]

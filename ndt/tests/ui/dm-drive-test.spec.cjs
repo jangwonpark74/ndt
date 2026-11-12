@@ -4,6 +4,7 @@ const {mkdtemp, rm, readFile} = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
 const readline = require('node:readline');
+const {stopFixture} = require('./process-cleanup.cjs');
 
 const {expect, test} = require('@playwright/test');
 const {AxeBuilder} = require('@axe-core/playwright');
@@ -116,11 +117,7 @@ test('Test ID import, replay, analytics, report and responsive controls', async 
     await expect(page.locator('#route-canvas')).toBeVisible();
     assert.deepEqual(errors, []);
   } finally {
-    if (server.pid && server.exitCode === null && server.signalCode === null) {
-      const stopped = new Promise(resolve => server.once('exit', resolve));
-      server.kill();
-      await stopped;
-    }
+    await stopFixture(server);
     await rm(temp, {recursive: true, force: true});
   }
 });

@@ -20,7 +20,7 @@ On Windows 11, use PowerShell (uv and Node.js must be installed):
 .\make.ps1 test-ui
 ```
 
-The PowerShell `test-ui` target installs missing npm dependencies and the selected Playwright browser; downloads require network access. Set `NDT_BROWSER` to `chromium`, `firefox` or `webkit` (default: `chromium`). Run `.\make.ps1 help` for all targets. Set `-HostAddress` or `-Port` for the server, for example `.\make.ps1 run -Port 5180`. `HOST`, `PORT`, `UV`, `NODE` and `UV_CACHE_DIR` environment variables are also supported.
+The PowerShell `test-ui` target installs missing npm dependencies and the selected Playwright browser; downloads require network access. Set `NDT_BROWSER` to `chromium`, `firefox` or `webkit` (default: `chromium`). The test commands use uv-managed Python; `PYTHON` can select another interpreter for browser fixtures and JavaScript parity tests. Run `.\make.ps1 help` for all targets. Set `-HostAddress` or `-Port` for the server, for example `.\make.ps1 run -Port 5180`. `HOST`, `PORT`, `UV`, `NODE` and `UV_CACHE_DIR` environment variables are also supported.
 
 ## Directory layout
 

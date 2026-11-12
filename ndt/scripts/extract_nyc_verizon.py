@@ -25,8 +25,8 @@ def main():
     parser.add_argument('input', type=Path)
     parser.add_argument('output', type=Path)
     args = parser.parse_args()
-    result = convert(json.loads(args.input.read_text()))
-    args.output.write_text(json.dumps(result, separators=(',', ':')))
+    result = convert(json.loads(args.input.read_text(encoding='utf-8')))
+    args.output.write_text(json.dumps(result, separators=(',', ':')), encoding='utf-8')
     print(f"Extracted {len(result['features'])} NY SMSA pole reservations")
 
 

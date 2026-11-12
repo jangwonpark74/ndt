@@ -4,6 +4,7 @@ const {mkdtemp,rm}=require('node:fs/promises');
 const path=require('node:path');
 const os=require('node:os');
 const readline=require('node:readline');
+const {stopFixture}=require('./process-cleanup.cjs');
 
 const test=base.extend({driveOrigin:async({},use)=>{
   const temp=await mkdtemp(path.join(os.tmpdir(),'ndt-drive-'));
@@ -13,7 +14,7 @@ const test=base.extend({driveOrigin:async({},use)=>{
     const url=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',code=>reject(new Error(`NDT fixture exited ${code}`)));const lines=readline.createInterface({input:child.stdout});lines.on('line',line=>{const match=line.match(/http:\/\/[^ ]+/);if(match){lines.close();resolve(match[0]);}});});
     await use(url);
   }finally{
-    if(child.exitCode===null&&child.signalCode===null){const stopped=new Promise(r=>child.once('exit',r));child.kill();await stopped;}
+    await stopFixture(child);
     await rm(temp,{recursive:true,force:true});
   }
 }});

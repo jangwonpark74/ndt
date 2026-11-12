@@ -3,8 +3,10 @@ from contextlib import closing
 import errno
 import io
 import json
+import os
 from pathlib import Path
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -20,6 +22,17 @@ spec.loader.exec_module(extractor)
 
 
 class RegionTests(unittest.TestCase):
+    def test_nyc_extractor_reads_utf8_with_legacy_locale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, output = Path(directory) / 'input.json', Path(directory) / 'output.json'
+            source.write_text(json.dumps([{'franchisee': 'NY SMSA', 'longitude': -73.9,
+                'latitude': 40.7, 'on_street': '\u6f22 street'}], ensure_ascii=False), encoding='utf-8')
+            env = dict(os.environ, PYTHONUTF8='0')
+            subprocess.run([sys.executable, str(ROOT / 'scripts' / 'extract_nyc_verizon.py'),
+                            str(source), str(output)], env=env, check=True, capture_output=True)
+            data = json.loads(output.read_text(encoding='utf-8'))
+            self.assertEqual(data['features'][0]['properties']['on_street'], '\u6f22 street')
+
     def test_virtual_ues_are_validated_isolated_and_persistent(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'regions.sqlite3'

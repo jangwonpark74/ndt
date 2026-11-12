@@ -46,7 +46,10 @@ class DriveHTTP(unittest.TestCase):
         code, data, mime = self.request('GET', '/api/dm/catalog')
         self.assertEqual(code, 200)
         self.assertGreater(len(json.loads(data)['regions']), 0)
-        self.assertEqual(self.request('GET', '/drive-test/test-view-model.mjs')[0], 200)
+        for path in ('/app.js', '/lighting.mjs', '/drive-test/test-view-model.mjs'):
+            code, _, mime = self.request('GET', path)
+            self.assertEqual(code, 200)
+            self.assertEqual(mime, 'text/javascript')
 
     def test_same_origin_guard_and_unknown_paths(self):
         for headers in ({'Host': 'malicious.invalid'}, {'Origin': 'https://malicious.invalid'}, {'Sec-Fetch-Site': 'cross-site'}):

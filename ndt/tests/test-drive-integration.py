@@ -181,6 +181,11 @@ class DriveIntegration(unittest.TestCase):
         self.addCleanup(second.close)
         self.assertIsNone(second.thread)
         self.assertEqual(self.store.get(job['id'])['status'],'running')
+        first.close()
+        third=ExperimentWorker(ExperimentStore(self.tests,self.planning))
+        self.addCleanup(third.close)
+        self.assertIsNotNone(third.thread)
+        self.assertEqual(self.store.get(job['id'])['status'],'interrupted')
 
 
 if __name__ == '__main__':

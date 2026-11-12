@@ -100,7 +100,7 @@ def network_collection(db, region_id, path):
 
 def initialize(db_path):
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    regions = json.loads((ROOT / 'regions.json').read_text())
+    regions = json.loads((ROOT / 'regions.json').read_text(encoding='utf-8'))
     with closing(connect(db_path)) as db, db:
         db.executescript('''CREATE TABLE IF NOT EXISTS regions (id TEXT PRIMARY KEY, metadata TEXT NOT NULL, fingerprint TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS region_assets (region_id TEXT NOT NULL, path TEXT NOT NULL, content BLOB NOT NULL,
@@ -149,6 +149,9 @@ def initialize(db_path):
 
 def handler_for(db_path):
     class Handler(DriveTestAPI, SimpleHTTPRequestHandler):
+        # Windows file associations may otherwise advertise JS modules as text/plain.
+        extensions_map = {**SimpleHTTPRequestHandler.extensions_map,
+                          '.js': 'text/javascript', '.mjs': 'text/javascript'}
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(DIST), **kwargs)
 

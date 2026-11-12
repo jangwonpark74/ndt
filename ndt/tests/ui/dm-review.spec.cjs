@@ -5,6 +5,7 @@ const {mkdtemp, rm, readFile, mkdir, writeFile} = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
 const readline = require('node:readline');
+const {stopFixture} = require('./process-cleanup.cjs');
 
 const test = base.extend({
   dmURL: async ({}, use) => {
@@ -20,10 +21,7 @@ const test = base.extend({
       });
       await use(url);
     } finally {
-      if (server.pid && server.exitCode === null && server.signalCode === null) {
-        const stopped = new Promise(resolve => server.once('exit', resolve));
-        server.kill(); await stopped;
-      }
+      await stopFixture(server);
       await rm(temp, {recursive: true, force: true});
     }
   },
