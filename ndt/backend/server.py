@@ -17,6 +17,7 @@ from urllib.parse import unquote, urlsplit
 from .road_routing import driving_route, validate_points, RoutingUnavailable
 from .task_store import connect, validate_tasks, initialize_tasks, read_tasks, write_tasks
 from .dm.http import DriveTestAPI, DriveTestService
+from .radio_scenarios import initialize_scenarios, list_scenarios, save_scenario, ScenarioConflict
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / 'dist'
@@ -135,6 +136,7 @@ def initialize(db_path):
             latitude REAL GENERATED ALWAYS AS (json_extract(feature, '$.geometry.coordinates[1]')) STORED,
             PRIMARY KEY (region_id, dataset_path, site_id), UNIQUE (region_id, dataset_path, ordinal));
             CREATE INDEX IF NOT EXISTS network_sites_location ON network_sites(region_id, dataset_path, longitude, latitude);''')
+        initialize_scenarios(db)
         for region in regions:
             files = list(region_files(region))
             required = {'trees/manifest.json', 'trees/overview.geojson', 'street-detail/manifest.json',
@@ -170,6 +172,8 @@ def handler_for(db_path):
             super().__init__(*args, directory=str(DIST), **kwargs)
 
         def do_GET(self):
+            if self.handle_radio_scenarios('GET'):
+                return
             if self.handle_dm('GET'):
                 return
             path = unquote(urlsplit(self.path).path)
@@ -218,6 +222,8 @@ def handler_for(db_path):
             return super().do_GET()
 
         def do_PUT(self):
+            if self.handle_radio_scenarios('PUT'):
+                return
             if self.handle_dm('PUT'):
                 return
             parts = unquote(urlsplit(self.path).path).split('/')
@@ -335,6 +341,35 @@ def handler_for(db_path):
         def do_PATCH(self):
             if not self.handle_dm('PATCH'):
                 self.send_error(404)
+
+        def handle_radio_scenarios(self, method):
+            parts = unquote(urlsplit(self.path).path).split('/')
+            if len(parts) != 7 or parts[1:3] != ['api', 'regions'] or parts[4] != 'projects' or parts[6] != 'radio-scenarios':
+                return False
+            if not self.dm_local():
+                return True
+            try:
+                with closing(connect(db_path)) as db, db:
+                    if not self.known_project(db, parts[3], parts[5]):
+                        self.dm_json(404, {'error': 'Unknown project'})
+                        return True
+                    if method == 'GET':
+                        result = list_scenarios(db, parts[3], parts[5])
+                    else:
+                        length = int(self.headers.get('Content-Length', '0'))
+                        if not 0 < length <= 1000000:
+                            raise ValueError('Expected a scenario request of at most 1 MB')
+                        result = save_scenario(db, parts[3], parts[5], json.loads(self.rfile.read(length)))
+                self.dm_json(200, result)
+            except ScenarioConflict as error:
+                self.dm_json(409, {'error': str(error)})
+            except (ValueError, UnicodeDecodeError) as error:
+                self.dm_json(400, {'error': str(error)})
+            except LookupError as error:
+                self.dm_json(404, {'error': str(error)})
+            except sqlite3.Error:
+                self.dm_json(503, {'error': 'Scenario storage unavailable. Your draft is retained; retry.'})
+            return True
 
         def known_project(self, db, region_id, project_id):
             row = db.execute('SELECT metadata FROM regions WHERE id=?', (region_id,)).fetchone()

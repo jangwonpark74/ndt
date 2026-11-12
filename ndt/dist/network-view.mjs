@@ -14,7 +14,7 @@ let networkListSignature = null;
 const labels=createPlanningLabels({map,onSelect:site=>selectNetwork(site),getSites:()=>{const s=networkViewModel.getState();return (s.features || []).filter(f=>f.properties.provider === 'Bell' ? s.bell : s.telus);},
   getSelected:()=>networkViewModel.getState().selected,getProjects:()=>region.projects,
   getProjectData:()=>projectViewModel.getState().data,getActiveProject:()=>projectViewModel.getState().selected});
-bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected});
+bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected,getSelectedSite:()=>networkViewModel.getState().selected});
 let previousProject,previousData;
 projectViewModel.subscribe(state=>{
   if(state.selected === previousProject && state.data === previousData)return;
@@ -67,6 +67,7 @@ function updateCoverage() {
 }
 function clearNetworkSelection() {
   networkViewModel.select(null); $('network-detail').hidden = true;
+  document.dispatchEvent(new CustomEvent('networksitechange'));
   map.getSource('network-selected-site')?.setData(emptyFeatures);
 }
 function updateFanIntensity() {
@@ -159,6 +160,7 @@ function renderSiteDetail(feature) {
 }
 function selectNetwork(feature, move = false, sector = null) {
   networkViewModel.select(feature,sector);
+  document.dispatchEvent(new CustomEvent('networksitechange'));
   openContextPanel('network-panel');
   map.getSource('network-selected-site')?.setData({type:'FeatureCollection',features:[{type:'Feature',geometry:feature.geometry,properties:{}}]});
   renderSiteDetail(feature);

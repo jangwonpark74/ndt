@@ -100,6 +100,18 @@
       <section id="sector-selection" aria-label="Selected sector" hidden><strong id="sector-site"></strong><p id="sector-info" role="status" aria-live="polite"></p><div id="sector-choices" aria-label="Select a reported bearing"></div></section>
       <details class="inspector-section"><summary>Radio and antenna study</summary>
         <p class="network-note">Independent single-link probe. Study templates do not change map fans or virtual drives.</p>
+        <div class="scenario-library">
+          <label for="scenario-picker">Saved scenarios</label><select id="scenario-picker"><option value="">New scenario</option></select>
+          <div class="study-actions"><button id="scenario-new" type="button">New scenario</button></div>
+          <details><summary>Recovery and copies</summary><div class="study-actions"><button id="scenario-reload" type="button">Reload saved versions</button><button id="scenario-discard" type="button">Discard edits</button><button id="scenario-copy" type="button">Save as new scenario</button></div></details>
+          <label for="scenario-name">Scenario name</label><input id="scenario-name" maxlength="120" value="Radio study">
+          <p id="scenario-state" class="network-note" role="status"></p><p id="scenario-error" role="alert" hidden></p>
+          <div class="study-actions"><button id="scenario-baseline" type="button">Set baseline</button><button id="scenario-apply" type="button">Apply saved revision</button></div>
+          <details><summary>Revision history</summary><ol id="scenario-history"></ol></details>
+        </div>
+        <details class="scenario-overrides"><summary>Site overrides</summary><label for="scenario-target">Template target</label><select id="scenario-target"><option value="">Default template</option></select>
+        <div class="study-actions"><button id="scenario-override-add" type="button">Add selected site override</button><button id="scenario-override-remove" type="button">Remove site override</button></div>
+        <p id="scenario-override-note" class="network-note">Site overrides are planning assumptions, not verified equipment assignments.</p></details>
         <label for="template-preset">Radio preset</label><select id="template-preset"><option value="lte">4G LTE macro study</option><option value="nr">5G NR macro study</option></select>
         <form id="radio-template-form">
           <div class="planning-input-grid">

@@ -1,0 +1,65 @@
+const {test,expect}=require('@playwright/test');
+const AxeBuilder=require('@axe-core/playwright').default;
+const {maps}=require('./drive-fixture.cjs');
+async function openStudy(page){
+  await maps(page);await page.goto('/');
+  await expect(page.locator('#network-list button').first()).toBeVisible({timeout:20000});
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('harbourfront');
+  await page.locator('#network-tab').click();await page.getByText('Radio and antenna study',{exact:true}).click();
+}
+test('durable scenarios retain baseline/applied history and protect drafts from another client',async({page,browser})=>{
+  test.setTimeout(60000);
+  await openStudy(page);
+  await expect(page.locator('#scenario-new')).toBeEnabled();await page.locator('#scenario-new').click();
+  await page.getByLabel('Scenario name',{exact:true}).fill('Durable NR study');
+  await page.locator('#template-preset').selectOption('nr');
+  await page.getByRole('button',{name:'Save study',exact:true}).click();
+  await expect(page.locator('#scenario-state')).toContainText('Draft revision 1');
+  await page.getByRole('button',{name:'Set baseline',exact:true}).click();
+  await page.getByRole('button',{name:'Apply saved revision',exact:true}).click();
+  await expect(page.locator('#scenario-state')).toContainText('Applied 1');
+  const other=await browser.newContext();const otherPage=await other.newPage();await openStudy(otherPage);
+  await otherPage.locator('#scenario-picker').selectOption({label:'Durable NR study'});
+  await expect(otherPage.locator('[name=frequencyMHz]')).toHaveValue('3500');
+  await page.locator('[name=tiltDeg]').fill('12');
+  await expect(page.locator('#scenario-state')).toContainText('Unsaved edits');
+  await expect(page.getByRole('button',{name:'Apply saved revision',exact:true})).toBeDisabled();
+  await page.getByRole('button',{name:'Save study',exact:true}).click();
+  await expect(page.locator('#scenario-state')).toContainText('Draft revision 2');
+  await expect(page.locator('#scenario-state')).toContainText('Baseline 1');
+  await otherPage.locator('[name=tiltDeg]').fill('8');
+  await otherPage.getByRole('button',{name:'Save study',exact:true}).click();
+  await expect(otherPage.locator('#scenario-error')).toContainText('changed elsewhere');
+  await expect(otherPage.locator('[name=tiltDeg]')).toHaveValue('8');
+  await otherPage.getByText('Recovery and copies',{exact:true}).click();
+  await otherPage.locator('#scenario-copy').click();
+  await expect(otherPage.locator('#scenario-error')).toBeHidden();
+  await expect(otherPage.locator('#scenario-name')).toHaveValue('Durable NR study copy');
+  await other.close();
+  await page.reload();await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('harbourfront');
+  await page.locator('#network-tab').click();await page.getByText('Radio and antenna study',{exact:true}).click();
+  await page.locator('#scenario-picker').selectOption({label:'Durable NR study'});
+  await expect(page.locator('[name=tiltDeg]')).toHaveValue('12');
+  await page.getByText('Revision history',{exact:true}).click();
+  await expect(page.locator('#scenario-history')).toContainText('Revision 1');
+  await expect(page.locator('#scenario-history')).toContainText('Revision 2');
+  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();expect(result.violations).toEqual([]);
+  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+  await page.setViewportSize({width:390,height:844});await page.locator('#scenario-picker').scrollIntoViewIfNeeded();
+  await page.screenshot({path:'.cache/planning-docs/scenario-phone.png'});
+});
+test('per-site template overrides survive saving without changing the default template',async({page})=>{
+  await openStudy(page);await expect(page.locator('#scenario-new')).toBeEnabled();await page.locator('#scenario-new').click();
+  await page.getByLabel('Scenario name',{exact:true}).fill('Site override study');
+  await page.locator('#template-preset').selectOption('nr');
+  await page.getByLabel('Find a licensed site').fill('5205 Timberlea Boulevard');
+  await page.locator('#network-list button').first().click();
+  await page.getByText('Site overrides',{exact:true}).click();
+  await page.getByRole('button',{name:'Add selected site override',exact:true}).click();
+  await page.locator('[name=azimuthDeg]').fill('120');
+  await page.locator('#template-save').click();await expect(page.locator('#scenario-state')).toContainText('Draft revision 1');
+  await page.getByLabel('Template target',{exact:true}).selectOption('');await expect(page.locator('[name=azimuthDeg]')).toHaveValue('0');
+  const downloadPromise=page.waitForEvent('download');await page.locator('#template-export').click();
+  const data=JSON.parse(await require('node:fs/promises').readFile(await (await downloadPromise).path(),'utf8'));
+  expect(Object.values(data.scenario.versions.at(-1).overrides)[0].azimuthDeg).toBe(120);
+});

@@ -82,6 +82,8 @@ $javascriptTests = @(
     'tests/unit/test-network-view-model.mjs'
     'tests/unit/test-radio-model.mjs'
     'tests/unit/test-planning.mjs'
+    'tests/unit/test-scenario-view-model.mjs'
+    'tests/unit/test-fixture-cleanup.cjs'
     'tests/unit/test-project-coverage.mjs'
     'tests/unit/test-tasks.mjs'
     'tests/unit/test-project-view-model.mjs'
@@ -105,6 +107,7 @@ $pythonTests = @(
     'tests/python/test-regions.py'
     'tests/python/test-road-routing.py'
     'tests/python/test-task-store.py'
+    'tests/python/test-radio-scenarios.py'
     'tests/python/test-dm-model.py'
     'tests/python/test-drive-integration.py'
     'tests/python/test-drive-http.py'
@@ -157,6 +160,8 @@ $syntaxFiles = @(
     'dist/planning-model.mjs'
     'dist/planning-view.mjs'
     'dist/planning-label-view.mjs'
+    'dist/scenario-model.mjs'
+    'dist/scenario-view-model.mjs'
     'dist/street-detail.mjs'
 )
 $pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"

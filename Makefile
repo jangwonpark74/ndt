@@ -32,6 +32,8 @@ test:
 	cd ndt && $(NODE) tests/unit/test-network-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-radio-model.mjs
 	cd ndt && $(NODE) tests/unit/test-planning.mjs
+	cd ndt && $(NODE) tests/unit/test-scenario-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-fixture-cleanup.cjs
 	cd ndt && $(NODE) tests/unit/test-project-coverage.mjs
 	cd ndt && $(NODE) tests/unit/test-tasks.mjs
 	cd ndt && $(NODE) tests/unit/test-project-view-model.mjs
@@ -53,6 +55,7 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/python/test-regions.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-road-routing.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-task-store.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-radio-scenarios.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-dm-model.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-integration.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-http.py
@@ -109,5 +112,7 @@ check: test
 	cd ndt && $(NODE) --check dist/planning-model.mjs
 	cd ndt && $(NODE) --check dist/planning-view.mjs
 	cd ndt && $(NODE) --check dist/planning-label-view.mjs
+	cd ndt && $(NODE) --check dist/scenario-model.mjs
+	cd ndt && $(NODE) --check dist/scenario-view-model.mjs
 	cd ndt && $(NODE) --check dist/street-detail.mjs
 	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"
