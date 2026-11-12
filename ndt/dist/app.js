@@ -60,7 +60,7 @@ const projectViewModel = createProjectViewModel(createProjectModel(region,assetB
 const taskView = createTaskView({map,viewModel:createTaskViewModel(createTaskModel(region.id)),regionId:region.id});
 const virtualUeView = createVirtualUeView({map,regionId:region.id});
 const projectView = createProjectView({region,map,viewModel:projectViewModel,siteLocations,emptyFeatures,taskView,virtualUeView});
-const networkView = createNetworkView({map,viewModel:networkViewModel,projectView,setLayers:mapView.setLayers,getNetworkLayer:sceneView.getNetworkLayer,emptyFeatures});
+const networkView = createNetworkView({map,region,projectViewModel,viewModel:networkViewModel,projectView,setLayers:mapView.setLayers,getNetworkLayer:sceneView.getNetworkLayer,emptyFeatures});
 bindSearchView({form:$('location-search'), query:$('location-query'), panel:$('search-results'), status:$('search-status'), list:$('search-list')}, createSearchViewModel(searchLocations), map);
 sceneView.start();
 map.once('load',async()=>{

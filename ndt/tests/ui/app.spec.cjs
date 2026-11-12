@@ -106,7 +106,7 @@ test('closing network details preserves visible sites, fans and the selected bea
   await page.evaluate(siteId=>{
     const map=window.testMap, original=map.queryRenderedFeatures;
     map.queryRenderedFeatures=()=>[{properties:{site_id:siteId},layer:{id:'network-sites'}}];
-    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
+    map.fire('click',{originalEvent:new MouseEvent('click'),point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
     map.queryRenderedFeatures=original;
   },before.selected[0].properties.site_id);
   await expect(page.locator('#network-panel')).toBeVisible();
@@ -152,16 +152,16 @@ test('map feature selection presents the building marker and clears it', async (
       {source:'openmaptiles',sourceLayer:'transportation',properties:{}},
       {source:'openmaptiles',sourceLayer:'building',properties:{render_height:42}},
     ];
-    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
+    map.fire('click',{originalEvent:new MouseEvent('click'),point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
     map.queryRenderedFeatures = () => [];
-    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
+    map.fire('click',{originalEvent:new MouseEvent('click'),point:{x:100,y:100},lngLat:{lng:-79.4,lat:43.7}});
     map.queryRenderedFeatures = originalQuery; layer.setLocation = originalSet;
     return calls;
   });
   expect(calls).toEqual([{location:{lng:-79.4,lat:43.7},height:42},{location:null,height:0}]);
 });
 
-test('site markers retain indoor locations and require outdoor fans', async ({ page }) => {
+test('all licensed site markers survive missing or invalid fans', async ({ page }) => {
   await page.route('**/app.js*', async route => {
     const response = await route.fetch();
     const body = (await response.text()).replace('const map = new maplibregl.Map', 'const map = window.testMap = new maplibregl.Map');
@@ -174,11 +174,12 @@ test('site markers retain indoor locations and require outdoor fans', async ({ p
   const initial = await markers();
   expect(initial.some(p=>p.site_class === 'indoor')).toBe(true);
   expect(initial.some(p=>p.site_class === 'bell')).toBe(true);
-  expect(initial.filter(p=>p.site_class === 'bell').every(p=>fans.includes(p.site_id))).toBe(true);
+  expect(initial.filter(p=>p.site_class === 'bell').some(p=>!fans.includes(p.site_id))).toBe(true);
+  await page.getByText('Map display and fan assumptions',{exact:true}).click();
   await page.getByLabel('Assumed EIRP (dBm)').fill('100');
   const invalid = await markers();
   expect(invalid.some(p=>p.site_class === 'indoor')).toBe(true);
-  expect(invalid.some(p=>p.site_class === 'bell')).toBe(false);
+  expect(invalid).toEqual(initial);
   await page.getByLabel('Assumed EIRP (dBm)').fill('46');
   expect((await markers()).filter(p=>p.site_class === 'bell').length).toBe(initial.filter(p=>p.site_class === 'bell').length);
 });
@@ -255,6 +256,7 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
   expect(await page.evaluate(() => window.testMap.getLayoutProperty('project-boundary','line-cap'))).toBe('round');
   expect(initial.sites.features).toHaveLength(7);
   await page.locator('.network-settings > summary').click();
+  await page.getByText('Map display and fan assumptions',{exact:true}).click();
   await page.getByLabel('Assumed EIRP (dBm)').fill('100');
   await expect(page.locator('#project-status')).toContainText('Boundary unavailable');
   expect((await snapshot()).boundary.features).toHaveLength(0);
@@ -454,7 +456,7 @@ test('closing reservation details keeps markers and allows reopening',async ({pa
     const map=window.testMap, feature=map.getSource('nyc-reservations')._data.features.find(f=>f.properties.status !== 'Proposed');
     const original=map.queryRenderedFeatures;
     map.queryRenderedFeatures=()=>[{properties:{id:feature.properties.id},layer:{id:'nyc-reservations'}}];
-    map.fire('click',{point:{x:100,y:100},lngLat:{lng:-74,lat:40.7}});
+    map.fire('click',{originalEvent:new MouseEvent('click'),point:{x:100,y:100},lngLat:{lng:-74,lat:40.7}});
     map.queryRenderedFeatures=original;
   });
   await expect(page.locator('#nyc-detail')).toContainText('reservation');
@@ -517,14 +519,16 @@ test('site search, selection, bearing details and planning validation', async ({
   await page.locator('#network-list button').first().click();
   await expect(page.locator('#network-detail')).toContainText('Bell Mobility');
   await expect(page.locator('#network-detail')).toContainText('5205 Timberlea Boulevard');
-  await expect(page.locator('#network-detail')).toContainText('not confirmed');
-  await page.getByText(/Reported directional bearings \(/).click();
+  await expect(page.locator('#network-detail')).toContainText('TELUS use is unverified');
+  await page.locator('.topology-group > summary').first().click();
+  await page.getByText(/Reported directional bearings \(/).first().click();
   await expect(page.locator('.cell-record').first()).toBeVisible();
   const choices = page.locator('#sector-choices button');
   await expect(choices.first()).toBeVisible();
   await choices.first().click();
   await expect(page.locator('#sector-choices button[aria-pressed="true"]')).toHaveCount(1);
   await expect(page.locator('#sector-info')).toContainText('calculated');
+  await page.getByText('Map display and fan assumptions',{exact:true}).click();
   await page.getByLabel('Assumed EIRP (dBm)').fill('100');
   await expect(page.locator('#coverage-status')).toContainText('Enter EIRP 0–90');
   await page.getByLabel('Assumed EIRP (dBm)').fill('46');

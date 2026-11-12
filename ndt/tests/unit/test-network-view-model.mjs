@@ -40,7 +40,7 @@ vm.setOptions({scenario:{...RADIO_DEFAULTS,eirpDbm:100}});
 result = vm.coverage();
 assert.match(result.status,/Enter EIRP/);
 assert.equal(result.fans.features.length,0);
-assert.deepEqual(result.markers,[indoor]);
+assert.deepEqual(result.markers,[indoor,site],'inventory survives invalid fan assumptions');
 vm.setOptions({query:'mount pleasant',scenario:RADIO_DEFAULTS});
 const list = vm.list(()=>true,{lng:-79.39,lat:43.7},14);
 assert.deepEqual(list.features,[site]);

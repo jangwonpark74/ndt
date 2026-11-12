@@ -1,0 +1,75 @@
+const {test,expect}=require('@playwright/test');
+const AxeBuilder=require('@axe-core/playwright').default;
+const {maps}=require('./drive-fixture.cjs');
+test.beforeEach(async({page})=>{
+  await maps(page);
+  await page.route('**/app.js*',async route=>{const response=await route.fetch();await route.fulfill({response,body:(await response.text()).replace('const map = new maplibregl.Map','const map = window.testMap = new maplibregl.Map')});});
+  await page.goto('/');
+  await expect(page.locator('#network-list button').first()).toBeVisible({timeout:20000});
+});
+test('inventory, map labels, project context and template probe form one planning workflow',async({page})=>{
+  await page.getByLabel('Find a licensed site').fill('5205 Timberlea Boulevard');
+  await page.locator('#network-list button').first().click();
+  await expect(page.locator('#network-detail')).toContainText('Bell W2539');
+  await expect(page.locator('#network-detail')).toContainText('equipment connections are unavailable');
+  await page.getByLabel('Filter reported RAT').selectOption('NR');
+  await expect(page.locator('.topology-group').first()).toContainText('5GNR');
+  await expect(page.locator('.selected-label')).toContainText('Bell W2539');
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('harbourfront');
+  await page.locator('#network-tab').click();
+  await expect(page.locator('#network-project-context')).toContainText('Harbourfront');
+  await expect(page.locator('.project-label').filter({hasText:'Harbourfront'})).toBeVisible();
+  await page.getByText('Radio and antenna study',{exact:true}).click();
+  await page.locator('#template-preset').selectOption('nr');
+  const result=page.locator('#template-result');
+  await expect(result).toContainText('NR');
+  const front=await result.innerText();
+  await page.locator('[name=probeBearing]').fill('180');
+  expect(await result.innerText()).not.toBe(front);
+  await page.locator('[name=frequencyMHz]').fill('');
+  await expect(page.locator('#template-error')).toBeVisible();
+  await expect(page.locator('#template-export')).toBeDisabled();
+  await page.locator('[name=frequencyMHz]').fill('3600');
+  await page.getByRole('button',{name:'Save study',exact:true}).click();
+  const downloadPromise=page.waitForEvent('download');await page.locator('#template-export').click();
+  const download=await downloadPromise;expect(download.suggestedFilename()).toBe('radio-planning-study.json');
+  const manifest=JSON.parse(await require('node:fs/promises').readFile(await download.path(),'utf8'));
+  expect(manifest.template.frequencyMHz).toBe(3600);expect(manifest.probe.bearingDeg).toBe(180);expect(Number.isFinite(manifest.result.rxDbm)).toBe(true);
+  await page.reload();await expect(page.locator('#network-list button').first()).toBeVisible();
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('harbourfront');
+  await page.locator('#network-tab').click();await page.getByText('Radio and antenna study',{exact:true}).click();
+  await expect(page.locator('[name=frequencyMHz]')).toHaveValue('3600');
+  await expect(page.locator('#template-preset')).toHaveValue('nr');
+  await expect(result).toContainText('NR');
+  await page.screenshot({path:'.cache/planning-docs/desktop.png'});
+});
+test('site label selection and label toggle work; storage failure stays actionable',async({page})=>{
+  await page.evaluate(()=>window.testMap.jumpTo({center:[-79.387538,43.702354],zoom:16,pitch:0}));
+  await page.locator('button.planning-map-label').first().click();
+  await expect(page.locator('#network-detail')).toBeVisible();
+  await page.getByText('Map display and fan assumptions',{exact:true}).click();
+  await page.getByLabel('Site and cluster labels').uncheck();await expect(page.locator('.planning-map-label')).toHaveCount(0);
+  await page.getByLabel('Site and cluster labels').check();await expect(page.locator('.selected-label')).toBeVisible();
+  await page.getByText('Radio and antenna study',{exact:true}).click();
+  await page.evaluate(()=>Storage.prototype.setItem=function(){throw Error('denied');});
+  await page.locator('#template-save').click();
+  await expect(page.locator('#template-save-status')).toContainText('Export the study');
+});
+test('project inventory opens site inspector and remains accessible at phone widths',async({page})=>{
+  await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('harbourfront');
+  await page.locator('#overview-open').click();
+  await page.locator('#project-sites button').first().click();
+  await expect(page.locator('#network-detail')).toBeVisible();
+  await expect(page.locator('#project-overview')).toBeHidden();
+  await expect(page.locator('#network-detail')).toContainText('Harbourfront');
+  await page.getByText('Radio and antenna study',{exact:true}).click();
+  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();
+  expect(result.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);
+  for(const width of [320,390,768,1440]) {
+    await page.setViewportSize({width,height:844});
+    const panel=await page.locator('#context-panel').boundingBox();expect(panel.x).toBeGreaterThanOrEqual(0);expect(panel.x+panel.width).toBeLessThanOrEqual(width);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:'.cache/planning-docs/phone.png'});
+});

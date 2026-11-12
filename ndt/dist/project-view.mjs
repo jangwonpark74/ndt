@@ -28,7 +28,8 @@ function renderProjectSites() {
   const {selected, data} = projectViewModel.getState();
   $('project-sites').replaceChildren();
   for (const site of data.clusters.get(selected.id)) {
-    const item = document.createElement('li'); item.textContent = siteLocations(site)[0] || site.properties.site_id; $('project-sites').append(item);
+    const item = document.createElement('li'), button=document.createElement('button'); button.type='button'; button.textContent = siteLocations(site)[0] || site.properties.site_id;
+    button.onclick=()=>document.dispatchEvent(new CustomEvent('reviewnetworksite',{detail:site})); item.append(button); $('project-sites').append(item);
   }
 }
 function updateProjectCoverage(fit = false) {

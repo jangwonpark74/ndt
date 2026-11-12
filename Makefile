@@ -31,6 +31,7 @@ test:
 	cd ndt && $(NODE) tests/unit/test-network-symbols.mjs
 	cd ndt && $(NODE) tests/unit/test-network-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-radio-model.mjs
+	cd ndt && $(NODE) tests/unit/test-planning.mjs
 	cd ndt && $(NODE) tests/unit/test-project-coverage.mjs
 	cd ndt && $(NODE) tests/unit/test-tasks.mjs
 	cd ndt && $(NODE) tests/unit/test-project-view-model.mjs
@@ -105,5 +106,8 @@ check: test
 	cd ndt && $(NODE) --check dist/project-view-model.mjs
 	cd ndt && $(NODE) --check dist/project-view.mjs
 	cd ndt && $(NODE) --check dist/radio-model.mjs
+	cd ndt && $(NODE) --check dist/planning-model.mjs
+	cd ndt && $(NODE) --check dist/planning-view.mjs
+	cd ndt && $(NODE) --check dist/planning-label-view.mjs
 	cd ndt && $(NODE) --check dist/street-detail.mjs
 	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"

@@ -81,6 +81,7 @@ $javascriptTests = @(
     'tests/unit/test-network-symbols.mjs'
     'tests/unit/test-network-view-model.mjs'
     'tests/unit/test-radio-model.mjs'
+    'tests/unit/test-planning.mjs'
     'tests/unit/test-project-coverage.mjs'
     'tests/unit/test-tasks.mjs'
     'tests/unit/test-project-view-model.mjs'
@@ -153,6 +154,9 @@ $syntaxFiles = @(
     'dist/project-view-model.mjs'
     'dist/project-view.mjs'
     'dist/radio-model.mjs'
+    'dist/planning-model.mjs'
+    'dist/planning-view.mjs'
+    'dist/planning-label-view.mjs'
     'dist/street-detail.mjs'
 )
 $pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"

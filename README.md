@@ -4,6 +4,8 @@ NDT is a regional 3D city and network visualization project with Toronto and New
 
 The integrated **Drive tests** workspace combines saved Task routes with DM capture replay, investigation, reporting, virtual drives and planning-power Parameter A/B comparison. Open it from project navigation, Project Overview or a saved Task route. See the [integration plan and delivery status](docs/VIRTUAL_DRIVE_TEST_INTEGRATION_PLAN.md).
 
+The **Network** inspector supports site topology review, LTE/NR filters, site/project cluster labels and independent radio/antenna probe studies. See the [radio planning workflow review and enhancement plan](docs/RADIO_PLANNING_ENHANCEMENT_PLAN.md) for implemented improvements, data limitations and prioritized next steps.
+
 To run it locally:
 
 ```sh

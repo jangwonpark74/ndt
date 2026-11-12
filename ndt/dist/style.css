@@ -238,3 +238,18 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 .intro .map-settings .layers label{min-height:40px;margin:0;font-size:12px}
 .intro .layers input:focus-visible+i{outline:2px solid #225f43;outline-offset:3px}
 @media(max-width:700px){.intro{padding:20px 16px 40px}.navigation-heading h1{font-size:20px}}
+
+
+.planning-context{padding:10px 12px;background:#e8f0eb;border-left:3px solid #24654d;color:#244d3c;font-size:12px;font-weight:600;overflow-wrap:anywhere}
+.inspector-section{border-top:1px solid #d8e3db;padding:12px 0}.inspector-section>summary,.site-topology>summary{font-size:13px;font-weight:700;cursor:pointer;min-height:28px}
+#network-panel .network-note{font-size:11px;line-height:1.55}#network-panel h3{font-size:14px;margin:12px 0 6px}#network-panel label{font-size:12px}
+.site-address{font-size:13px;margin:4px 0 12px}.site-facts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:8px 14px;font-size:12px;margin:12px 0 16px}.site-facts dt{color:#52675b}.site-facts dd{margin:0;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.site-topology{margin:16px 0}.topology-groups{border-left:2px solid #bed3c5;margin:12px 0 12px 6px;padding-left:12px}.topology-group{margin:8px 0;border:1px solid #dae4dc;border-radius:6px;padding:10px;background:#fff;overflow-wrap:anywhere}.topology-group summary{cursor:pointer;font-size:12px;line-height:1.6}.topology-group p{font-size:11px}
+.planning-input-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 12px}#network-panel input:not([type=checkbox]):not([type=range]),#network-panel select{width:100%;min-height:38px;border:1px solid #b9cbbf;border-radius:5px;background:#fff;color:#263e36;padding:7px;font:inherit;box-sizing:border-box}#radio-template-form label{display:block;margin-top:10px}#template-error{font-size:12px;background:#fff0e7;color:#813b20;padding:10px}
+.study-actions{display:flex;gap:8px}.study-actions button{padding:8px 12px;min-height:38px;border:1px solid #36725a;border-radius:5px;color:#24513e;background:#fff;font:600 12px sans-serif;cursor:pointer}.study-actions button:disabled{opacity:.5;cursor:default}
+.planning-map-label{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#fffef4;color:#263e36;border:1px solid #9bae9f;border-radius:4px;padding:4px 7px;font:600 11px Arial,sans-serif;box-shadow:0 1px 5px #17342825;cursor:pointer}.planning-map-label.project-label{background:#18533f;color:#fff;border-color:#fff;pointer-events:none}.planning-map-label.selected-label{background:#fff3cd;border:2px solid #785a18}.planning-map-label.member-label{border-color:#18533f}
+#network-panel :focus-visible,.planning-map-label:focus-visible{outline:2px solid #225f43;outline-offset:3px}
+.network-panel:has(#network-panel:not([hidden])){width:360px}body:has(#network-panel:not([hidden])) .map-controls{right:408px}
+@media(max-width:700px){.network-panel:has(#network-panel:not([hidden])){width:min(360px,calc(100vw - 24px))}body:has(#network-panel:not([hidden])) .map-controls{right:12px}.planning-map-label{max-width:150px;font-size:10px}}
+
+.context-header{flex-wrap:wrap}.context-header .planning-context{flex-basis:100%;margin:0;padding:8px 10px}

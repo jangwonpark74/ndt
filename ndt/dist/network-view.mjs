@@ -4,10 +4,29 @@ import { siteLocations } from './network-model.mjs';
 import { markerClass } from './network-view-model.mjs';
 import { RADIO_DEFAULTS } from './radio-model.mjs';
 import {openContextPanel,hideContextPanel} from './context-panel.mjs';
+import {siteLabel,siteTopology} from './planning-model.mjs';
+import {bindPlanningView} from './planning-view.mjs';
+import {createPlanningLabels} from './planning-label-view.mjs';
 
-export function createNetworkView({map, viewModel:networkViewModel, projectView, setLayers, getNetworkLayer, emptyFeatures}) {
+export function createNetworkView({map, region, projectViewModel, viewModel:networkViewModel, projectView, setLayers, getNetworkLayer, emptyFeatures}) {
 const $ = id => document.getElementById(id);
 let networkListSignature = null;
+const labels=createPlanningLabels({map,onSelect:site=>selectNetwork(site),getSites:()=>{const s=networkViewModel.getState();return (s.features || []).filter(f=>f.properties.provider === 'Bell' ? s.bell : s.telus);},
+  getSelected:()=>networkViewModel.getState().selected,getProjects:()=>region.projects,
+  getProjectData:()=>projectViewModel.getState().data,getActiveProject:()=>projectViewModel.getState().selected});
+bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected});
+let previousProject,previousData;
+projectViewModel.subscribe(state=>{
+  if(state.selected === previousProject && state.data === previousData)return;
+  const changedProject=state.selected !== previousProject;
+  previousProject=state.selected;previousData=state.data;
+  $('network-project-context').textContent=state.selected ? `${state.selected.name} · ${region.network === 'ised' ? 'Planning cluster' : 'Project'}` : `${region.name || region.id} · Select a project to plan`;
+  if(changedProject)document.dispatchEvent(new CustomEvent('projectcontextchange'));
+  labels.refresh();
+  const selected=networkViewModel.getState().selected;
+  if(selected)renderSiteDetail(selected);
+});
+document.addEventListener('reviewnetworksite',event=>selectNetwork(event.detail,true));
 function syncNetworkOptions() {
   const eirp = $('coverage-eirp').value, threshold = $('coverage-threshold').value;
   networkViewModel.setOptions({telus:$('network-toggle').checked,bell:$('bell-toggle').checked,fansVisible:$('sector-fans-toggle').checked,
@@ -44,6 +63,7 @@ function updateCoverage() {
   getNetworkLayer()?.setData(result.markers);
   projectView.updateProjectCoverage();
   source.setData(result.fans); renderSectorSelection(result.selectedFans); $('coverage-status').textContent = result.status;
+  labels.refresh();
 }
 function clearNetworkSelection() {
   networkViewModel.select(null); $('network-detail').hidden = true;
@@ -110,27 +130,39 @@ function appendBellBearings(detail, records) {
   }
   detail.append(group);
 }
+function renderSiteDetail(feature) {
+  const detail = $('network-detail'), p = feature.properties, height = towerHeight(p.records);
+  detail.replaceChildren(); detail.hidden = false;
+  const title = document.createElement('h3'); title.textContent=siteLabel(feature);detail.append(title);
+  const location=document.createElement('p');location.className='site-address';location.textContent=siteLocations(feature).join(' / ') || 'Location not reported';detail.append(location);
+  const memberships=region.projects.filter(project=>projectViewModel.getState().data?.clusters.get(project.id)?.some(site=>site.properties.site_id === p.site_id));
+  const summary=document.createElement('dl');summary.className='site-facts';
+  const fields=[['Licensee',p.licensees.join(', ')],['Reported RATs',Object.keys(p.technologies).join(', ') || 'Not reported'],['Licensed records',p.record_count.toLocaleString()],['Tower height',height === null ? 'Not reported' : `${height} m`],['Project / cluster',memberships.map(project=>project.name).join(', ') || 'Not assigned'],['Coordinates',`${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}`]];
+  for(const [name,value]of fields){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=name;dd.textContent=value;summary.append(dt,dd);}detail.append(summary);
+  const viewButton = document.createElement('button'); viewButton.className = 'network-view-site'; viewButton.type = 'button'; viewButton.textContent = 'View site in 3D';
+  viewButton.onclick = () => map.flyTo({center:feature.geometry.coordinates,zoom:Math.max(map.getZoom(),16.5),pitch:60}); detail.append(viewButton);
+  const topology=document.createElement('details');topology.className='site-topology';topology.open=true;
+  const heading=document.createElement('summary');heading.textContent='Site topology and inventory';topology.append(heading);
+  const note=document.createElement('p');note.className='network-note';note.textContent=p.provider === 'Bell' ? 'Reported bearing groups. Cell IDs, radio models and equipment connections are unavailable in this aggregate. TELUS use is unverified.' : 'Reported radio records grouped by antenna direction. Physical equipment connections are unverified.';topology.append(note);
+  const label=document.createElement('label');label.textContent='Filter reported RAT ';const filter=document.createElement('select');filter.setAttribute('aria-label','Filter reported RAT');
+  for(const [value,text]of [['all','All technologies'],['LTE','4G LTE'],['NR','5G NR']])filter.add(new Option(text,value));label.append(filter);topology.append(label);
+  const groups=document.createElement('div');groups.className='topology-groups';topology.append(groups);
+  function renderTopology(){groups.replaceChildren();const rows=siteTopology(feature,filter.value);
+    if(!rows.length){const empty=document.createElement('p');empty.textContent='No reported records for this RAT.';groups.append(empty);}
+    for(const row of rows){const card=document.createElement('details'),title=document.createElement('summary');card.className='topology-group';title.textContent=`${row.name} · ${row.technologies.join(', ')} · ${row.count} records`;card.append(title);
+      const frequencies=[...new Set(row.records.flatMap(r=>r.frequencies || [r.tx_frequency]).filter(Boolean))];
+      const info=document.createElement('p');info.textContent=`TX frequencies: ${frequencies.join(', ') || 'Not reported'} MHz`;card.append(info);
+      if(p.provider === 'Bell')appendBellBearings(card,row.records);else appendTelusRecords(card,row.records);
+      groups.append(card);}}
+  filter.onchange=renderTopology;renderTopology();detail.append(topology);
+  const link = document.createElement('a'); link.href = 'https://ised-isde.canada.ca/site/spectrum-management-system/en/spectrum-management-system-data/download-sms-data'; link.textContent = 'ISED source data'; link.target = '_blank'; link.rel = 'noopener noreferrer'; detail.append(link);
+}
 function selectNetwork(feature, move = false, sector = null) {
   networkViewModel.select(feature,sector);
   openContextPanel('network-panel');
   map.getSource('network-selected-site')?.setData({type:'FeatureCollection',features:[{type:'Feature',geometry:feature.geometry,properties:{}}]});
-  const detail = $('network-detail'), p = feature.properties, height = towerHeight(p.records);
-  detail.replaceChildren(); detail.hidden = false;
-  const title = document.createElement('strong'); title.textContent = `${p.provider === 'Bell' ? 'Bell Mobility' : 'TELUS'} · ${p.record_count.toLocaleString()} licensed records`; detail.append(title);
-  const viewButton = document.createElement('button'); viewButton.className = 'network-view-site'; viewButton.type = 'button'; viewButton.textContent = 'View site in 3D';
-  viewButton.onclick = () => map.flyTo({center:feature.geometry.coordinates,zoom:Math.max(map.getZoom(),16.5),pitch:60}); detail.append(viewButton);
-  const description = document.createElement('div');
-  const siteTypes = [...new Set(p.records.map(record => ({I:'Indoor',O:'Outdoor',U:'Underground'}[record.site_type] || 'Unknown')))];
-  const antennaHeights = [...new Set(p.records.map(record=>record.tx_ant_height).filter(value=>value !== ''))];
-  description.textContent = `${Object.entries(p.technologies).map(([name,count])=>`${name}: ${count}`).join(' · ')} · ISED site: ${siteTypes.join(', ')} · ${height !== null ? `Reported tower height: ${height} m` : 'Tower height unavailable'}${antennaHeights.length === 1 ? ` · Reported TX antenna height: ${antennaHeights[0]} m` : ''} · ${p.licensees.join(', ')}`;
-  detail.append(description);
-  const location = document.createElement('div'); location.className = 'site-location';
-  const names = siteLocations(feature), ids = p.ised_site_ids || [...new Set(p.records.map(record=>record.record_id).filter(Boolean))];
-  location.textContent = `ISED location: ${names.length ? names.join(' / ') : 'Not reported'} · Coordinates: ${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}${ids.length ? ` · Site IDs: ${ids.join(', ')}` : ''}`;
-  detail.append(location);
-  if (p.provider === 'Bell') { const note = document.createElement('div'); note.textContent = 'Bell-licensed location; TELUS use of this individual site is not confirmed.'; detail.append(note); }
-  const link = document.createElement('a'); link.href = 'https://ised-isde.canada.ca/site/spectrum-management-system/en/spectrum-management-system-data/download-sms-data'; link.textContent = 'ISED source data'; link.target = '_blank'; link.rel = 'noopener noreferrer'; detail.append(link);
-  if (p.provider === 'Bell') appendBellBearings(detail,p.records); else appendTelusRecords(detail,p.records);
+  renderSiteDetail(feature);
+  $('network-browser').open=false;
   updateCoverage();
   if (move) map.flyTo({center:feature.geometry.coordinates,zoom:Math.max(map.getZoom(),16),pitch:55});
 }
