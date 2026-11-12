@@ -61,10 +61,10 @@ export function createProjectViewModel(model, projects = []) {
       const sites = clusters.get(state.selected.id), boundary = boundaries.find(feature=>feature.properties.project_id === state.selected.id);
       let status;
       if (missing.has(state.selected.id)) status = 'Saved project sites are missing from the current data. Boundary and editing are unavailable.';
-      else if (!boundary) status = sites.length ? 'Boundary unavailable: usable sector estimates and valid planning assumptions are required.' : 'No project sites. Right-click an eligible Bell site to add it; seven are required for simulation.';
+      else if (!boundary) status = sites.length ? 'Boundary unavailable: usable sector estimates and valid planning assumptions are required.' : 'No project sites. Right-click an eligible Bell site to add it; seven is the original planning target.';
       else {
         const radius = Math.max(...sites.map(site=>distanceMetres(site.geometry.coordinates,sites[0].geometry.coordinates)));
-        status = `${sites.length} Bell locations · cluster radius ${(radius/1000).toFixed(2)} km · ${sites.length === 7 ? '' : '7 sites required for simulation · '}full-radius project boundary includes gaps; not measured coverage. Right-click a Bell site to edit the project.`;
+        status = `${sites.length} Bell locations · cluster radius ${(radius/1000).toFixed(2)} km · ${sites.length === 7 ? '' : 'Original planning target: 7 sites · '}full-radius project boundary includes gaps; not measured coverage. Right-click a Bell site to edit the project.`;
       }
       return {boundaries, sites, boundary, status};
     },

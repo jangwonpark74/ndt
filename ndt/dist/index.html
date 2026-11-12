@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101c21"><meta name="description" content="Explore city regions in 3D using OpenStreetMap and terrain data.">
+  <link rel="stylesheet" href="./design-tokens.css">
   <title>Samsung CongitV NDT · City regions in 3D</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -21,6 +22,7 @@
       <div class="navigation-label">PROJECTS</div>
       <label class="visually-hidden" for="project-picker">Project</label><select id="project-picker" class="project-picker"><option value="" selected disabled>Select a project</option></select>
       <button id="overview-open" class="overview-nav" type="button" disabled>Project overview ↗</button>
+      <a id="drive-workspace" class="drive-workspace-link" href="/drive-test/" aria-disabled="true" tabindex="-1">Drive tests ↗</a>
       <label class="navigation-label" for="project-use-case">USE CASES</label>
       <select id="project-use-case" class="project-picker" aria-describedby="project-use-case-status" disabled><option value="">Uncategorized</option></select>
       <p id="project-use-case-status" class="use-case-status" role="status" aria-live="polite">Select a project first.</p><button id="project-use-case-retry" class="text-button" type="button" hidden>Retry loading use cases</button>
@@ -123,7 +125,7 @@
           <section class="overview-card project-context-card"><div><h2>Project context</h2><label class="use-case-label" for="overview-use-case">Use case</label><select id="overview-use-case" class="project-picker" aria-describedby="overview-use-case-status" disabled><option value="">Uncategorized</option></select><p id="overview-use-case-status" class="use-case-status" role="status" aria-live="polite"></p><button id="overview-use-case-retry" class="text-button" type="button" hidden>Retry loading use cases</button><p id="project-status" role="status" aria-live="polite"></p></div><details class="overview-site-list" open><summary id="project-sites-heading">Project sites</summary><ol id="project-sites" tabindex="0" aria-label="Project sites"></ol></details></section>
         </div>
         <section class="overview-card overview-tasks-card" aria-labelledby="task-table-title">
-          <div class="overview-card-header"><h2 id="task-table-title">Drive-test tasks</h2><div class="task-actions"><button id="overview-task-new" class="task-primary" type="button">New task</button><button id="overview-tasks" type="button">Map task editor</button><button id="overview-resume" type="button" hidden>Resume draft</button><button id="overview-task-retry" type="button" hidden>Retry loading tasks</button></div></div>
+          <div class="overview-card-header"><h2 id="task-table-title">Drive-test tasks</h2><div class="task-actions"><button id="overview-task-new" class="task-primary" type="button">New task</button><a id="overview-drive-tests" class="drive-workspace-link" href="/drive-test/" aria-disabled="true" tabindex="-1">Open drive tests ↗</a><button id="overview-tasks" type="button">Map task editor</button><button id="overview-resume" type="button" hidden>Resume draft</button><button id="overview-task-retry" type="button" hidden>Retry loading tasks</button></div></div>
           <p id="overview-task-status" role="status" aria-live="polite"></p><p id="overview-task-error" role="alert" hidden></p>
           <form id="overview-task-form"></form><p class="task-scroll-note">Scroll horizontally for all columns. Task IDs stay visible.</p>
           <div id="overview-task-list" class="task-table-scroll" role="region" aria-label="Drive-task data table" tabindex="0">

@@ -1,8 +1,9 @@
 import {createTaskTableView} from './task-table-view.mjs';
 import {driveDuration as duration,driveGps,driveTime} from './task-format.mjs';
 import {openContextPanel} from './context-panel.mjs';
+import {driveTestUrl} from './drive-navigation.mjs';
 
-export function createTaskView({map,viewModel}) {
+export function createTaskView({map,viewModel,regionId}) {
   const $ = id => document.getElementById(id);
   let project = null, markers = [];
   function button(label, action, className = '') {
@@ -55,6 +56,12 @@ export function createTaskView({map,viewModel}) {
     map.getCanvas().classList.toggle('route-drawing',Boolean(viewModel.getState().drawing));
   }
   function render(state) {
+    for(const id of ['drive-workspace','overview-drive-tests']){
+      const link=$(id),disabled=!state.projectId||state.dirty||state.loading||state.saving;
+      link.setAttribute('aria-disabled',String(disabled));link.tabIndex=disabled?-1:0;
+      link.onclick=event=>{if(disabled)event.preventDefault();};
+      link.title=disabled?'Save or discard Task changes before opening drive tests.':'Open drive tests for this project';
+    }
     const {tasks,draft,originalId,dirty,loading,saving,error,drawing,loaded,routing} = state;
     const busy = saving || Boolean(routing);
     $('road-fit-progress').hidden = !routing;
@@ -96,7 +103,9 @@ export function createTaskView({map,viewModel}) {
         const show = button('View route',()=>fit(route.coordinates));
         const remove = button('Remove route',()=>viewModel.removeRoute(route.id)); remove.disabled = busy || Boolean(drawing);
         const fitRoads = button('Fit to roads',()=>viewModel.fitRoute(route.id)); fitRoads.disabled = busy || Boolean(drawing);
-        item.append(title,status,details,show,fitRoads,remove); $('task-routes').append(item);
+        const drive=button('Open drive tests',()=>{location.href=driveTestUrl(regionId,state.projectId,state.originalId,route.id);});
+        drive.disabled=dirty||busy||!state.originalId||Boolean(drawing);drive.title=drive.disabled?'Save the Task first':'Use this saved route in the drive-test workspace';
+        item.append(title,status,details,show,fitRoads,remove,drive); $('task-routes').append(item);
       }
     }
     $('task-save').disabled = !dirty || busy || Boolean(drawing);
@@ -110,7 +119,7 @@ export function createTaskView({map,viewModel}) {
     }
     drawMap();
   }
-  createTaskTableView({viewModel,openTask:task=>{
+  createTaskTableView({viewModel,driveTestUrl:taskId=>driveTestUrl(regionId,viewModel.getState().projectId,taskId),openTask:task=>{
     if (!viewModel.getState().dirty) viewModel.selectTask(task.id);
     openContextPanel('task-panel'); $('task-name').focus();
     fit(task.routes.flatMap(route=>route.coordinates));
@@ -142,6 +151,7 @@ export function createTaskView({map,viewModel}) {
   document.addEventListener('keydown',event=>{if (event.key === 'Escape' && viewModel.getState().drawing) {event.stopImmediatePropagation(); viewModel.cancelDraw(); $('route-draw').focus();}},true);
   document.addEventListener('contextchange',event=>{if (event.detail !== 'task-panel' && viewModel.getState().drawing) viewModel.cancelDraw();});
   return {
+    selectTask(id) {viewModel.selectTask(id);},
     selectProject(value) { project = value; return viewModel.selectProject(value.id); },
     click(event) {return viewModel.addPoint([event.lngLat.lng,event.lngLat.lat]);},
     initialize() {

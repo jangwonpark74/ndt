@@ -1,7 +1,7 @@
 import {taskSpeedCases} from './task-data.mjs';
 import {driveGps,driveDistance,driveTime} from './task-format.mjs';
 
-export function createTaskTableView({viewModel,openTask}) {
+export function createTaskTableView({viewModel,openTask,driveTestUrl}) {
   const $ = id=>document.getElementById(id), NEW=Symbol('new');
   let editing=null,project=null,structure='',rows=new Map();
   function button(text,action) {
@@ -53,6 +53,8 @@ export function createTaskTableView({viewModel,openTask}) {
           const change=button('Edit task',()=>edit(entry.key));
           const remove=button('Delete task',async()=>{if (!confirm(`Delete task ${entry.task.id} and its routes?`)) return;viewModel.selectTask(entry.key);await viewModel.save(true);});
           remove.className='task-danger';cells[7].append(change,remove);controls.push(change,remove);
+          const drive=button('Drive tests',()=>{if(!viewModel.getState().dirty)location.href=driveTestUrl(entry.task.id);});
+          cells[7].append(drive);controls.push(drive);
         }
         rows.set(entry.key,{row,cells,title,name,inputs,controls,routeToggle,details,routeList,editRoutes,active});
         $('overview-task-rows').append(row,details);

@@ -16,6 +16,7 @@ import tempfile
 from urllib.parse import unquote, urlsplit
 from road_routing import driving_route, validate_points, RoutingUnavailable
 from task_store import connect, validate_tasks, initialize_tasks, read_tasks, write_tasks
+from dm.http import DriveTestAPI, DriveTestService, registry_path
 
 ROOT = Path(__file__).resolve().parent
 DIST = ROOT / 'dist'
@@ -147,11 +148,13 @@ def initialize(db_path):
 
 
 def handler_for(db_path):
-    class Handler(SimpleHTTPRequestHandler):
+    class Handler(DriveTestAPI, SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(DIST), **kwargs)
 
         def do_GET(self):
+            if self.handle_dm('GET'):
+                return
             path = unquote(urlsplit(self.path).path)
             task_parts = path.split('/')
             if len(task_parts) == 7 and task_parts[1:3] == ['api', 'regions'] and task_parts[4] == 'projects' and task_parts[6] == 'virtual-ues':
@@ -198,6 +201,8 @@ def handler_for(db_path):
             return super().do_GET()
 
         def do_PUT(self):
+            if self.handle_dm('PUT'):
+                return
             parts = unquote(urlsplit(self.path).path).split('/')
             if len(parts) == 8 and parts[1:3] == ['api', 'regions'] and parts[4] == 'projects' and parts[6] == 'virtual-ues':
                 try:
@@ -281,6 +286,8 @@ def handler_for(db_path):
             return self.respond(b'{}', 'application/json')
 
         def do_DELETE(self):
+            if self.handle_dm('DELETE'):
+                return
             parts = unquote(urlsplit(self.path).path).split('/')
             if len(parts) != 8 or parts[1:3] != ['api', 'regions'] or parts[4] != 'projects' or parts[6] != 'virtual-ues':
                 return self.send_error(404)
@@ -291,6 +298,8 @@ def handler_for(db_path):
             return self.respond(b'{}', 'application/json')
 
         def do_POST(self):
+            if self.handle_dm('POST'):
+                return
             if urlsplit(self.path).path != '/api/road-route':
                 return self.send_error(404)
             try:
@@ -305,6 +314,10 @@ def handler_for(db_path):
             except RoutingUnavailable as error:
                 return self.respond(json.dumps({'error':str(error)}).encode(), 'application/json', 503)
             return self.respond(json.dumps({'coordinates':result}).encode(), 'application/json')
+
+        def do_PATCH(self):
+            if not self.handle_dm('PATCH'):
+                self.send_error(404)
 
         def known_project(self, db, region_id, project_id):
             row = db.execute('SELECT metadata FROM regions WHERE id=?', (region_id,)).fetchone()
@@ -337,7 +350,11 @@ def main():
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, help='Use this exact port (default: first available in 5179–5189)')
     parser.add_argument('--db', type=Path, help='SQLite database path (default: regions.sqlite3 in the project directory)')
+    parser.add_argument('--dm-db', type=Path, help='Drive-test registry path (default: drive_tests.sqlite3 beside the planning database)')
+    parser.add_argument('--import-dm', type=Path, help='Copy an existing DM registry when the destination does not exist; never overwrite it')
     args = parser.parse_args()
+    if args.import_dm and not args.import_dm.is_file():
+        parser.error('The DM registry selected for import does not exist.')
     default_database = args.db is None
     if default_database:
         args.db = DEFAULT_DB
@@ -352,11 +369,18 @@ def main():
         if default_database and migrate_database(LEGACY_DB, args.db):
             print(f'Copied existing database from {LEGACY_DB} to {args.db}', flush=True)
         initialize(args.db)
+        tests_db = args.dm_db or (registry_path(ROOT) if default_database else args.db.parent / 'drive_tests.sqlite3')
+        tests_db.parent.mkdir(parents=True, exist_ok=True)
+        if args.import_dm and migrate_database(args.import_dm, tests_db):
+            print(f'Copied existing DM registry to {tests_db}', flush=True)
+        httpd.drive_service = DriveTestService(args.db, tests_db)
         print(f'Serving on http://{args.host}:{httpd.server_address[1]} using {args.db}', flush=True)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
             print('\nViewer stopped.', flush=True)
+        finally:
+            httpd.drive_service.close()
     return 0
 
 

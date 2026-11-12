@@ -1,5 +1,6 @@
 import {openContextPanel, showProjectOverview, hideProjectOverview} from './context-panel.mjs';
 import {PROJECT_USE_CASES} from './project-data.mjs';
+import {driveTestUrl} from './drive-navigation.mjs';
 
 export function createProjectView({region, map, viewModel:projectViewModel, siteLocations, emptyFeatures, taskView, virtualUeView}) {
 const $ = id => document.getElementById(id);
@@ -62,7 +63,8 @@ async function selectProject(project) {
   const overviewVisible = !$('project-overview').hidden;
   $('project-title').textContent = project.name; $('task-project-title').textContent = project.name; $('project-sites').replaceChildren();
   $('overview-open').disabled = false;
-  taskView.selectProject(project);
+  const taskLoad=taskView.selectProject(project);
+  for(const id of ['drive-workspace','overview-drive-tests'])$(id).href=driveTestUrl(region.id,project.id);
   virtualUeView.selectProject(project);
   if (!overviewVisible) openContextPanel('task-panel');
   $('project-sites-heading').hidden = region.network !== 'ised';
@@ -70,16 +72,18 @@ async function selectProject(project) {
   map.getSource('project-sites')?.setData(emptyFeatures);
   if (region.network !== 'ised') {
     $('project-status').textContent = 'Coverage boundary unavailable: New York reservation records have no radio bearings, widths or frequencies.';
-    map.flyTo({center:project.center,zoom:project.zoom,pitch:project.pitch,bearing:0}); return;
+    map.flyTo({center:project.center,zoom:project.zoom,pitch:project.pitch,bearing:0}); await taskLoad;return;
   }
   $('project-status').textContent = 'Selecting seven nearby eligible Bell locations…';
   try {
-    if (!await selection) return;
+    const [accepted]=await Promise.all([selection,taskLoad]);if(!accepted)return;
     renderProjectSites();
     updateProjectCoverage(true);
   } catch (error) {
     if (projectViewModel.getState().selected === project) $('project-status').textContent = 'Project site data unavailable. Select the project again to retry.';
     console.warn(error);
+  } finally {
+    await taskLoad;
   }
 }
 function loadProjectClusters() {

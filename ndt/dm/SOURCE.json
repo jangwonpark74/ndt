@@ -1,0 +1,20 @@
+{
+  "source_project": "Drive Test DM",
+  "integration_date": "2026-11-12",
+  "ownership": "Copied components are maintained in this repository. No runtime source-checkout dependency.",
+  "source_sha256": {
+    "dm_model.py": "83348004021037511cda8881a3c9ecbaa918fb983761d2aa40fa47813417a730",
+    "demo.py": "e37bcf378c95ff9b277d8652e7c7f632800d54700e1a51c0446181ba180a851f",
+    "dist/report-view.mjs": "3f0642b3b977cb1d62366f1d5722e55f26f4cf22e1479bde21c097e1f622bce6",
+    "dist/index.html": "1f9e8dfe22e03efc82f8ac44b2c6e77550f4b9bdd217318ec012a92e58bbc4c4",
+    "dist/test-data.mjs": "103f56cde6046b65be5e148d7cc93eaa7e0cd222fac85a8a2e921d3064368dd0",
+    "dist/test-view.mjs": "53416d631c27bcc4dda52b8c9df061cd9b30fcbc2a855e182108516a91898988",
+    "dist/test-model.mjs": "e9c7a1ecb7829bdd30eae32ca8906885b06a4e08306374195d23c45fddaac857",
+    "dist/map-view.mjs": "4980ad890f24e2a9c9fe108fbf8bec1eff87d2b2e913c98f19e2ede472a23654",
+    "dist/test-view-model.mjs": "02b3133e259ed5b4fb51220b0824ae05913d05ad11ca135a40448f627532e144",
+    "dist/style.css": "e514cd23fdfebf4160596498d6cd1ee60cd8d3a3fdc834f38396bed3e0f4242b",
+    "dist/review-view.mjs": "83098542e09a13d7becb31c9165ad3aad398a5786d7676667e95399161ba575f",
+    "dist/graphics.mjs": "1c0dad84f75d180a2c13d325c93744bea916c67ca9139ce9fbce287db7ebc18d",
+    "dist/app.js": "4a044867523d68cec96df0824b53f499bc0efd8d791fcc8ff662635980447a9f"
+  }
+}

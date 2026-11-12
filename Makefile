@@ -41,6 +41,9 @@ test:
 	cd ndt && $(NODE) tests/test-navigation-view-model.mjs
 	cd ndt && $(NODE) tests/test-mvvm-boundaries.mjs
 	cd ndt && $(NODE) tests/test-street-detail.mjs
+	cd ndt && $(NODE) tests/test-dm-analytics.mjs
+	cd ndt && $(NODE) tests/test-dm-view-model.mjs
+	cd ndt && $(NODE) tests/test-drive-model-parity.mjs
 	cd ndt && $(UV) run --locked python -B tests/test-tree-sampling.py
 	cd ndt && $(UV) run --locked python -B tests/test-telus-matching.py
 	cd ndt && $(UV) run --locked python -B tests/test-telus-sites.py
@@ -49,11 +52,15 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/test-regions.py
 	cd ndt && $(UV) run --locked python -B tests/test-road-routing.py
 	cd ndt && $(UV) run --locked python -B tests/test-task-store.py
+	cd ndt && $(UV) run --locked python -B tests/test-dm-model.py
+	cd ndt && $(UV) run --locked python -B tests/test-drive-integration.py
+	cd ndt && $(UV) run --locked python -B tests/test-drive-http.py
 
 test-ui:
 	npm run test:ui
 
 check: test
+	$(NODE) --input-type=module -e "import fs from 'node:fs'; import cp from 'node:child_process'; for(const f of fs.readdirSync('ndt/dist/drive-test').filter(f=>/\.(mjs|js)$$/.test(f))) cp.execFileSync(process.execPath,['--check','ndt/dist/drive-test/'+f]);"
 	cd ndt && $(NODE) --check dist/task-data.mjs
 	cd ndt && $(NODE) --check dist/virtual-ue-view.mjs
 	cd ndt && $(NODE) --check dist/task-model.mjs

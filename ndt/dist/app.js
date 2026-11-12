@@ -57,9 +57,13 @@ const mapView = createMapControlsView({map,viewModel:mapViewModel,lighting,empty
   getTreeLayer:sceneView.getTreeLayer,getStreetDetailLayer:sceneView.getStreetDetailLayer});
 const networkViewModel = createNetworkViewModel(createNetworkModel(assetBase));
 const projectViewModel = createProjectViewModel(createProjectModel(region,assetBase),region.projects);
-const taskView = createTaskView({map,viewModel:createTaskViewModel(createTaskModel(region.id))});
+const taskView = createTaskView({map,viewModel:createTaskViewModel(createTaskModel(region.id)),regionId:region.id});
 const virtualUeView = createVirtualUeView({map,regionId:region.id});
 const projectView = createProjectView({region,map,viewModel:projectViewModel,siteLocations,emptyFeatures,taskView,virtualUeView});
 const networkView = createNetworkView({map,viewModel:networkViewModel,projectView,setLayers:mapView.setLayers,getNetworkLayer:sceneView.getNetworkLayer,emptyFeatures});
 bindSearchView({form:$('location-search'), query:$('location-query'), panel:$('search-results'), status:$('search-status'), list:$('search-list')}, createSearchViewModel(searchLocations), map);
 sceneView.start();
+map.once('load',async()=>{
+  const params=new URLSearchParams(location.search),project=region.projects.find(p=>p.id===params.get('project'));
+  if(project){await projectView.selectProject(project);if(params.get('task'))taskView.selectTask(params.get('task'));}
+});

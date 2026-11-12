@@ -54,6 +54,7 @@ export function validateTasks(tasks) {
         validateTasks([{id:'guides',name:'Guide points',routes:[{id:'guides',name:'Guide points',coordinates:route.waypoints}]}]);
         if (route.waypoints.length > 100) throw new Error('Use at most 100 road-routing guide points.');
       }
+      if(route.originalCoordinates!==undefined)validateTasks([{id:'original',name:'Original path',routes:[{id:'original',name:'Original path',coordinates:route.originalCoordinates}]}]);
       count += points.length;
       if (count > 10000) throw new Error('Use at most 10,000 route points per project.');
     }

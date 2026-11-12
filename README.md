@@ -2,6 +2,8 @@
 
 Toronto NDT is a regional 3D city and network visualization project with Toronto and New York City regions. The [viewer README](ndt/README.md) documents its data, limitations and detailed setup.
 
+The integrated **Drive tests** workspace combines saved Task routes with DM capture replay, investigation, reporting, virtual drives and planning-power Parameter A/B comparison. Open it from project navigation, Project Overview or a saved Task route. See the [integration plan and delivery status](docs/VIRTUAL_DRIVE_TEST_INTEGRATION_PLAN.md).
+
 To run it locally:
 
 ```sh
@@ -14,6 +16,8 @@ make run
 ```text
 ndt/
   dist/       Static application, data and vendored libraries; served directly
+    drive-test/ Integrated DM workspace with model, ViewModel and view modules
+  dm/         Capture storage, planning adapter, virtual-drive worker and HTTP API
   scripts/    Data preparation and conversion tools
   tests/      JavaScript and Python checks
   data/       New York regional datasets
@@ -27,3 +31,34 @@ pyproject.toml, uv.lock  Python environment definition
 ```
 
 `ndt/dist/` is checked-in application source and Toronto data, not a disposable build output. The local server initializes project-root `regions.sqlite3` from the regional datasets and serves the region catalog and assets to the viewer. Network locations are stored as individual database records. The SQLite service is required; a plain static server or the legacy static hosting configuration cannot serve this version. Research and preview material is in [`docs/`](docs/).
+
+## Drive tests
+
+1. Select a Project and save a Task with a route and speed cases, such as `20, 40, 60` km/h.
+2. Open **Drive tests**. Import a normalized capture for replay/analysis, or select **Virtual drive** or **Parameter A/B** in Test setup.
+3. A/B uses the same route, speed and sample grid on both sides. A sets baseline EIRP for the planning transmitters; B changes the selected transmitter. Three speed cases produce six Test IDs and three paired comparisons.
+4. Associate measured captures with their Task route before **Compare aligned route**. Imported A/B is an observational comparison. Export analysis or experiment JSON to retain the frozen inputs and comparison basis.
+
+The initial virtual-drive engine predicts isotropic, fixed-height UMa mean received power. It emits `predicted_rx_dbm`, never measured RSRP. Frequency uses each eligible site's lowest usable reported value and RAT is an assumed analysis label. Antenna tilt/patterns, interference, handover, traffic, throughput and latency are unavailable. New York reservation data supports capture workflows but lacks simulation radio inputs. This implementation executes one route at constant speed per run.
+
+The registry defaults to `drive_tests.sqlite3` beside the planning database; a default startup retains an existing legacy `ndt/var/tests.sqlite3` when the root registry is absent. Override with `--dm-db`. To adopt an existing standalone DM registry without overwriting a destination:
+
+```sh
+uv run --locked python ndt/server.py --import-dm /path/to/drive_tests.sqlite3
+```
+
+This copies one registry through SQLite's backup API. It does not combine two existing registries. The integrated application then runs without the source DM directory. Back up both SQLite databases with SQLite's backup API, retain original imported captures separately, and keep generated registries out of Git. DM API access is limited to loopback Host and same-origin requests.
+
+## Verification
+
+`make check` runs the original NDT tests, imported DM storage/analytics regressions, recursive MVVM boundary checks, integration contracts, HTTP checks and Python/JavaScript radio-model parity. HTTP tests require localhost binding.
+
+```sh
+make check
+make test-ui
+npm run test:ui -- ndt/tests/ui/dm-integration.spec.cjs
+NDT_BROWSER=firefox npm run test:ui
+NDT_BROWSER=webkit npm run test:ui
+```
+
+Install the selected Playwright browser when needed. The suite uses disposable planning/test databases, controlled map styles and separate opt-in live tests. It covers Task navigation, A/B execution/cancellation, route association, profile conflicts, recovery, findings, exports, a 100,000-observation capture, axe accessibility and 320–1440 px geometry. Failures retain Playwright traces, screenshots and videos. `NDT_UI_PORT` changes the main test-server port; `NDT_DM_EVIDENCE_DIR` selects the drive-test evidence directory. Browser availability and live-provider qualification remain separate from deterministic browser tests.

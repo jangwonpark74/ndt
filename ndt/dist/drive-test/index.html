@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102336">
+  <title>Drive tests · CongitV NDT</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="../design-tokens.css">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./integration.css">
+  <link rel="stylesheet" href="../vendor/maplibre-gl.css">
+  <script defer src="../vendor/maplibre-gl.js"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#execution-heading">Skip to analysis</a>
+<div class="shell">
+  <aside class="sidebar" aria-label="Workspace navigation">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div>CongitV NDT<small>Drive test workspace</small></div></div>
+    <a id="back-planning" class="planning-back" href="/">← Back to planning</a>
+    <div id="scope-label" class="scope-label"></div>
+    <nav class="nav" aria-label="Views">
+      <button id="setup-open" type="button">Test setup</button>
+      <button data-tab="replay" aria-current="page">Replay</button>
+      <button data-tab="analytics">KPI analytics</button>
+      <button data-tab="investigate">Investigate</button>
+      <button data-tab="report">Test report</button>
+    </nav>
+    <div class="registry">
+      <h2>Test registry <span id="registry-count">0</span></h2>
+      <input id="search" type="search" aria-label="Search Test IDs" placeholder="Search tests…">
+      <div id="test-list"></div>
+    </div>
+    <div class="sidebar-foot"><span></span> Local workspace <b>4G / 5G</b></div>
+  </aside>
+  <main id="main">
+    <header class="topbar">
+      <div id="breadcrumb" class="breadcrumb">Drive tests</div>
+      <div class="actions">
+        <button id="reload" title="Reload the registry and active run">↻ Refresh</button>
+        <button id="package" disabled>Export analysis</button>
+        <button id="export" disabled>Export CSV</button>
+        <button id="import" class="primary">＋ Import run</button>
+      </div>
+    </header>
+    <div class="content">
+      <section class="workspace-intro"><p class="overline">PROJECT / TASK / DRIVE TEST</p><h1>Drive test workspace</h1><p>Plan a route, replay captures and compare the same drive under parameter A and B.</p></section>
+      <section id="execution-panel" class="panel execution-panel" aria-label="Test setup">
+        <details id="execution-details" open>
+          <summary id="execution-heading">Test setup <span>Saved Task routes and speed cases</span></summary>
+          <form id="execution-form">
+            <div class="execution-grid">
+              <label class="wide">Planning Task<select id="execution-task"><option value="">Choose a saved Task</option></select></label>
+              <label>Task route<select id="execution-route" required></select></label>
+              <label>Experiment<select id="execution-type"><option value="parameter-ab">Parameter A/B</option><option value="virtual-drive">Virtual drive</option></select></label>
+              <fieldset id="execution-cases" class="wide"><legend>Drive speed cases</legend><div id="execution-speeds"></div></fieldset>
+              <label>Planning transmitter to change in B<select id="execution-transmitter" required></select></label>
+              <label>Radio technology<select id="execution-rat"><option value="NR">5G NR</option><option value="LTE">4G LTE</option></select></label>
+              <label>Baseline EIRP A (dBm)<input id="execution-power-a" type="number" value="46" min="0" max="90" step="any" required></label>
+              <label>Changed transmitter EIRP B (dBm)<input id="execution-power-b" type="number" value="49" min="0" max="90" step="any" required></label>
+              <label>Propagation assumption<select id="execution-mode"><option value="NLOS">NLOS</option><option value="LOS">LOS</option></select></label>
+              <label>Sampling interval (s)<input id="execution-interval" type="number" min="0.1" max="10" step="0.1" value="1" required></label>
+            </div>
+            <p id="execution-context" class="note"></p>
+            <p class="model-note">Planning received power uses an isotropic UMa model with fixed heights and each site’s lowest reported usable frequency. RAT labels are assumptions. It is not measured RSRP. Antenna tilt, interference, handover, throughput and latency are outside this model.</p>
+            <p id="execution-error" class="error" role="alert" hidden></p>
+            <div class="execution-actions"><button id="execution-submit" class="primary" disabled>Run experiment</button><button id="execution-refresh" type="button">Refresh planning inputs</button><button id="execution-cancel" type="button" hidden>Cancel experiment</button></div>
+          </form>
+        </details>
+        <div id="execution-progress" role="status" aria-live="polite"></div>
+        <div id="execution-results"></div>
+        <details class="experiment-history"><summary>Saved experiments</summary><div id="execution-history"></div></details>
+      </section>
+      <p id="message" class="message" role="status" hidden></p>
+      <section id="welcome" class="panel welcome">Loading Test IDs…</section>
+      <div id="workspace" tabindex="-1" hidden>
+        <div class="run-heading">
+          <div>
+            <div class="run-id"><span id="test-id"></span><span id="source-badge" class="badge"></span></div>
+            <h2 id="run-title"></h2>
+            <p id="run-context"></p>
+          </div>
+          <div class="filters" aria-label="Analysis filters">
+            <label>Radio technology<select id="rat"><option value="all">LTE + NR</option><option value="LTE">4G LTE</option><option value="NR">5G NR</option></select></label>
+            <label>Metric<select id="metric"></select></label>
+            <button id="rules" aria-haspopup="dialog">Thresholds</button>
+          </div>
+        </div>
+        <section id="route-context-panel" class="panel route-context" aria-label="Task route association">
+          <p id="route-context-status"></p><div class="actions"><label>Capture direction<select id="association-direction"><option value="forward">Forward</option><option value="reverse">Reverse</option></select></label><button id="associate-route" type="button">Associate selected Task route</button></div>
+        </section>
+        <section id="kpis" class="kpis" aria-label="Run KPIs"></section>
+        <section id="quality-summary" class="quality-panel" aria-label="Analysis readiness"></section>
+        <div id="replay" class="replay">
+          <div class="replay-main">
+            <section class="panel map-panel">
+              <div class="panel-head">
+                <div><h2>Drive trace</h2><p id="map-caption">WGS84 observations</p></div>
+                <div class="map-tools">
+                  <select id="map-mode" aria-label="Basemap"><option value="trace">Trace only (offline)</option><option value="live">NDT street map</option></select>
+                  <button id="fit">Fit route</button>
+                </div>
+              </div>
+              <div class="map-frame">
+                <canvas id="route-canvas" aria-label="Drive trace plotted over the selected map" role="img"></canvas>
+                <div id="snapshot-controls" class="snapshot-controls" aria-label="Trace zoom">
+                  <button id="zoom-in" type="button" aria-label="Zoom trace in">+</button>
+                  <button id="zoom-out" type="button" aria-label="Zoom trace out">−</button>
+                </div>
+                <div id="live-map" hidden></div>
+                <span id="map-status" class="map-status" role="status" hidden></span>
+                <div class="map-scale" id="map-scale"></div>
+                <div class="map-attribution" id="map-attribution"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a></div>
+              </div>
+              <div class="legend" id="map-legend"></div>
+            </section>
+            <section class="panel timeline-panel">
+              <div class="panel-head"><div><h2>Replay timeline</h2><p id="timeline-label"></p></div><span id="duration" class="mono"></span></div>
+              <div class="chart-frame">
+                <canvas id="chart" role="img" aria-label="Selected metric by elapsed time"></canvas>
+                <div id="cursor" class="chart-cursor" aria-hidden="true"></div>
+              </div>
+              <div class="transport">
+                <button id="previous" title="Previous observation" aria-label="Previous observation">|◀</button>
+                <button id="play" class="primary">▶ Play</button>
+                <button id="next" title="Next observation" aria-label="Next observation">▶|</button>
+                <span id="clock" class="mono"></span>
+                <input id="scrub" aria-label="Elapsed replay time" type="range" min="0" max="1" value="0">
+                <select id="speed" aria-label="Replay speed"><option value="1">1×</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option><option value="25">25×</option></select>
+              </div>
+            </section>
+          </div>
+          <div class="replay-aside">
+            <section class="panel inspector">
+              <div class="panel-head"><div><h2>Sample inspector</h2><p id="sample-time"></p></div><span id="sample-rat" class="badge"></span></div>
+              <div id="sample-details"></div>
+              <div class="inspector-actions"><button id="flag-sample">⚑ Flag sample</button><button id="browse-samples">Browse observations</button></div>
+            </section>
+            <section class="panel events-panel">
+              <div class="panel-head"><div><h2>Event log</h2><p id="events-count"></p></div>
+                <select id="event-kind" aria-label="Event type"><option value="all">All types</option><option>Logged</option><option>Threshold excursion</option><option>Observed cell change</option><option>Predicted selection change</option></select>
+              </div>
+              <ol id="events"></ol>
+            </section>
+          </div>
+        </div>
+        <section id="analytics" hidden></section>
+        <section id="investigate" class="investigate" hidden>
+          <section class="panel">
+            <div class="panel-head"><div><h2>Sample explorer</h2><p id="sample-count"></p></div><button id="flag-explorer">Flag selected sample</button></div>
+            <div class="explorer-filters">
+              <label>Find observations<input id="sample-search" type="search" placeholder="Cell, PCI, event or UTC time…"></label>
+              <label>Selected metric status<select id="sample-status"><option value="all">All observations</option><option value="failed">Outside threshold</option><option value="passed">Within threshold</option><option value="missing">Missing metric</option></select></label>
+              <p class="note">Select a timestamp to inspect the observation in Replay.</p>
+            </div>
+            <div id="sample-table"></div>
+            <div class="pagination"><span id="sample-page" class="mono"></span><button id="samples-prev">Previous page</button><button id="samples-next">Next page</button></div>
+          </section>
+          <section class="panel"><div class="panel-head"><div><h2>Issue register</h2><p id="issue-count"></p></div><span class="helper">Saved with this Test ID</span></div><div id="issues" class="issue-list"></div></section>
+          <details class="panel audit-panel"><summary>Activity history <span>Latest 100 entries · this workspace</span></summary><div id="audit-log" class="section-body"></div></details>
+        </section>
+        <section id="report" hidden></section>
+      </div>
+    </div>
+  </main>
+</div>
+<dialog id="import-dialog">
+  <form id="import-form">
+    <div class="dialog-head"><div><h2>Import drive-test run</h2><p>Register one device log under a Project and Task ID.</p></div><button type="button" class="dismiss" aria-label="Close">×</button></div>
+    <div class="dialog-body">
+      <label>Planning task <select id="planning"><option value="">Enter IDs manually</option></select></label>
+      <p id="catalog-status" class="helper" hidden></p>
+      <div class="fields three">
+        <label>Region ID<input name="Region" required maxlength="64" pattern="[A-Za-z0-9_\-]+" value="toronto"></label>
+        <label>Project ID<input name="Project" required maxlength="64" pattern="[A-Za-z0-9_\-]+"></label>
+        <label>Task ID<input name="Task" required maxlength="64" pattern="[A-Za-z0-9_\-]+"></label>
+      </div>
+      <label>Run name<input name="Label" maxlength="100" required placeholder="e.g. Morning post-tuning run"></label>
+      <label>Capture notes <span class="optional">optional</span><input name="Notes" maxlength="500" placeholder="Device, operator, capture profile, conditions"></label>
+      <label class="file-field">Normalized CSV<input id="file" type="file" accept=".csv,text/csv" required></label>
+      <div class="file-hint"><span>UTF-8 CSV · 16 MiB · 100,000 observations</span><button id="template" type="button" class="link-button">Download template</button></div>
+      <p id="import-error" class="error" role="alert" hidden></p>
+    </div>
+    <div class="dialog-actions"><button type="button" class="cancel">Cancel</button><button id="import-submit" class="primary">Create Test ID</button></div>
+  </form>
+</dialog>
+<dialog id="rules-dialog">
+  <form id="rules-form">
+    <div class="dialog-head"><div><h2>Analysis thresholds</h2><p id="rules-context"></p></div><button type="button" class="dismiss" aria-label="Close">×</button></div>
+    <div class="dialog-body">
+      <div class="fields three">
+        <label>LTE threshold<input id="limit-lte" type="number" step="any" required></label>
+        <label>NR threshold<input id="limit-nr" type="number" step="any" required></label>
+        <label>Gap cutoff (s)<input id="gap" type="number" min="1" max="3600" step="1" required></label>
+      </div>
+      <label>Profile name<input id="profile-name" required maxlength="80"></label>
+      <fieldset><legend>Evidence required for a pass</legend><div class="fields two">
+        <label>Minimum valid observations / RAT<input id="min-samples" type="number" min="1" max="100000" step="1" required></label>
+        <label>Maximum outside threshold (%)<input id="max-fail" type="number" min="0" max="100" step="any" required></label>
+        <label>Minimum metric coverage (%)<input id="min-coverage" type="number" min="0" max="100" step="any" required></label>
+        <label>Minimum GPS coverage (%)<input id="min-gps" type="number" min="0" max="100" step="any" required></label>
+      </div></fieldset>
+      <p class="helper">Saved per Test ID. This edits the selected metric’s thresholds and shared evidence requirements. Other metric thresholds are retained. Gap cutoff splits disconnected observations.</p>
+      <p id="rules-error" class="error" role="alert" hidden></p>
+    </div>
+    <div class="dialog-actions"><button id="reset-rules" type="button">Reset defaults</button><button class="primary">Apply thresholds</button></div>
+  </form>
+</dialog>
+<dialog id="issue-dialog">
+  <form id="issue-form">
+    <div class="dialog-head"><div><h2>Flag an observation</h2><p id="issue-context"></p></div><button type="button" class="dismiss" aria-label="Close">×</button></div>
+    <div class="dialog-body">
+      <label>Finding<input id="issue-title" required maxlength="120" placeholder="e.g. Coverage drop near the tunnel exit"></label>
+      <label>Severity<select id="issue-severity"><option value="medium">Medium · investigate</option><option value="high">High · service impact</option><option value="low">Low · observation</option></select></label>
+      <label>Investigation notes<textarea id="issue-note" maxlength="1000" rows="4" placeholder="Context, likely cause and next action"></textarea></label>
+      <p class="helper">The recorded timestamp, technology and selected metric are linked to this finding.</p>
+      <p id="issue-error" class="error" role="alert" hidden></p>
+    </div>
+    <div class="dialog-actions"><button type="button" class="cancel">Cancel</button><button id="issue-submit" class="primary">Save issue</button></div>
+  </form>
+</dialog>
+</body>
+</html>

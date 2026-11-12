@@ -84,6 +84,8 @@ def validate_tasks(tasks):
                 raise ValueError('Invalid road fitting status')
             if 'waypoints' in route:
                 validate_points(route['waypoints'])
+            if 'originalCoordinates' in route:
+                validate_points(route['originalCoordinates'], 5000)
             if 'fitMessage' in route and (not isinstance(route['fitMessage'], str) or len(route['fitMessage']) > 240):
                 raise ValueError('Invalid road fitting message')
             point_count += len(points)

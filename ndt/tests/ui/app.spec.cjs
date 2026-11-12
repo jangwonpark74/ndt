@@ -327,7 +327,7 @@ test('right-click removes and restores a project site, including after reload', 
     await expect(page.locator('.project-site-menu')).toHaveCount(0);
     await page.unroute(`**${endpoint}`);
     await expect(page.locator('#project-sites li')).toHaveCount(6);
-    await expect(page.locator('#project-status')).toContainText('7 sites required for simulation');
+    await expect(page.locator('#project-status')).toContainText('Original planning target: 7 sites');
     await expect.poll(boundary).not.toEqual(originalBoundary);
     let saved = await (await page.request.get('/api/regions/toronto/projects')).json();
     expect(saved.harbourfront).not.toContain(site.id);

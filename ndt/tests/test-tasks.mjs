@@ -52,7 +52,7 @@ const transport=createTaskModel('toronto',async(url,options)=>{
  assert.equal(url,'/api/road-route');assert.equal(options.method,'POST');assert.ok(JSON.parse(options.body).length<=100);
  return {ok:true,json:async()=>({coordinates:route.coordinates})};
 });
-const fitted=await transport.fit({...route,coordinates:dense},new AbortController().signal);assert.equal(fitted.roadFit,'fitted');assert.ok(fitted.waypoints.length<=100);assert.ok(fitted.fitMessage.includes('500 input points'));
+const fitted=await transport.fit({...route,coordinates:dense},new AbortController().signal);assert.deepEqual(fitted.originalCoordinates,dense,'road fitting retains the complete original input');assert.equal(fitted.roadFit,'fitted');assert.ok(fitted.waypoints.length<=100);assert.ok(fitted.fitMessage.includes('500 input points'));
 const failed=createTaskModel('toronto',async()=>({ok:false,json:async()=>({error:'No connected road'})}));
 await assert.rejects(()=>failed.fit(route,new AbortController().signal),/No connected road/);
 

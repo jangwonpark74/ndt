@@ -9,7 +9,7 @@ export function createTaskModel(regionId, request = fetch) {
       const response = await request('/api/road-route',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(waypoints),signal:AbortSignal.any([signal,AbortSignal.timeout(12000)])});
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Road routing unavailable. The original path is kept.');
-      const fitted = {...route,coordinates:result.coordinates,waypoints,roadFit:'fitted',fitMessage:`Road fitted · ${waypoints.length} guide points${original.length > waypoints.length ? ` from ${original.length} input points` : ''}`};
+      const fitted = {...route,originalCoordinates:route.originalCoordinates || route.coordinates,coordinates:result.coordinates,waypoints,roadFit:'fitted',fitMessage:`Road fitted · ${waypoints.length} guide points${original.length > waypoints.length ? ` from ${original.length} input points` : ''}`};
       validateTasks([{id:'fitted',name:'Fitted route',routes:[fitted]}]);
       return fitted;
     },

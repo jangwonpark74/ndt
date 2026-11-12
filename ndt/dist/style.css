@@ -210,3 +210,5 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 @media(max-width:700px){.task-table th:nth-child(6),.task-table th:nth-child(7){width:135px}.task-scroll-note{display:block;color:#526d5c;font-size:11px;margin:8px 0}}
 
 .task-table th:nth-child(2){width:110px}.project-context-card:has(#project-sites-heading[hidden]){grid-template-columns:1fr}
+
+.drive-workspace-link{display:inline-flex;align-items:center;min-height:36px;margin:6px 0;padding:7px 8px;border:1px solid #c5d7be;border-radius:4px;background:#eef5e9;color:#135a43;font:700 11px var(--ndt-font);text-decoration:none}.drive-workspace-link[aria-disabled=true]{opacity:.5;cursor:default}.drive-workspace-link:focus-visible{outline:2px solid #273e2b;outline-offset:2px}
