@@ -1,3 +1,5 @@
+const {tmpdir} = require('node:os');
+const {join: joinTempPath} = require('node:path');
 const {test,expect} = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const base = '/api/regions/toronto/projects/northyork/virtual-ues';
@@ -32,7 +34,7 @@ test('virtual UEs can be placed, saved, retried, reloaded, edited and deleted',a
     await page.unroute('**/virtual-ues/*');await page.getByRole('button',{name:'Save UE'}).click();
     await expect(page.locator('#ue-save-state')).toHaveText('Saved');
     const data=await(await page.request.get(base)).json();created=data.find(item=>item.name==='Browser virtual UE');expect(created).toBeTruthy();expect(data.filter(item=>item.name==='Browser virtual UE')).toHaveLength(1);
-    await page.screenshot({path:'/private/tmp/ndt-virtual-ue-editor.png'});
+    await page.screenshot({path:joinTempPath(tmpdir(), 'ndt-virtual-ue-editor.png')});
     expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
     await page.reload();await expect(page.locator('#loading')).toBeHidden({timeout:20000});
     await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('northyork');await page.getByRole('button',{name:'Virtual UEs',exact:true}).click();
@@ -79,7 +81,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:32
   await expect(section).toBeVisible();
   expect(await page.evaluate(()=>document.querySelector('.overview-ue-card').getBoundingClientRect().top >= document.querySelector('.overview-tasks-card').getBoundingClientRect().bottom)).toBe(true);
   await section.scrollIntoViewIfNeeded();await expect(editor).toBeInViewport();
-  await page.screenshot({path:`/private/tmp/ndt-overview-virtual-ues-${viewport.width}.png`});
+  await page.screenshot({path:joinTempPath(tmpdir(), `ndt-overview-virtual-ues-${viewport.width}.png`)});
   await editor.click();
   await expect(page.getByRole('region',{name:'Virtual UE editor'})).toBeVisible();
   await expect(page.getByRole('button',{name:'New virtual UE'})).toBeEnabled();

@@ -1,3 +1,5 @@
+const {tmpdir} = require('node:os');
+const {join: joinTempPath} = require('node:path');
 const {test,expect}=require('@playwright/test');
 const AxeBuilder=require('@axe-core/playwright').default;
 test.beforeEach(async({page})=>{
@@ -25,7 +27,7 @@ for (const width of [1440,390]) test(`project use case dropdown saves, recovers 
     await dropdown.selectOption('virtual-drive-test');
     await expect(page.locator('#project-use-case-status')).toHaveText('Use case saved.');
     await expect(page.locator('#project-picker')).toHaveValue('northyork');
-    await page.screenshot({path:`/private/tmp/ndt-use-cases-navigation-${width}.png`});
+    await page.screenshot({path:joinTempPath(tmpdir(), `ndt-use-cases-navigation-${width}.png`)});
     await page.locator('#overview-open').click();
     const overview=page.locator('#overview-use-case');
     await expect(overview).toHaveValue('virtual-drive-test');
@@ -39,7 +41,7 @@ for (const width of [1440,390]) test(`project use case dropdown saves, recovers 
     await overview.selectOption('ai-ran-benchmark');
     await expect(page.locator('#overview-use-case-status')).toHaveText('Use case saved.');
     expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
-    await page.screenshot({path:`/private/tmp/ndt-use-cases-overview-${width}.png`});
+    await page.screenshot({path:joinTempPath(tmpdir(), `ndt-use-cases-overview-${width}.png`)});
     await navigate(page); await page.locator('#project-picker').selectOption('northyork');
     await expect(dropdown).toHaveValue('ai-ran-benchmark');
     if(width===390) await page.getByRole('button',{name:'Open map navigation'}).click();

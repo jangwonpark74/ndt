@@ -1,3 +1,5 @@
+const {tmpdir} = require('node:os');
+const {join: joinTempPath} = require('node:path');
 const {test,expect} = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 const endpoint='/api/regions/toronto/projects/northyork/tasks';
@@ -41,7 +43,7 @@ test('multiple tasks support drawing, import, connected endpoints, save recovery
     await page.getByRole('button',{name:'Open project overview'}).click(); await expect(page.locator('#project-overview')).toBeVisible(); await expect(page.locator('#context-panel')).toBeHidden();
     await expect(page.locator('#overview-task-list')).toContainText('DT-202');
     expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
-    await page.screenshot({path:'/private/tmp/ndt-task-overview-desktop.png'});
+    await page.screenshot({path:joinTempPath(tmpdir(), 'ndt-task-overview-desktop.png')});
     await page.getByRole('button',{name:'Back to map'}).click();
     await select(page,'Etobicoke'); await expect(page.locator('#task-list')).not.toContainText('DT-101');
     await page.reload(); await expect(page.locator('#loading')).toBeHidden(); await select(page,'North York'); await expect(page.locator('#task-list button')).toHaveCount(2);
@@ -62,11 +64,11 @@ for (const viewport of [{width:390,height:844},{width:320,height:568}]) test(`ta
   });
   expect(geometry.points.every(p=>p.y>geometry.panelBottom && p.y<geometry.controlsTop)).toBe(true);
   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
-  await page.screenshot({path:`/private/tmp/ndt-task-editor-${viewport.width}.png`});
+  await page.screenshot({path:joinTempPath(tmpdir(), `ndt-task-editor-${viewport.width}.png`)});
   await page.getByRole('button',{name:'Open project overview'}).click(); await expect(page.locator('#project-overview')).toBeFocused(); await expect(page.locator('#overview-task-status')).toContainText('Unsaved draft');
   await expect(page.locator('#project-status')).toContainText('Bell locations');
   const rect=await page.locator('#project-overview').boundingBox(); expect(rect.width).toBe(viewport.width); expect(rect.y+rect.height).toBe(viewport.height);
-  await page.screenshot({path:`/private/tmp/ndt-task-overview-${viewport.width}.png`});
+  await page.screenshot({path:joinTempPath(tmpdir(), `ndt-task-overview-${viewport.width}.png`)});
   await page.getByRole('button',{name:'Map task editor',exact:true}).click(); await expect(page.getByLabel('Task name',{exact:true})).toHaveValue('Phone route');
   await page.getByRole('button',{name:'Discard changes',exact:true}).click();
 });
@@ -158,11 +160,11 @@ test('Overview manages tasks in a lower table and persists canonical database ro
   saved=await(await page.request.get(endpoint)).json();expect(saved[0].driveMetrics.durationSeconds).toBeCloseTo(seconds/2,6);
   await table.getByRole('button',{name:'1 route',exact:true}).click();await expect(table.locator('.task-route-data')).toContainText('Yonge Street');await expect(table.locator('.task-route-data')).toContainText('Start Lat');
   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
-  await page.screenshot({path:'/private/tmp/ndt-overview-table-desktop.png'});
+  await page.screenshot({path:joinTempPath(tmpdir(), 'ndt-overview-table-desktop.png')});
   for(const viewport of [{width:390,height:844},{width:320,height:568}]) {
    await page.setViewportSize(viewport);const region=page.getByRole('region',{name:'Drive-task data table',exact:true});await region.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
    await region.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>region.evaluate(element=>element.scrollLeft)).toBeGreaterThan(0);
-   await page.screenshot({path:`/private/tmp/ndt-overview-table-${viewport.width}.png`});
+   await page.screenshot({path:joinTempPath(tmpdir(), `ndt-overview-table-${viewport.width}.png`)});
   }
   await page.setViewportSize({width:1440,height:900});
   await table.getByRole('button',{name:'Edit task',exact:true}).click();const name=page.getByRole('textbox',{name:'Task name for TABLE-1',exact:true});await name.fill('Retain failed draft');

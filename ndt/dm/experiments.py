@@ -1,7 +1,11 @@
 """Persistent execution inputs, bounded local jobs and reproducible comparisons."""
 from copy import deepcopy
 from datetime import datetime, timezone
-import fcntl
+import os
+if os.name == 'nt':
+    import msvcrt
+else:
+    import fcntl
 import json
 import math
 import statistics
@@ -247,9 +251,19 @@ class ExperimentWorker:
         self.store, self.stopped, self.wake = store, threading.Event(), threading.Event()
         self.lock = store.path.with_name(store.path.name+'.worker.lock').open('a+b')
         try:
-            fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        except BlockingIOError:
+            if os.name == 'nt':
+                # Windows byte-range locking needs a byte and a consistent offset.
+                if self.lock.seek(0, os.SEEK_END) == 0:
+                    self.lock.write(b'\0')
+                    self.lock.flush()
+                self.lock.seek(0)
+                msvcrt.locking(self.lock.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                fcntl.flock(self.lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except OSError as exc:
             self.lock.close()
+            if not isinstance(exc, BlockingIOError) and not (os.name == 'nt' and exc.errno in (13, 11, 36)):
+                raise
             self.thread = None
             return
         self.store.recover_interrupted()
@@ -263,7 +277,11 @@ class ExperimentWorker:
                     self.wake.wait(1)
                     self.wake.clear()
         finally:
-            fcntl.flock(self.lock,fcntl.LOCK_UN)
+            if os.name == 'nt':
+                self.lock.seek(0)
+                msvcrt.locking(self.lock.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(self.lock,fcntl.LOCK_UN)
             self.lock.close()
 
     def close(self):

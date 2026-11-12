@@ -139,15 +139,16 @@ class RegionTests(unittest.TestCase):
         httpd = unittest.mock.MagicMock()
         httpd.__enter__.return_value = httpd
         httpd.server_address = ('127.0.0.1', 5179)
-        with patch.object(sys, 'argv', ['server.py', '--db', '/tmp/custom-ndt.sqlite3']), \
+        with tempfile.TemporaryDirectory() as directory, \
+             patch.object(sys, 'argv', ['server.py', '--db', str(Path(directory) / 'custom-ndt.sqlite3')]), \
              patch.object(server, 'bind_server', return_value=httpd), \
              patch.object(server, 'initialize') as initialize, \
              patch.object(server, 'DriveTestService') as drive_service, \
              patch.object(server, 'migrate_database') as migrate:
             self.assertEqual(server.main(), 0)
             migrate.assert_not_called()
-            initialize.assert_called_once_with(Path('/tmp/custom-ndt.sqlite3'))
-            drive_service.assert_called_once_with(Path('/tmp/custom-ndt.sqlite3'),Path('/tmp/drive_tests.sqlite3'))
+            initialize.assert_called_once_with(Path(directory) / 'custom-ndt.sqlite3')
+            drive_service.assert_called_once_with(Path(directory) / 'custom-ndt.sqlite3', Path(directory) / 'drive_tests.sqlite3')
 
     def test_default_database_is_in_project_directory(self):
         httpd = unittest.mock.MagicMock()

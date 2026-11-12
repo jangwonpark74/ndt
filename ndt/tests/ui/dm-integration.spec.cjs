@@ -30,7 +30,7 @@ test('saved Task route opens an integrated six-run A/B journey with reproducible
   await expect(page.locator('#metric')).toHaveValue('predicted_rx_dbm');
   await expect(page.locator('#route-context-status')).toContainText('North York route');
   await expect(page.locator('#execution-results').getByRole('button',{name:/Open [AB]/})).toHaveCount(6);
-  const evidence=process.env.NDT_DM_EVIDENCE_DIR||'/private/tmp/ndt-dm-evidence';await mkdir(evidence,{recursive:true});
+  const evidence=process.env.NDT_DM_EVIDENCE_DIR||path.join(require('node:os').tmpdir(),'ndt-dm-evidence');await mkdir(evidence,{recursive:true});
   await page.screenshot({path:path.join(evidence,'virtual-replay-desktop.png'),fullPage:true});
   await page.getByRole('button',{name:'KPI analytics',exact:true}).click();
   await expect(page.locator('#route-aligned-comparison')).toContainText('controlled-model-ab');
@@ -115,7 +115,7 @@ test('workspace hierarchy is accessible and stays inside desktop, tablet and pho
   }
   await page.setViewportSize({width:1280,height:900});
   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze()).violations).toEqual([]);
-  const output=process.env.NDT_DM_EVIDENCE_DIR||'/private/tmp/ndt-dm-evidence';await mkdir(output,{recursive:true});
+  const output=process.env.NDT_DM_EVIDENCE_DIR||path.join(require('node:os').tmpdir(),'ndt-dm-evidence');await mkdir(output,{recursive:true});
   await page.screenshot({path:path.join(output,'setup-desktop.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:path.join(output,'setup-mobile.png'),fullPage:true});

@@ -11,6 +11,17 @@ make setup
 make run
 ```
 
+On Windows 11, use PowerShell (uv and Node.js must be installed):
+
+```powershell
+.\make.ps1 setup
+.\make.ps1 run
+.\make.ps1 check
+.\make.ps1 test-ui
+```
+
+The PowerShell `test-ui` target installs missing npm dependencies and the selected Playwright browser; downloads require network access. Set `NDT_BROWSER` to `chromium`, `firefox` or `webkit` (default: `chromium`). Run `.\make.ps1 help` for all targets. Set `-HostAddress` or `-Port` for the server, for example `.\make.ps1 run -Port 5180`. `HOST`, `PORT`, `UV`, `NODE` and `UV_CACHE_DIR` environment variables are also supported.
+
 ## Directory layout
 
 ```text
@@ -27,6 +38,7 @@ ndt/
 docs/         Research, benchmarks and preview images
 graft/        Workspace code index
 Makefile      Setup, run and validation commands
+make.ps1      Windows PowerShell equivalents
 pyproject.toml, uv.lock  Python environment definition
 ```
 

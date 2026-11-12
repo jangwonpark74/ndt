@@ -1,4 +1,5 @@
 import concurrent.futures
+import os
 from copy import deepcopy
 from contextlib import closing
 import sqlite3
@@ -15,6 +16,7 @@ from dm.http import registry_path
 
 
 class TestRegistry(unittest.TestCase):
+    @unittest.skipIf(os.name == 'nt', 'POSIX mode bits do not represent Windows ACLs')
     def test_new_capture_registry_is_private(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'private.sqlite3'
@@ -159,7 +161,7 @@ class TestRegistry(unittest.TestCase):
                 save_test(db, 'request', DEMO_SCOPE, 'Different', '', 'test.csv', demo_csv(True))
             with self.assertRaises(ValueError):
                 save_test(db, 'bad-request', DEMO_SCOPE, 'Bad', '', 'test.csv', b'wrong')
-            with sqlite3.connect(db) as conn:
+            with closing(sqlite3.connect(db)) as conn:
                 self.assertEqual(conn.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
                 self.assertEqual(conn.execute('SELECT count(*) FROM tests').fetchone()[0], 4)
 
