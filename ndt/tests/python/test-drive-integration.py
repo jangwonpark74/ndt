@@ -91,6 +91,23 @@ class DriveIntegration(unittest.TestCase):
         self.assertEqual(get_test(self.tests, a['id'])['context']['route']['coordinates'], TASK['routes'][0]['coordinates'])
         self.assertEqual(self.store.get(result['id'])['comparisons'], result['comparisons'])
 
+    def test_execution_uses_frozen_fitted_geometry_even_if_saved_route_changes(self):
+        fitted = {**TASK['routes'][0], 'roadFit': 'fitted',
+                  'coordinates': [[-79.4, 43.7], [-79.399, 43.701], [-79.398, 43.7]]}
+        with closing(connect(self.planning)) as db, db:
+            write_tasks(db, 'toronto', 'p', [{**TASK, 'routes': [fitted]}])
+        job = self.store.submit('fitted-route', self.specification())
+        with closing(connect(self.planning)) as db, db:
+            write_tasks(db, 'toronto', 'p', [TASK])
+        self.assertTrue(self.store.run_one())
+        result = self.store.get(job['id'])
+        self.assertEqual(result['status'], 'completed')
+        self.assertEqual(result['snapshot']['route']['coordinates'], fitted['coordinates'])
+        for run in result['runs']:
+            saved = get_test(self.tests, run['test_id'])
+            self.assertEqual(saved['context']['route']['coordinates'], fitted['coordinates'])
+            self.assertEqual(saved['context']['route']['roadFit'], 'fitted')
+
     def test_conflicting_retry_invalid_inputs_and_cancellation_are_safe(self):
         spec = self.specification()
         experiment = self.store.submit('same', spec)

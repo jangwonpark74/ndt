@@ -15,7 +15,7 @@ test('a Task route link preserves the exact route selection through planning ref
 });
 
 test('saved Task route opens an integrated six-run A/B journey with reproducible results',async({page,request,driveOrigin,browserName})=>{
-  test.setTimeout(60000);const errors=[];page.on('pageerror',e=>errors.push(e.message));await maps(page);
+  test.setTimeout(60000);const errors=[];let roadRequests=0;page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>{if(new URL(r.url()).pathname==='/api/road-route')roadRequests++;});await maps(page);
   await installTask(request,driveOrigin);
   await page.goto(driveOrigin+'/?region=toronto&project=northyork&task=MERGE-TEST');
   await expect(page.locator('#task-save-state')).toHaveText('Saved');
@@ -43,6 +43,7 @@ test('saved Task route opens an integrated six-run A/B journey with reproducible
   const exported=JSON.parse(await readFile(await(await downloadEvent).path(),'utf8'));
   expect(exported.runs).toHaveLength(6);expect(exported.comparisons).toHaveLength(3);
   expect(exported.snapshot.route.coordinates).toEqual(task.routes[0].coordinates);
+  expect(roadRequests).toBe(0);
   expect(exported.comparisons[0].a_observations[0]).toHaveProperty('predicted_rx_dbm');
   expect(exported.comparisons[0].a_observations[0]).not.toHaveProperty('rsrp_dbm');
   await page.getByRole('button',{name:'Test report',exact:true}).click();

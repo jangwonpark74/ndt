@@ -63,6 +63,7 @@
               <label>Sampling interval (s)<input id="execution-interval" type="number" min="0.1" max="10" step="0.1" value="1" required></label>
             </div>
             <p id="execution-context" class="note"></p>
+            <p class="note">Runs use the saved route geometry as-is; they do not fit it to roads again.</p>
             <p class="model-note">Planning received power uses an isotropic UMa model with fixed heights and each site’s lowest reported usable frequency. RAT labels are assumptions. It is not measured RSRP. Antenna tilt, interference, handover, throughput and latency are outside this model.</p>
             <p id="execution-error" class="error" role="alert" hidden></p>
             <div class="execution-actions"><button id="execution-submit" class="primary" disabled>Run experiment</button><button id="execution-refresh" type="button">Refresh planning inputs</button><button id="execution-cancel" type="button" hidden>Cancel experiment</button></div>
