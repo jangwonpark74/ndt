@@ -21,6 +21,10 @@ for (const width of [1440,390]) test(`project use case dropdown saves, recovers 
     await expect(page.locator('#project-use-case')).toBeDisabled();
     await page.locator('#project-picker').selectOption('northyork');
     if(width===390) await page.getByRole('button',{name:'Open map navigation'}).click();
+    const overviewBox=await page.locator('#overview-open').boundingBox();
+    const driveBox=await page.locator('#drive-workspace').boundingBox();
+    expect(overviewBox.width).toBeCloseTo(driveBox.width, 1);
+    expect(overviewBox.x).toBeCloseTo(driveBox.x, 1);
     const dropdown=page.locator('#project-use-case');
     await expect(dropdown).toBeEnabled();
     await expect(dropdown.locator('option')).toHaveText(['Uncategorized','Virtual Drive Test','Parameter A/B Test','AI-RAN Algo. Benchmark']);

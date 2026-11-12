@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./vendor/maplibre-gl.css">
-  <link rel="stylesheet" href="./style.css?v=projects-2">
+  <link rel="stylesheet" href="./style.css?v=navigation-4">
   <script defer src="./vendor/maplibre-gl.js" onerror="startupFailed()"></script>
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/"}}</script>
 </head>
@@ -18,14 +18,17 @@
     <div id="map" aria-label="Interactive 3D map of Toronto"></div>
     <div class="topbar"><div class="brand-group"><button id="navigation-toggle" class="navigation-toggle" type="button" aria-controls="map-navigation" aria-expanded="false" aria-label="Open map navigation"><span aria-hidden="true">☰</span></button><div class="brand"><span class="brand-icon">✳</span><span>Samsung <b>CongitV NDT</b></span></div></div><div class="topright"><form id="location-search" class="location-search" role="search"><label class="visually-hidden" for="location-query">Search locations</label><input id="location-query" type="search" placeholder="Search" autocomplete="off" maxlength="200" required><button type="submit" aria-label="Search locations" title="Search locations"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></button><div id="search-results" class="search-results" hidden><div id="search-status" role="status" aria-live="polite"></div><ul id="search-list" aria-label="Search results"></ul><div class="search-credit">Search by <a href="https://photon.komoot.io/" target="_blank" rel="noopener noreferrer">Photon</a> · © OpenStreetMap contributors</div></div></form><span id="coordinates">43.7001° N &nbsp; 79.4163° W</span></div></div>
     <nav id="map-navigation" class="intro panel" aria-label="Map navigation">
-      <div class="region-picker"><label for="region-choices">REGION</label><select id="region-choices" class="project-picker" disabled></select></div>
-      <div class="navigation-label">PROJECTS</div>
-      <label class="visually-hidden" for="project-picker">Project</label><select id="project-picker" class="project-picker"><option value="" selected disabled>Select a project</option></select>
-      <button id="overview-open" class="overview-nav" type="button" disabled>Project overview ↗</button>
-      <a id="drive-workspace" class="drive-workspace-link" href="/drive-test/" aria-disabled="true" tabindex="-1">Drive tests ↗</a>
-      <label class="navigation-label" for="project-use-case">USE CASES</label>
+      <div class="navigation-heading"><span class="navigation-kicker">WORKSPACE</span><h1>Map controls</h1><p>Choose a project and adjust your view.</p></div>
+      <div class="navigation-section">
+      <div class="region-picker"><label for="region-choices">Region</label><select id="region-choices" class="project-picker" disabled></select></div>
+      <label class="navigation-label" for="project-picker">Project</label><select id="project-picker" class="project-picker"><option value="" selected disabled>Select a project</option></select>
+      <div class="navigation-actions"><button id="overview-open" class="overview-nav navigation-action" type="button" disabled>Project overview <span aria-hidden="true">↗</span></button>
+      <a id="drive-workspace" class="drive-workspace-link navigation-action" href="/drive-test/" aria-disabled="true" tabindex="-1">Drive tests <span aria-hidden="true">↗</span></a></div>
+      <label class="navigation-label" for="project-use-case">Use case</label>
       <select id="project-use-case" class="project-picker" aria-describedby="project-use-case-status" disabled><option value="">Uncategorized</option></select>
       <p id="project-use-case-status" class="use-case-status" role="status" aria-live="polite">Select a project first.</p><button id="project-use-case-retry" class="text-button" type="button" hidden>Retry loading use cases</button>
+      </div>
+      <div class="navigation-section-label">DISPLAY</div>
       <details class="map-settings network-settings">
         <summary><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 14v7M8 21h8M9 14l3-9 3 9M5 6a10 10 0 0 0 0 10M19 6a10 10 0 0 1 0 10M8 9a5 5 0 0 0 0 5M16 9a5 5 0 0 1 0 5"/></svg><span>Network</span></summary>
         <div class="layers" aria-label="Network layers"><label><span><span class="layer-icon">⌁</span> TELUS sites</span><input id="network-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">⌁</span> Bell outdoor</span><input id="bell-toggle" type="checkbox" checked><i></i></label><label><span><span class="layer-icon">◔</span> Sector fans</span><input id="sector-fans-toggle" type="checkbox" checked><i></i></label></div>

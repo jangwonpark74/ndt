@@ -212,3 +212,29 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 .task-table th:nth-child(2){width:110px}.project-context-card:has(#project-sites-heading[hidden]){grid-template-columns:1fr}
 
 .drive-workspace-link{display:inline-flex;align-items:center;min-height:36px;margin:6px 0;padding:7px 8px;border:1px solid #c5d7be;border-radius:4px;background:#eef5e9;color:#135a43;font:700 11px var(--ndt-font);text-decoration:none}.drive-workspace-link[aria-disabled=true]{opacity:.5;cursor:default}.drive-workspace-link:focus-visible{outline:2px solid #273e2b;outline-offset:2px}
+
+/* Map navigation: group project context separately from display controls. */
+.intro{padding:20px 12px 40px;background:#f8faf7;border-color:#dce6de;scrollbar-gutter:stable}
+.navigation-heading{padding:0 4px 16px;border-bottom:1px solid #dce6de}
+.navigation-kicker,.navigation-section-label{color:#557463;font-size:10px;font-weight:700;letter-spacing:.12em}
+.navigation-heading h1{margin:5px 0 4px;color:#203d31;font:700 18px/1.2 'Space Grotesk',sans-serif;letter-spacing:-.02em}
+.intro .navigation-heading p{margin:0;color:#52685b;font-size:12px;line-height:1.45}
+.navigation-section{padding:14px 4px 16px;border-bottom:1px solid #dce6de}
+.region-picker{margin:0;font-size:12px}
+.region-picker label,.intro .navigation-label{display:block;margin:0 0 6px;color:#344f40;font-size:12px;line-height:1.3;letter-spacing:0;font-weight:700}
+.intro .navigation-label{margin-top:14px}
+.intro .project-picker,#region-choices{width:100%;min-height:42px;margin:0;padding:9px 10px;border-color:#b9cbbf;border-radius:7px;background:#fff;color:#203d31;font-size:12px}
+.intro .project-picker:disabled{background:#edf2ee;color:#61756a;cursor:not-allowed}
+.navigation-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin-top:10px}
+.intro .navigation-actions .navigation-action{box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;width:100%;min-width:0;min-height:40px;margin:0;padding:9px 10px;border:1px solid #b8cfbf;border-radius:7px;background:#e8f2e9;color:#1f533b;font:700 12px 'DM Sans',sans-serif;text-align:left;text-decoration:none}
+.intro .overview-nav:not(:disabled):hover,.intro .drive-workspace-link:not([aria-disabled=true]):hover{background:#d8eadd;border-color:#88ab94}
+.intro .overview-nav:disabled,.intro .drive-workspace-link[aria-disabled=true]{opacity:1;background:#eef2ef;border-color:#dbe4dd;color:#77897e}
+.intro .use-case-status{margin:6px 0 0;color:#52685b;font-size:11px}
+.navigation-section-label{padding:17px 4px 5px}
+.intro .map-settings{margin:0;padding:0;border:0}
+.intro .map-settings summary{min-height:44px;padding:10px 8px;border-radius:7px;color:#284738;font-size:12px}
+.intro .map-settings[open] summary{background:#e8f0e9}
+.intro .map-settings .layers{padding:4px 8px 10px}
+.intro .map-settings .layers label{min-height:40px;margin:0;font-size:12px}
+.intro .layers input:focus-visible+i{outline:2px solid #225f43;outline-offset:3px}
+@media(max-width:700px){.intro{padding:20px 16px 40px}.navigation-heading h1{font-size:20px}}
