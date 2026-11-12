@@ -5,8 +5,6 @@ node_modules/
 playwright-report/
 test-results/
 ndt/var/
-/regions.sqlite3*
-/drive_tests.sqlite3*
 /.regions-migration-*.sqlite3*
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
