@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { shadowFeatures } from '../../dist/shadows.mjs';
+const ring = [[-79.39,43.64],[-79.389,43.64],[-79.389,43.641],[-79.39,43.641],[-79.39,43.64]];
+const building = {properties:{render_height:30},geometry:{type:'Polygon',coordinates:[ring]}};
+const result = shadowFeatures([building]);
+assert.equal(result.features.length,5, 'one footprint produces a projected cap and four sides');
+const shifted = result.features[0].geometry.coordinates[0][0];
+assert.ok(shifted[0] < ring[0][0] && shifted[1] > ring[0][1], 'default southeast light projects a northwest shadow');
+const opposite = shadowFeatures([building],1500,[-1,-1,3]).features[0].geometry.coordinates[0][0];
+assert.ok(opposite[0] > ring[0][0] && opposite[1] < ring[0][1], 'northwest light projects a southeast shadow');
+assert.equal(shadowFeatures([building],1500,[0,0,0]).features.length,0, 'invalid light direction does not create invalid geometry');
+assert.equal(shadowFeatures([{...building,properties:{render_height:0}}]).features.length,0);
+assert.equal(shadowFeatures([building,building],1).features.length,5, 'the feature budget is enforced');
+assert.equal(shadowFeatures([{properties:{render_height:10},geometry:{type:'Polygon',coordinates:[[[0,90],[1,90],[1,89],[0,90]]]}}]).features.length,0);
+console.log('Illustrative shadow projection and budget tests passed.');

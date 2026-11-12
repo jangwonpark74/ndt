@@ -11,7 +11,7 @@ const {AxeBuilder} = require('@axe-core/playwright');
 
 test('Test ID import, replay, analytics, report and responsive controls', async ({page}) => {
   const temp = await mkdtemp(path.join(os.tmpdir(), 'dm-browser-'));
-  const server = spawn(process.env.PYTHON || 'python3', ['-B', 'tests/serve-drive-fixture.py', '--port', '0', '--db', path.join(temp, 'planning.sqlite3'), '--dm-db', path.join(temp, 'tests.sqlite3')],
+  const server = spawn(process.env.PYTHON || 'python3', ['-B', 'tests/fixtures/serve-drive-fixture.py', '--port', '0', '--db', path.join(temp, 'planning.sqlite3'), '--dm-db', path.join(temp, 'tests.sqlite3')],
     {cwd: path.join(__dirname, '../..'), stdio: ['ignore', 'pipe', 'inherit']});
   try {
     const url = await new Promise((resolve, reject) => {

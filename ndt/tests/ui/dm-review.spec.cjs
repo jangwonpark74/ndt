@@ -10,7 +10,7 @@ const {stopFixture} = require('./process-cleanup.cjs');
 const test = base.extend({
   dmURL: async ({}, use) => {
     const temp = await mkdtemp(path.join(os.tmpdir(), 'dm-review-'));
-    const server = spawn(process.env.PYTHON || 'python3', ['-B', 'tests/serve-drive-fixture.py', '--port', '0', '--db', path.join(temp, 'planning.sqlite3'), '--dm-db', path.join(temp, 'runs.sqlite3')],
+    const server = spawn(process.env.PYTHON || 'python3', ['-B', 'tests/fixtures/serve-drive-fixture.py', '--port', '0', '--db', path.join(temp, 'planning.sqlite3'), '--dm-db', path.join(temp, 'runs.sqlite3')],
       {cwd: path.join(__dirname, '../..'), stdio: ['ignore', 'pipe', 'inherit']});
     try {
       const url = await new Promise((resolve, reject) => {

@@ -195,13 +195,13 @@ The first release supports local planning experiments. Calibration and realistic
 
 | Existing source | Change responsibility |
 | --- | --- |
-| [NDT Task store](../ndt/task_store.py) and [Task API](../ndt/server.py) | Saved-context revisions, snapshot access and safe historical references around whole-project Task replacement. |
+| [NDT Task store](../ndt/backend/task_store.py) and [Task API](../ndt/backend/server.py) | Saved-context revisions, snapshot access and safe historical references around whole-project Task replacement. |
 | [Task data](../ndt/dist/task-data.mjs), [model](../ndt/dist/task-model.mjs), [ViewModel](../ndt/dist/task-view-model.mjs) and [Overview table](../ndt/dist/task-table-view.mjs) | Original geometry, route/context selection, launch actions and accepted save state. |
-| [Road routing](../ndt/road_routing.py) | Fit-quality metadata and validation; retain original geometry in the calling workflow. |
+| [Road routing](../ndt/backend/road_routing.py) | Fit-quality metadata and validation; retain original geometry in the calling workflow. |
 | [Radio model](../ndt/dist/radio-model.mjs) and [sector geometry](../ndt/dist/network-symbols.mjs) | Numerical parity inputs and display/model separation; add backend simulation modules with explicit capability contracts. |
 | [Project model](../ndt/dist/project-model.mjs) and [project ViewModel](../ndt/dist/project-view-model.mjs) | Snapshot accepted site selection and project context; retain static Virtual UE ownership in the planning store. |
-| [DM server](../ndt/dm/http.py) | Replace catalog-only coupling with the planning adapter; extract reusable API handling and namespace integrated endpoints. |
-| [DM storage](../ndt/dm/dm_model.py) | Add transactional migrations, generated-observation validation, provenance, manifests and durable jobs without changing imported capture contents. |
+| [DM server](../ndt/backend/dm/http.py) | Replace catalog-only coupling with the planning adapter; extract reusable API handling and namespace integrated endpoints. |
+| [DM storage](../ndt/backend/dm/dm_model.py) | Add transactional migrations, generated-observation validation, provenance, manifests and durable jobs without changing imported capture contents. |
 | [DM analytics](../ndt/dist/drive-test/test-model.mjs) and [workspace ViewModel](../ndt/dist/drive-test/test-view-model.mjs) | Capability-aware metrics, explicit comparison modes, route alignment and saved experiment state. |
 | [DM data access](../ndt/dist/drive-test/test-data.mjs), [map view](../ndt/dist/drive-test/map-view.mjs) and [report view](../ndt/dist/drive-test/report-view.mjs) | Namespaced APIs, planned/observed/simulated layers, synchronized A/B inspection and reproducible exports. |
 | NDT tests and existing DM model/analytics/browser tests | Keep current behavior covered while adding integration, simulation and A/B acceptance gates. |

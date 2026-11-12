@@ -20,41 +20,41 @@ run:
 	$(UV) run --locked python ndt/server.py --host $(HOST) $(if $(filter undefined,$(origin PORT)),,--port $(PORT))
 
 test:
-	cd ndt && $(NODE) tests/test.mjs
-	cd ndt && $(NODE) tests/test-roofs.mjs
-	cd ndt && $(NODE) tests/test-trees.mjs
-	cd ndt && $(NODE) tests/test-shadows.mjs
-	cd ndt && $(NODE) tests/test-lighting.mjs
-	cd ndt && $(NODE) tests/test-search.mjs
-	cd ndt && $(NODE) tests/test-search-view-model.mjs
-	cd ndt && $(NODE) tests/test-network.mjs
-	cd ndt && $(NODE) tests/test-network-symbols.mjs
-	cd ndt && $(NODE) tests/test-network-view-model.mjs
-	cd ndt && $(NODE) tests/test-radio-model.mjs
-	cd ndt && $(NODE) tests/test-project-coverage.mjs
-	cd ndt && $(NODE) tests/test-tasks.mjs
-	cd ndt && $(NODE) tests/test-project-view-model.mjs
-	cd ndt && $(NODE) tests/test-reservations-view-model.mjs
-	cd ndt && $(NODE) tests/test-region-view-model.mjs
-	cd ndt && $(NODE) tests/test-map-controls-view-model.mjs
-	cd ndt && $(NODE) tests/test-map-scene-view-model.mjs
-	cd ndt && $(NODE) tests/test-navigation-view-model.mjs
-	cd ndt && $(NODE) tests/test-mvvm-boundaries.mjs
-	cd ndt && $(NODE) tests/test-street-detail.mjs
-	cd ndt && $(NODE) tests/test-dm-analytics.mjs
-	cd ndt && $(NODE) tests/test-dm-view-model.mjs
-	cd ndt && $(NODE) tests/test-drive-model-parity.mjs
-	cd ndt && $(UV) run --locked python -B tests/test-tree-sampling.py
-	cd ndt && $(UV) run --locked python -B tests/test-telus-matching.py
-	cd ndt && $(UV) run --locked python -B tests/test-telus-sites.py
-	cd ndt && $(UV) run --locked python -B tests/test-bell-outdoor.py
-	cd ndt && $(UV) run --locked python -B tests/test-convert-osm.py
-	cd ndt && $(UV) run --locked python -B tests/test-regions.py
-	cd ndt && $(UV) run --locked python -B tests/test-road-routing.py
-	cd ndt && $(UV) run --locked python -B tests/test-task-store.py
-	cd ndt && $(UV) run --locked python -B tests/test-dm-model.py
-	cd ndt && $(UV) run --locked python -B tests/test-drive-integration.py
-	cd ndt && $(UV) run --locked python -B tests/test-drive-http.py
+	cd ndt && $(NODE) tests/unit/test.mjs
+	cd ndt && $(NODE) tests/unit/test-roofs.mjs
+	cd ndt && $(NODE) tests/unit/test-trees.mjs
+	cd ndt && $(NODE) tests/unit/test-shadows.mjs
+	cd ndt && $(NODE) tests/unit/test-lighting.mjs
+	cd ndt && $(NODE) tests/unit/test-search.mjs
+	cd ndt && $(NODE) tests/unit/test-search-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-network.mjs
+	cd ndt && $(NODE) tests/unit/test-network-symbols.mjs
+	cd ndt && $(NODE) tests/unit/test-network-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-radio-model.mjs
+	cd ndt && $(NODE) tests/unit/test-project-coverage.mjs
+	cd ndt && $(NODE) tests/unit/test-tasks.mjs
+	cd ndt && $(NODE) tests/unit/test-project-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-reservations-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-region-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-map-controls-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-map-scene-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-navigation-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-mvvm-boundaries.mjs
+	cd ndt && $(NODE) tests/unit/test-street-detail.mjs
+	cd ndt && $(NODE) tests/unit/test-dm-analytics.mjs
+	cd ndt && $(NODE) tests/unit/test-dm-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-drive-model-parity.mjs
+	cd ndt && $(UV) run --locked python -B tests/python/test-tree-sampling.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-telus-matching.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-telus-sites.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-bell-outdoor.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-convert-osm.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-regions.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-road-routing.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-task-store.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-dm-model.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-drive-integration.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-drive-http.py
 
 test-ui:
 	npm run test:ui

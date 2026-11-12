@@ -28,12 +28,17 @@ The PowerShell `test-ui` target installs missing npm dependencies and the select
 ndt/
   dist/       Static application, data and vendored libraries; served directly
     drive-test/ Integrated DM workspace with model, ViewModel and view modules
-  dm/         Capture storage, planning adapter, virtual-drive worker and HTTP API
+  backend/    HTTP service, routing, task storage, and drive-test services
+    dm/       Capture storage, planning adapter, virtual-drive worker and HTTP API
   scripts/    Data preparation and conversion tools
-  tests/      JavaScript and Python checks
+  tests/
+    unit/     JavaScript unit and boundary checks
+    python/   Python unit and integration checks
+    ui/       Playwright browser tests
+    fixtures/ Browser-test fixture server
   data/       New York regional datasets
   regions.json Region catalog and navigation
-  server.py   SQLite-backed local data service
+  server.py   Stable command-line launcher for the backend service
   .openai/    Static hosting configuration
 docs/         Research, benchmarks and preview images
 graft/        Workspace code index

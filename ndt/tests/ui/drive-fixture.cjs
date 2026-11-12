@@ -8,7 +8,7 @@ const {stopFixture}=require('./process-cleanup.cjs');
 
 const test=base.extend({driveOrigin:async({},use)=>{
   const temp=await mkdtemp(path.join(os.tmpdir(),'ndt-drive-'));
-  const child=spawn(process.env.PYTHON||'python3',['-B','tests/serve-drive-fixture.py','--port','0','--db',path.join(temp,'planning.sqlite3'),'--dm-db',path.join(temp,'tests.sqlite3')],
+  const child=spawn(process.env.PYTHON||'python3',['-B','tests/fixtures/serve-drive-fixture.py','--port','0','--db',path.join(temp,'planning.sqlite3'),'--dm-db',path.join(temp,'tests.sqlite3')],
     {cwd:path.join(__dirname,'../..'),stdio:['ignore','pipe','ignore']});
   try{
     const url=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',code=>reject(new Error(`NDT fixture exited ${code}`)));const lines=readline.createInterface({input:child.stdout});lines.on('line',line=>{const match=line.match(/http:\/\/[^ ]+/);if(match){lines.close();resolve(match[0]);}});});
