@@ -10,12 +10,6 @@ from .integration import catalog
 from .experiments import ExperimentStore, ExperimentWorker
 
 
-def registry_path(app_root):
-    current = app_root.parent / 'drive_tests.sqlite3'
-    previous = app_root / 'var/tests.sqlite3'
-    return previous if previous.is_file() and not current.exists() else current
-
-
 class DriveTestService:
     def __init__(self, planning_db, tests_db):
         self.planning_db, self.tests_db = planning_db, tests_db

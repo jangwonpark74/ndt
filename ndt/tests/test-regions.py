@@ -163,7 +163,7 @@ class RegionTests(unittest.TestCase):
             initialize.assert_called_once_with(Path(directory) / 'custom-ndt.sqlite3')
             drive_service.assert_called_once_with(Path(directory) / 'custom-ndt.sqlite3', Path(directory) / 'drive_tests.sqlite3')
 
-    def test_default_database_is_in_project_directory(self):
+    def test_default_database_is_in_project_data_directory(self):
         httpd = unittest.mock.MagicMock()
         httpd.__enter__.return_value = httpd
         httpd.server_address = ('127.0.0.1', 5179)
@@ -171,11 +171,37 @@ class RegionTests(unittest.TestCase):
              patch.object(server, 'bind_server', return_value=httpd), \
              patch.object(server, 'initialize') as initialize, \
              patch.object(server, 'DriveTestService') as drive_service, \
-             patch.object(server, 'migrate_database', return_value=False) as migrate:
+             patch.object(server, 'migrate_first_available', return_value=None) as migrate:
             self.assertEqual(server.main(), 0)
-            self.assertEqual(server.DEFAULT_DB, ROOT.parent / 'regions.sqlite3')
-            migrate.assert_called_once_with(ROOT / 'var' / 'regions.sqlite3', server.DEFAULT_DB)
+            self.assertEqual(server.DEFAULT_DB, ROOT.parent / 'var' / 'regions.sqlite3')
+            self.assertEqual(migrate.call_count, 2)
+            migrate.assert_any_call(server.LEGACY_DBS, server.DEFAULT_DB)
+            migrate.assert_any_call(server.LEGACY_DM_DBS, server.DEFAULT_DB.parent / 'drive_tests.sqlite3')
             initialize.assert_called_once_with(server.DEFAULT_DB)
+
+    def test_migration_prefers_newer_root_and_never_overwrites(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            newer, older, target = root / 'root.sqlite3', root / 'older.sqlite3', root / 'target.sqlite3'
+            for path, value in ((newer, 'newer'), (older, 'older')):
+                with closing(sqlite3.connect(path)) as db, db:
+                    db.execute('CREATE TABLE example (value TEXT)')
+                    db.execute('INSERT INTO example VALUES (?)', (value,))
+            self.assertEqual(server.migrate_first_available((newer, older), target), newer)
+            self.assertIsNone(server.migrate_first_available((older,), target))
+            with closing(sqlite3.connect(target)) as db:
+                self.assertEqual(db.execute('SELECT value FROM example').fetchone()[0], 'newer')
+            self.assertTrue(newer.exists())
+            self.assertTrue(older.exists())
+
+    def test_migration_uses_older_path_when_root_is_missing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            older, target = root / 'older.sqlite3', root / 'target.sqlite3'
+            with closing(sqlite3.connect(older)) as db, db:
+                db.execute('CREATE TABLE example (value TEXT)')
+            self.assertEqual(server.migrate_first_available((root / 'missing.sqlite3', older), target), older)
+            self.assertTrue(target.exists())
 
     def test_default_port_fallback_and_exact_port(self):
         in_use = OSError(errno.EADDRINUSE, 'in use')

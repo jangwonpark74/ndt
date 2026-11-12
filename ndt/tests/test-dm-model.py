@@ -12,7 +12,6 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from dm.demo import DEMO_SCOPE, demo_csv, seed
 from dm.dm_model import (Conflict, DEFAULT_PROFILE, get_test, initialize, list_tests, normalize,
                       save_issue, save_profile, save_test, set_issue_status, validate_profile)
-from dm.http import registry_path
 
 
 class TestRegistry(unittest.TestCase):
@@ -113,21 +112,6 @@ class TestRegistry(unittest.TestCase):
             with self.assertRaises(LookupError):
                 set_issue_status(db, 'DT-DEMO-001', issue['id'], 'open')
             self.assertEqual(get_test(db, 'DT-DEMO-001')['issues'], [])
-
-    def test_registry_location_preserves_previous_test_ids(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            app = root / "dm"
-            current = root / "drive_tests.sqlite3"
-            previous = app / "var/tests.sqlite3"
-            self.assertEqual(registry_path(app), current)
-            initialize(previous)
-            run = save_test(previous, 'old-import', DEMO_SCOPE, 'Capture', '', 'test.csv', demo_csv(True))
-            self.assertEqual(registry_path(app), previous)
-            self.assertEqual(get_test(registry_path(app), run['id'])['label'], 'Capture')
-            initialize(current)
-            self.assertEqual(registry_path(app), current)
-            self.assertIsNotNone(get_test(previous, run['id']))
 
     def test_import_validates_and_normalizes_atomically(self):
         header = b'timestamp,latitude,longitude,rat,rsrp_dbm,pci\n'

@@ -42,7 +42,7 @@ make.ps1      Windows PowerShell equivalents
 pyproject.toml, uv.lock  Python environment definition
 ```
 
-`ndt/dist/` is checked-in application source and Toronto data, not a disposable build output. The local server initializes project-root `regions.sqlite3` from the regional datasets and serves the region catalog and assets to the viewer. Network locations are stored as individual database records. The SQLite service is required; a plain static server or the legacy static hosting configuration cannot serve this version. Research and preview material is in [`docs/`](docs/).
+`ndt/dist/` is checked-in application source and Toronto data, not a disposable build output. The local server initializes `var/regions.sqlite3` from the regional datasets and serves the region catalog and assets to the viewer. Network locations are stored as individual database records. The SQLite service is required; a plain static server or the legacy static hosting configuration cannot serve this version. Research and preview material is in [`docs/`](docs/).
 
 ## Drive tests
 
@@ -53,7 +53,7 @@ pyproject.toml, uv.lock  Python environment definition
 
 The initial virtual-drive engine predicts isotropic, fixed-height UMa mean received power. It emits `predicted_rx_dbm`, never measured RSRP. Frequency uses each eligible site's lowest usable reported value and RAT is an assumed analysis label. Antenna tilt/patterns, interference, handover, traffic, throughput and latency are unavailable. New York reservation data supports capture workflows but lacks simulation radio inputs. This implementation executes one route at constant speed per run.
 
-The registry defaults to `drive_tests.sqlite3` beside the planning database; a default startup retains an existing legacy `ndt/var/tests.sqlite3` when the root registry is absent. Override with `--dm-db`. To adopt an existing standalone DM registry without overwriting a destination:
+The registry defaults to `var/drive_tests.sqlite3` beside the planning database. When a default database is absent, startup copies the corresponding old root database, or the older `ndt/var/` database if the root file is absent, without overwriting the destination. Stop older viewer processes before migration; source files are retained. Override with `--dm-db`. To adopt an existing standalone DM registry without overwriting a destination:
 
 ```sh
 uv run --locked python ndt/server.py --import-dm /path/to/drive_tests.sqlite3

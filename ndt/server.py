@@ -16,12 +16,14 @@ import tempfile
 from urllib.parse import unquote, urlsplit
 from road_routing import driving_route, validate_points, RoutingUnavailable
 from task_store import connect, validate_tasks, initialize_tasks, read_tasks, write_tasks
-from dm.http import DriveTestAPI, DriveTestService, registry_path
+from dm.http import DriveTestAPI, DriveTestService
 
 ROOT = Path(__file__).resolve().parent
 DIST = ROOT / 'dist'
-DEFAULT_DB = ROOT.parent / 'regions.sqlite3'
-LEGACY_DB = ROOT / 'var' / 'regions.sqlite3'
+DATA_DIR = ROOT.parent / 'var'
+DEFAULT_DB = DATA_DIR / 'regions.sqlite3'
+LEGACY_DBS = (ROOT.parent / 'regions.sqlite3', ROOT / 'var' / 'regions.sqlite3')
+LEGACY_DM_DBS = (ROOT.parent / 'drive_tests.sqlite3', ROOT / 'var' / 'tests.sqlite3')
 
 
 class ViewerHTTPServer(ThreadingHTTPServer):
@@ -46,6 +48,18 @@ def migrate_database(legacy, destination):
         return True
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def migrate_first_available(candidates, destination):
+    """Copy the first existing legacy database without overwriting a destination."""
+    if destination.exists():
+        return None
+    for source in candidates:
+        if migrate_database(source, destination):
+            return source
+        if destination.exists():
+            break
+    return None
 
 
 def region_files(region):
@@ -352,7 +366,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, help='Use this exact port (default: first available in 5179–5189)')
-    parser.add_argument('--db', type=Path, help='SQLite database path (default: regions.sqlite3 in the project directory)')
+    parser.add_argument('--db', type=Path, help='SQLite database path (default: var/regions.sqlite3 in the project directory)')
     parser.add_argument('--dm-db', type=Path, help='Drive-test registry path (default: drive_tests.sqlite3 beside the planning database)')
     parser.add_argument('--import-dm', type=Path, help='Copy an existing DM registry when the destination does not exist; never overwrite it')
     args = parser.parse_args()
@@ -369,11 +383,18 @@ def main():
         print(f'Cannot start viewer: {error.strerror}.', file=sys.stderr)
         return 1
     with httpd:
-        if default_database and migrate_database(LEGACY_DB, args.db):
-            print(f'Copied existing database from {LEGACY_DB} to {args.db}', flush=True)
+        if default_database:
+            args.db.parent.mkdir(parents=True, exist_ok=True)
+            source = migrate_first_available(LEGACY_DBS, args.db)
+            if source:
+                print(f'Copied existing database from {source} to {args.db}', flush=True)
         initialize(args.db)
-        tests_db = args.dm_db or (registry_path(ROOT) if default_database else args.db.parent / 'drive_tests.sqlite3')
+        tests_db = args.dm_db or args.db.parent / 'drive_tests.sqlite3'
         tests_db.parent.mkdir(parents=True, exist_ok=True)
+        if default_database and not args.dm_db and not args.import_dm:
+            source = migrate_first_available(LEGACY_DM_DBS, tests_db)
+            if source:
+                print(f'Copied existing DM registry from {source} to {tests_db}', flush=True)
         if args.import_dm and migrate_database(args.import_dm, tests_db):
             print(f'Copied existing DM registry to {tests_db}', flush=True)
         httpd.drive_service = DriveTestService(args.db, tests_db)
