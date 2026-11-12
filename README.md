@@ -41,7 +41,6 @@ ndt/
   server.py   Stable command-line launcher for the backend service
   .openai/    Static hosting configuration
 docs/         Research, benchmarks and preview images
-graft/        Workspace code index
 Makefile      Setup, run and validation commands
 make.ps1      Windows PowerShell equivalents
 pyproject.toml, uv.lock  Python environment definition
