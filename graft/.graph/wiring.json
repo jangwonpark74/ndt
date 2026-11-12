@@ -1,8 +1,8 @@
 {
   "meta": {
     "version": 1,
-    "nodeCount": 184,
-    "edgeCount": 453,
+    "nodeCount": 314,
+    "edgeCount": 865,
     "languages": [
       "javascript",
       "python"
@@ -19,6 +19,1033 @@
     ]
   },
   "nodes": [
+    {
+      "id": "ndt/dm/__init__.py",
+      "name": "__init__.py",
+      "kind": "file",
+      "path": "ndt/dm/__init__.py",
+      "span": "L1-L2",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "81202adb1390cac1d383cda01f6efc199e972a3cec5fdf889ecbd7b7db17cc66",
+      "chars": 53,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/demo.py",
+      "name": "demo.py",
+      "kind": "file",
+      "path": "ndt/dm/demo.py",
+      "span": "L1-L64",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "69aca9b7b200853c2b561f0f85857233ec737b7ad417f20c437dceefe22e2838",
+      "chars": 3158,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/demo.py#demo_csv",
+      "name": "demo_csv",
+      "kind": "function",
+      "path": "ndt/dm/demo.py",
+      "span": "L21-L54",
+      "signature": "def demo_csv(candidate)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "37b149f67eba75b1d75b570c7c9927890b8d966043b94bbf2f6bc9e2eddf6ae1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/demo.py#seed",
+      "name": "seed",
+      "kind": "function",
+      "path": "ndt/dm/demo.py",
+      "span": "L57-L63",
+      "signature": "def seed(path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "1b8af33cbb2b6377ffffa058543586833d4c0f0e57c3e2f3ef912c47a96c3c93",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py",
+      "name": "dm_model.py",
+      "kind": "file",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L1-L340",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "87776231f0d36c25c9a4f008888b6bf3931b46ea2b08dbc9ffa82299178f5966",
+      "chars": 18045,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#audit_entry",
+      "name": "audit_entry",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L250-L253",
+      "signature": "def audit_entry(db, test_id, action, detail, profile=None)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "469ed38ff66de158360d95deda21b3743379b64607b6fc85a7fa09e0569d35e4",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#Conflict",
+      "name": "Conflict",
+      "kind": "class",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L41-L42",
+      "signature": "class Conflict(ValueError)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0e395f8714fcbd38e37f0d3631acb5d93f607df508254779c1d5a121e264c95d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#connection",
+      "name": "connection",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L140-L148",
+      "signature": "def connection(path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cbf3409ae2f471721e0bd04ce67b9d556b07c39cd3cc81aa4ff41c2a90bf905c",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#get_test",
+      "name": "get_test",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L225-L235",
+      "signature": "def get_test(path, test_id)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "54a7cc65bdb6a3fe89f8e551d0200132715731d7d6dd33ad7c8b478e9ec4ffdd",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#initialize",
+      "name": "initialize",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L158-L207",
+      "signature": "def initialize(path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b0490a75d1b8edeeafe0743ac83a08415bfc4ba1bf9c7eafc49e730f6bde84e3",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#list_tests",
+      "name": "list_tests",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L219-L222",
+      "signature": "def list_tests(path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "7a3608b2d0e259fd58f7f6372924c092715b685ea41610c239fd47d9d5c37d6a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#metadata",
+      "name": "metadata",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L213-L216",
+      "signature": "def metadata(row)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f41c80d87714fcd95cfe95b1cded9fc2a795e28201ce4b0b5fdbb68ea954635e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#normalize",
+      "name": "normalize",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L69-L136",
+      "signature": "def normalize(raw)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cc23d02fe4bcd5f1879d887e123e78877c43e3ec42f93b758b699a54b5cc7e7b",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#save_issue",
+      "name": "save_issue",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L273-L302",
+      "signature": "def save_issue(path, test_id, value)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "629e62649b00df67a5cb5e33b772efe51c716f5e89b185866f9dff17880447ee",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#save_profile",
+      "name": "save_profile",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L256-L270",
+      "signature": "def save_profile(path, test_id, revision, profile)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "08c1fd23ca512e7a579fb4c1b8b2674de42dd3e0c9fb329231750fab0ba7b066",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#save_test",
+      "name": "save_test",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L319-L339",
+      "signature": "def save_test(path, request_id, scope, label, notes, source, raw, *, demo_id=None)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9860e282a469fc50fc4230f7bd4cccff2ca705b4be7a1f9897a3302fe91ceb42",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#set_issue_status",
+      "name": "set_issue_status",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L305-L316",
+      "signature": "def set_issue_status(path, test_id, issue_id, status)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2ab6f56bf08bfb0dbde2aeef5e76c4e7bc62cbaf38340038e4f13499c98b866e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#validate_profile",
+      "name": "validate_profile",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L45-L66",
+      "signature": "def validate_profile(value)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6568c04dcb0fef7bf9d2cff950584128b9f042543e811a4f9bc0a67555d64746",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/dm_model.py#workspace",
+      "name": "workspace",
+      "kind": "function",
+      "path": "ndt/dm/dm_model.py",
+      "span": "L238-L247",
+      "signature": "def workspace(path, test_id)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0fe22b9464ca6e780ae6990783e75c0467f05f53d70df9e1496f0a12bbb93378",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py",
+      "name": "experiments.py",
+      "kind": "file",
+      "path": "ndt/dm/experiments.py",
+      "span": "L1-L274",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9117ba991ca04cffaa90521ba33973112a1ed297f8484a8fefb3f8f16cba229a",
+      "chars": 17956,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore",
+      "name": "ExperimentStore",
+      "kind": "class",
+      "path": "ndt/dm/experiments.py",
+      "span": "L25-L242",
+      "signature": "class ExperimentStore",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "059492e23813d9d124117a05348d9ce611cfc94ddb3125f9fab725821052c9be",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L26-L34",
+      "signature": "def __init__(self, path, planning_db)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "f039d2902ec8a2a7ecb64a0976f6e09fef4e794bde1c41d346abf7f5ec10ff2c",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "name": "associate",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L107-L123",
+      "signature": "def associate(self, test_id, selection)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "41996e7326af155e4851b0c750d08ec791d675b27f8742ce1b7d289b5f75cead",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.cancel",
+      "name": "cancel",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L102-L105",
+      "signature": "def cancel(self, identity)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "dc981cbb028721d693dc3fb9dc0fcd0d7bc5f7c6fc1e2b1366c7f88d7e9a36ad",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "name": "compare",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L178-L242",
+      "signature": "def compare(self, a_id, b_id, metric, profile, *, bin_m=20, minimum_coverage_pct=80, rat='all')",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ad085f77777e114050695d8a040f57c43d73959a276876e5868065563a66afb3",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.compare.bins",
+      "name": "bins",
+      "kind": "function",
+      "path": "ndt/dm/experiments.py",
+      "span": "L201-L208",
+      "signature": "def bins(test, matches)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "fc571eb70b3a6ce4f50cab5c96733b550ef0ff0fa7dbb75a5a30dd9b633b9b99",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.compare.mean",
+      "name": "mean",
+      "kind": "function",
+      "path": "ndt/dm/experiments.py",
+      "span": "L220-L222",
+      "signature": "def mean(rows)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "64918403610d8a8c2fe5c100ab8002258cd7d31b73cf5f84ca54f0fa2b8f495f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.get",
+      "name": "get",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L45-L51",
+      "signature": "def get(self, identity)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8a67cbf607f1b956ee690f00507858705ded5eef99d4a1d384552d2784e23a20",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.is_running",
+      "name": "is_running",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L174-L176",
+      "signature": "def is_running(self, identity)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0f71a5c64b8077822f171c13862822a087c19379c02c567a1a70ae043a5e8ac0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.list",
+      "name": "list",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L40-L43",
+      "signature": "def list(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "617d9b3697083669d951cfa0067e1f25894511f3c52465b116a6398d65695458",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.recover_interrupted",
+      "name": "recover_interrupted",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L36-L38",
+      "signature": "def recover_interrupted(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "aedc7db930046f778f987d546de9c9985a9b9703e07eefbc9335083122b43e7e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "name": "run_one",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L125-L172",
+      "signature": "def run_one(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "03452d6cfc8978112583b62d4dfa85f26e06de9e966f297078c61a4d16dd3a2f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "name": "submit",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L53-L100",
+      "signature": "def submit(self, request_id, spec)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d4aab17409ea3f2868958ffb5e5226dcbe8434d878d8bd64801a2117ae0dd12f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentStore"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentWorker",
+      "name": "ExperimentWorker",
+      "kind": "class",
+      "path": "ndt/dm/experiments.py",
+      "span": "L245-L273",
+      "signature": "class ExperimentWorker",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "05abd867fb8c1577ef4594e23076f52a4073170b80acdaf8fd60869a0ecd66a8",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentWorker.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L246-L257",
+      "signature": "def __init__(self, store)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "4484e51e89d6c3e918713ef281ffbfb011d2ca1d886d6427d5f7a7735e97ab07",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentWorker"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentWorker.close",
+      "name": "close",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L269-L273",
+      "signature": "def close(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cca525b08973ce8d728fc8be4150742c6293fb8980068f456197144ecd71c2d2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentWorker"
+    },
+    {
+      "id": "ndt/dm/experiments.py#ExperimentWorker.run",
+      "name": "run",
+      "kind": "method",
+      "path": "ndt/dm/experiments.py",
+      "span": "L259-L267",
+      "signature": "def run(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "bc3d417376b2aa62bf02f8aac6095f8de4c8368e79cc0fb7846055ebe54bb5f7",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "ExperimentWorker"
+    },
+    {
+      "id": "ndt/dm/experiments.py#now",
+      "name": "now",
+      "kind": "function",
+      "path": "ndt/dm/experiments.py",
+      "span": "L17-L18",
+      "signature": "def now()",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "657729523cb5c0ead0b1e95551773c0d89eca7b7f361a6f59a6766df30c1b014",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/experiments.py#valid_number",
+      "name": "valid_number",
+      "kind": "function",
+      "path": "ndt/dm/experiments.py",
+      "span": "L21-L22",
+      "signature": "def valid_number(value, low, high)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f04b2eaa89972e5c94256882f78e0011f0733e2818a7c50e0a07aa5df9a0cd6f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/http.py",
+      "name": "http.py",
+      "kind": "file",
+      "path": "ndt/dm/http.py",
+      "span": "L1-L221",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6d04cf42dac67645134fca4b080b9c069ee2315c18fc415f3e835f10fc4c081c",
+      "chars": 11333,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI",
+      "name": "DriveTestAPI",
+      "kind": "class",
+      "path": "ndt/dm/http.py",
+      "span": "L37-L220",
+      "signature": "class DriveTestAPI",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2d7a87b3acb5b6ce6f88cccb84951e448afcb5c6395e6d99d7b2bd9b63c27f08",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_experiment_post",
+      "name": "dm_experiment_post",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L77-L113",
+      "signature": "def dm_experiment_post(self, path)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "8a10bcb0d18aeda8e7eac13ceb8eed808da97e9e911bad1bcb8a701da2d7db37",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "name": "dm_GET",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L53-L75",
+      "signature": "def dm_GET(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0dd94c8fdec0bafdb1d5ef5bcfc184cbad60e46d5f698716dbcea81b739a60e6",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "name": "dm_json",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L127-L129",
+      "signature": "def dm_json(self, code, payload)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b0b9a31c95115ad4b90891db3b98c2c49defab4147abf1a0dc319f9d81dd6599",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "name": "dm_local",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L131-L141",
+      "signature": "def dm_local(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "87d7ff04d40f6f2ce19e9dfbe555be0e36d9d719f18b9df44b5701214e94133a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "name": "dm_mutate_workspace",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L188-L220",
+      "signature": "def dm_mutate_workspace(self, action)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "24b9e25d53010c6fbd425524e40f863a737e9e3c7637ce1f889c4cdda8e02e24",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_PATCH",
+      "name": "dm_PATCH",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L184-L186",
+      "signature": "def dm_PATCH(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0ee902a738c0db24c21943bcbdd24f6db587d80ffdd3d8bf173ade75cd266f80",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_path",
+      "name": "dm_path",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L38-L39",
+      "signature": "def dm_path(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a52a0bdedef283a2fbc001d581b5ab0f7ae324b05b8c0b587d003b12bbe0e355",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "name": "dm_POST",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L143-L178",
+      "signature": "def dm_POST(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "32e17ba0a99f8f47f28f001460598df228461368770415d9ce8662f792ff9a40",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_PUT",
+      "name": "dm_PUT",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L180-L182",
+      "signature": "def dm_PUT(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3c86c506da75b19c67cc8650627d088e838a7e8d8bc7d9383d9a0955c0f22a0d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.dm_respond",
+      "name": "dm_respond",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L116-L125",
+      "signature": "def dm_respond(self, code, data, content_type)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ed9ae522053273b91750286c2235e340794d920db3165eb6e9caa6a19eb37be3",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "name": "handle_dm",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L41-L51",
+      "signature": "def handle_dm(self, method)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2cee3c78ef01e2d52f34a081374bc2b42073ec19d99f87a6e6be5fe159407cca",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestAPI"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestService",
+      "name": "DriveTestService",
+      "kind": "class",
+      "path": "ndt/dm/http.py",
+      "span": "L19-L26",
+      "signature": "class DriveTestService",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "365fede27ab2c192a2c552fd05b69fabc727bd09e87bc55aa658bf7718cf8e68",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestService.__init__",
+      "name": "__init__",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L20-L23",
+      "signature": "def __init__(self, planning_db, tests_db)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "18f810daf35a5dee1259cce6d060c11412381b38181909a8af695eb9a57ae1bb",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestService"
+    },
+    {
+      "id": "ndt/dm/http.py#DriveTestService.close",
+      "name": "close",
+      "kind": "method",
+      "path": "ndt/dm/http.py",
+      "span": "L25-L26",
+      "signature": "def close(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b83111b44d6c05af8ecf064c3566d3536caf19d6e6a374d7ab0de3573a3df308",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveTestService"
+    },
+    {
+      "id": "ndt/dm/http.py#plain",
+      "name": "plain",
+      "kind": "function",
+      "path": "ndt/dm/http.py",
+      "span": "L29-L35",
+      "signature": "def plain(value, name, maximum, required=False)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a47a1bb6420acbc44dc2a2d5e0fb3ce21be3af6a6d631b33121a7217af610eee",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/http.py#registry_path",
+      "name": "registry_path",
+      "kind": "function",
+      "path": "ndt/dm/http.py",
+      "span": "L13-L16",
+      "signature": "def registry_path(app_root)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ed8fcd08e41d7d15c984b746539b8bae3ccfde9c7390e82c32764c76e98e7e3d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py",
+      "name": "integration.py",
+      "kind": "file",
+      "path": "ndt/dm/integration.py",
+      "span": "L1-L161",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "129a7b54464266f241a96cd31874dfd61f1f1eea3e37cb74f47cd44c87c51d4c",
+      "chars": 8906,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#canonical",
+      "name": "canonical",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L15-L16",
+      "signature": "def canonical(value)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d34e91696b8725e85edb3c23d0322d2d7f3331b50c71ec0c920be1e2dd021204",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#catalog",
+      "name": "catalog",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L63-L80",
+      "signature": "def catalog(planning_db)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "71588e0bb0084ee7686c4e27d0a9ed5543cb2685c87d13934528b9b154fb5fbe",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#digest",
+      "name": "digest",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L19-L20",
+      "signature": "def digest(value)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f11384316c856cfccf12fd3519842e97c0df1460ae8d5d14754d22eca7fe5dca",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#distance",
+      "name": "distance",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L23-L26",
+      "signature": "def distance(a, b)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3a78c76976e50ced93d56a2c2eee8a87c8479bf353b6a86289b076121842e83a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#freeze_context",
+      "name": "freeze_context",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L83-L98",
+      "signature": "def freeze_context(planning_db, selection)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0e043f355ccd256915345998de4430fdc72605ad5a027fa2b933ca6fd14b9ed3",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#match_route",
+      "name": "match_route",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L108-L160",
+      "signature": "def match_route(rows, route, *, direction='forward', tolerance_m=50, gap_ms=10000)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "65d92ffda74fcf152636c4443103e0ff50ebd24dcffa5e52994e546295fa18a4",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#number",
+      "name": "number",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L29-L34",
+      "signature": "def number(value)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a6a17d6e1d3698cca1940507b4998067ca564257e326a87618a6ce925133d467",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#route_lengths",
+      "name": "route_lengths",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L101-L105",
+      "signature": "def route_lengths(coordinates)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b822dd8de4f8d4613a432a4bab878a82af73f7101a765b0bc1d985898b6a3e39",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/integration.py#transmitters",
+      "name": "transmitters",
+      "kind": "function",
+      "path": "ndt/dm/integration.py",
+      "span": "L37-L60",
+      "signature": "def transmitters(sites, saved_ids, center)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "34dfdf72234696f27cf44d934c87d79164451d6c707df02b57ec47d74f50a669",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/simulation.py",
+      "name": "simulation.py",
+      "kind": "file",
+      "path": "ndt/dm/simulation.py",
+      "span": "L1-L62",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "6a0d7b27b77232af83aee4a581ff7780042c2380403ce4d926f7e5d47fcf8827",
+      "chars": 2830,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/simulation.py#path_loss",
+      "name": "path_loss",
+      "kind": "function",
+      "path": "ndt/dm/simulation.py",
+      "span": "L10-L20",
+      "signature": "def path_loss(distance_m, frequency_mhz, mode)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f67213a07d0f46d1368271acb947cefc2cee11945f9455f36e2d88abe0c3f5d2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/simulation.py#simulate",
+      "name": "simulate",
+      "kind": "function",
+      "path": "ndt/dm/simulation.py",
+      "span": "L44-L61",
+      "signature": "def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, cancelled)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "092e1e507595458389af6715e107477a9b4405400d2519a225a4d225bc7458a8",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/dm/simulation.py#trajectory",
+      "name": "trajectory",
+      "kind": "function",
+      "path": "ndt/dm/simulation.py",
+      "span": "L23-L41",
+      "signature": "def trajectory(route, speed_kmh, interval_s, time_origin)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "660349e4d388c02934369c0f37b2b6e3da8cd495f61f69e547f8b6263e934939",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
     {
       "id": "ndt/road_routing.py",
       "name": "road_routing.py",
@@ -749,12 +1776,12 @@
       "name": "server.py",
       "kind": "file",
       "path": "ndt/server.py",
-      "span": "L1-L323",
+      "span": "L1-L389",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "8348276607186debafd05dd109a39f39412f5dd6cf1845b805a0ac93ff7207d1",
-      "chars": 18938,
+      "body_hash": "7b04dc8760745a39ad42bab2a9d94851f00b7c7cbe0262715aeaa683b0461047",
+      "chars": 23857,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -764,7 +1791,7 @@
       "name": "bind_server",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L280-L290",
+      "span": "L335-L345",
       "signature": "def bind_server(host, port, handler)",
       "exported": true,
       "origin": "ast",
@@ -778,11 +1805,11 @@
       "name": "handler_for",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L145-L277",
+      "span": "L150-L332",
       "signature": "def handler_for(db_path)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "2221c790cd0342c82d53a1cae1049ad219d103af1efc34993939b29db034d7dd",
+      "body_hash": "002fee3f758e0b6c7af1a131f41782bd89d20bcf4bf66f3077ca6587031d7397",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -792,11 +1819,11 @@
       "name": "Handler",
       "kind": "class",
       "path": "ndt/server.py",
-      "span": "L146-L276",
-      "signature": "class Handler(SimpleHTTPRequestHandler)",
+      "span": "L151-L331",
+      "signature": "class Handler(DriveTestAPI, SimpleHTTPRequestHandler)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "37b0b3a70f4ac084df0404ca08385d43709fbe70bb56b7402fa89f77db87ff4b",
+      "body_hash": "4381cf4bd84521f39f48b5bc198f9d41e29628e4ce76532cbeef15a9404cbbdf",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -806,7 +1833,7 @@
       "name": "__init__",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L147-L148",
+      "span": "L152-L153",
       "signature": "def __init__(self, *args, **kwargs)",
       "exported": false,
       "origin": "ast",
@@ -817,15 +1844,45 @@
       "owner": "Handler"
     },
     {
+      "id": "ndt/server.py#handler_for.Handler.do_DELETE",
+      "name": "do_DELETE",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L288-L298",
+      "signature": "def do_DELETE(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "b002c5aa01b069c82a44d2d0c3df81ae164bf60e30fa9f6fb8b35598db3fdaeb",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
       "id": "ndt/server.py#handler_for.Handler.do_GET",
       "name": "do_GET",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L150-L187",
+      "span": "L155-L201",
       "signature": "def do_GET(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "60fbfd79303b92cd0cbfd234ad09d4401f30acdd6020210ab3cfb074be48f5da",
+      "body_hash": "2d6c13b82d3297c7fb306387a03774393cc2febd591012aa47f3a1a7400353af",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "Handler"
+    },
+    {
+      "id": "ndt/server.py#handler_for.Handler.do_PATCH",
+      "name": "do_PATCH",
+      "kind": "method",
+      "path": "ndt/server.py",
+      "span": "L318-L320",
+      "signature": "def do_PATCH(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "0e76d3f4908a9ccc4c72caa39d86b351d759c38d9e3171da46318e1024568783",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -836,11 +1893,11 @@
       "name": "do_POST",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L251-L265",
+      "span": "L300-L316",
       "signature": "def do_POST(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "87be82e7496f318998dd69705f92ad252c92c52cffb32f59fa126f488a807e05",
+      "body_hash": "407410b63a56aa74dfe340a1a91b45d1c7c1658ffce69966f2f1b8f3c388b672",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -851,11 +1908,11 @@
       "name": "do_PUT",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L189-L249",
+      "span": "L203-L286",
       "signature": "def do_PUT(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "c3cbba2251a3401abfc0fb54fbbc89785364bc49ae91ace975d45977ffe28017",
+      "body_hash": "40e478041ba1c7bb76c809599c29e526a067516b5b98d92df42744de28144b3c",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -866,7 +1923,7 @@
       "name": "known_project",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L267-L269",
+      "span": "L322-L324",
       "signature": "def known_project(self, db, region_id, project_id)",
       "exported": true,
       "origin": "ast",
@@ -881,7 +1938,7 @@
       "name": "respond",
       "kind": "method",
       "path": "ndt/server.py",
-      "span": "L271-L276",
+      "span": "L326-L331",
       "signature": "def respond(self, body, content_type, status=200)",
       "exported": true,
       "origin": "ast",
@@ -896,7 +1953,7 @@
       "name": "import_network_dataset",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L59-L86",
+      "span": "L61-L88",
       "signature": "def import_network_dataset(db, region_id, path, content)",
       "exported": true,
       "origin": "ast",
@@ -910,11 +1967,11 @@
       "name": "initialize",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L99-L142",
+      "span": "L101-L147",
       "signature": "def initialize(db_path)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "f6c4a9684563acd12152bc5aa152c440279f8a35d858dcc65d87e5da89aacffa",
+      "body_hash": "5b9a8c3bc36242292d0f9e49e404954e6602b7312376e7416094e0d77927aa55",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -924,11 +1981,11 @@
       "name": "main",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L293-L318",
+      "span": "L348-L384",
       "signature": "def main()",
       "exported": true,
       "origin": "ast",
-      "body_hash": "fcced894dfcecd5d8d087155739de011c608da87866c36f3b3d366c252caa252",
+      "body_hash": "7922ad501d2618a61141933b015bcd6c3259719ef99e5460e68b720bdb91a3eb",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -938,7 +1995,7 @@
       "name": "migrate_database",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L31-L46",
+      "span": "L33-L48",
       "signature": "def migrate_database(legacy, destination)",
       "exported": true,
       "origin": "ast",
@@ -952,7 +2009,7 @@
       "name": "network_collection",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L89-L96",
+      "span": "L91-L98",
       "signature": "def network_collection(db, region_id, path)",
       "exported": true,
       "origin": "ast",
@@ -966,7 +2023,7 @@
       "name": "region_files",
       "kind": "function",
       "path": "ndt/server.py",
-      "span": "L49-L56",
+      "span": "L51-L58",
       "signature": "def region_files(region)",
       "exported": true,
       "origin": "ast",
@@ -980,7 +2037,7 @@
       "name": "ViewerHTTPServer",
       "kind": "class",
       "path": "ndt/server.py",
-      "span": "L25-L27",
+      "span": "L27-L29",
       "signature": "class ViewerHTTPServer(ThreadingHTTPServer): # ES-module imports arrive in bursts; the default backlog of five drops connections on cold starts.",
       "exported": true,
       "origin": "ast",
@@ -994,12 +2051,12 @@
       "name": "task_store.py",
       "kind": "file",
       "path": "ndt/task_store.py",
-      "span": "L1-L257",
+      "span": "L1-L259",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "c27ef4a74642c3092e7e16d3e39a766c5b516707d86f51cebf6ee7597ad1a5c2",
-      "chars": 18678,
+      "body_hash": "5978cd8e4a5adb8ce7955616384fcf67bdd3bc0da09849d6a70303cafaa698f1",
+      "chars": 18793,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1009,7 +2066,7 @@
       "name": "attributes",
       "kind": "function",
       "path": "ndt/task_store.py",
-      "span": "L205-L206",
+      "span": "L207-L208",
       "signature": "def attributes(value, known)",
       "exported": true,
       "origin": "ast",
@@ -1037,7 +2094,7 @@
       "name": "initialize_tasks",
       "kind": "function",
       "path": "ndt/task_store.py",
-      "span": "L172-L202",
+      "span": "L174-L204",
       "signature": "def initialize_tasks(db)",
       "exported": true,
       "origin": "ast",
@@ -1051,7 +2108,7 @@
       "name": "metrics",
       "kind": "function",
       "path": "ndt/task_store.py",
-      "span": "L224-L227",
+      "span": "L226-L229",
       "signature": "def metrics(row)",
       "exported": true,
       "origin": "ast",
@@ -1065,7 +2122,7 @@
       "name": "read_tasks",
       "kind": "function",
       "path": "ndt/task_store.py",
-      "span": "L230-L256",
+      "span": "L232-L258",
       "signature": "def read_tasks(db, region_id, project_id)",
       "exported": true,
       "origin": "ast",
@@ -1107,11 +2164,11 @@
       "name": "validate_tasks",
       "kind": "function",
       "path": "ndt/task_store.py",
-      "span": "L45-L92",
+      "span": "L45-L94",
       "signature": "def validate_tasks(tasks)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "dfcb4e11dd19b8433805a9de52721b3927a6bfdd370ede891045939553d5ce79",
+      "body_hash": "b102ce6e039eec9fa950edcc071b724081b36b2ee90a25bade47d7da9eb7142a",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1121,11 +2178,26 @@
       "name": "write_tasks",
       "kind": "function",
       "path": "ndt/task_store.py",
-      "span": "L209-L221",
+      "span": "L211-L223",
       "signature": "def write_tasks(db, region_id, project_id, tasks)",
       "exported": true,
       "origin": "ast",
       "body_hash": "076373b7dd08d0a62618f0a6faf9305ff0e2f2912fda517e68e16bb48fec90de",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/serve-drive-fixture.py",
+      "name": "serve-drive-fixture.py",
+      "kind": "file",
+      "path": "ndt/tests/serve-drive-fixture.py",
+      "span": "L1-L15",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2be6ff03e9221c9ba25ed0eaaeaa5b8f86488b807c66b432ecdf5720b836c34e",
+      "chars": 418,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1248,6 +2320,682 @@
       "owner": "ConvertOsmTest"
     },
     {
+      "id": "ndt/tests/test-dm-analytics.mjs",
+      "name": "test-dm-analytics.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L1-L89",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cf323d823fde712e921c80897320c70d208d67256dffd7b4d98f4008e63fd741",
+      "chars": 5621,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-analytics.mjs#beginPath",
+      "name": "beginPath",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L82-L82",
+      "signature": "beginPath()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "6ce90d84f7b57132880a29da8ede0acc96067f7f12d874384733d9c7f256b678",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-analytics.mjs#fillText",
+      "name": "fillText",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L82-L82",
+      "signature": "fillText()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "838e1aa7ee39440ae622d7fb13ad96fc36d65b8d20823d5c241bb41c02bd0daa",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-analytics.mjs#lineTo",
+      "name": "lineTo",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L83-L83",
+      "signature": "lineTo(x, y)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "2d52224c10badd5853f807d5f954f23925f8ca18b25578bd5247fad18d34ea67",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-analytics.mjs#moveTo",
+      "name": "moveTo",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L83-L83",
+      "signature": "moveTo(x, y)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "f6740f1ed2743788880b3258b105abdec1fdd2ee129eb887fda902e30d7aaa2d",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-analytics.mjs#setLineDash",
+      "name": "setLineDash",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L82-L82",
+      "signature": "setLineDash()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "48486d7b99d36eaa816241d0108f8c0824f00ac4c7710a38bbf379e2fa05dc3c",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-analytics.mjs#stroke",
+      "name": "stroke",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-analytics.mjs",
+      "span": "L83-L83",
+      "signature": "stroke()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "019fe53ce63e982765c48c083805eb60efe83f62b033e532db432f41aefd58f2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py",
+      "name": "test-dm-model.py",
+      "kind": "file",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L1-L169",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "a8676d1289ed426a1f982c95177acde80282d7c26d7496259e4785eacce46888",
+      "chars": 9103,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry",
+      "name": "TestRegistry",
+      "kind": "class",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L17-L164",
+      "signature": "class TestRegistry(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5a3793f2edf4f1532d5589c8b2a3485cfef9aeecbe44f2ab6ceddb8c0241c7fc",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "name": "test_concurrent_retry_and_distinct_execution_ids",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L143-L164",
+      "signature": "def test_concurrent_retry_and_distinct_execution_ids(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "70dc97812ba0fa0973778ec33daffdebbbb0c5c9225f5b4bed870f7a84e8f0f1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids.save",
+      "name": "save",
+      "kind": "function",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L149-L150",
+      "signature": "def save(request)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "319e74360aba054b2d05b1042175388cb06ec7d8782a2fa56f70ce3e439ca302",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_import_validates_and_normalizes_atomically",
+      "name": "test_import_validates_and_normalizes_atomically",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L130-L141",
+      "signature": "def test_import_validates_and_normalizes_atomically(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d2a47818d45ab0578e761d4388333f48ff351d219ac5eacdddbf649669da6745",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_issue_idempotency_sample_binding_and_audit",
+      "name": "test_issue_idempotency_sample_binding_and_audit",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L91-L113",
+      "signature": "def test_issue_idempotency_sample_binding_and_audit(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "025aada4b38f1de4eb54a0a53782de6b9128de590a9ac3dba878c626de864fd9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "name": "test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L24-L50",
+      "signature": "def test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "70bb148a9eaaef31b4f7960e66de3e9a71455efed965888871af7f97ca0bcdf2",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_new_capture_registry_is_private",
+      "name": "test_new_capture_registry_is_private",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L18-L22",
+      "signature": "def test_new_capture_registry_is_private(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "016abecc299751ea45f22b9d4e88874ce99748496b32a8e4b9dee82bccae3b56",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_boundary_validation",
+      "name": "test_profile_boundary_validation",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L75-L89",
+      "signature": "def test_profile_boundary_validation(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "85f7b2809353d106d120acef1439c72479d0ae162ead89b03963a33348c65e90",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_persistence_conflict_and_non_destructive_upgrade",
+      "name": "test_profile_persistence_conflict_and_non_destructive_upgrade",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L52-L73",
+      "signature": "def test_profile_persistence_conflict_and_non_destructive_upgrade(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ad5731415f4aaf73678526f63c964bdcb31d94cbf89b0887cf0ed958996952d5",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-model.py#TestRegistry.test_registry_location_preserves_previous_test_ids",
+      "name": "test_registry_location_preserves_previous_test_ids",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-model.py",
+      "span": "L115-L128",
+      "signature": "def test_registry_location_preserves_previous_test_ids(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5ec0a41a4c4e7df8b859afa98ebaa69343ccdb7bfc68e49dbff3cf64a634e84f",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "TestRegistry"
+    },
+    {
+      "id": "ndt/tests/test-dm-view-model.mjs",
+      "name": "test-dm-view-model.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-dm-view-model.mjs",
+      "span": "L1-L33",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "c1d57999448fae2f7e3e4d5799a8117ec758009a10676ac5605df454a8a84d77",
+      "chars": 2434,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-view-model.mjs#cancel",
+      "name": "cancel",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-view-model.mjs",
+      "span": "L12-L12",
+      "signature": "cancel()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "98ccb217b3b399d7b8a2f362f66478f22bba2593d91fe1f43895fe80563f2d82",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-view-model.mjs#clear",
+      "name": "clear",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-view-model.mjs",
+      "span": "L26-L26",
+      "signature": "clear()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "daa43082bbbea288c7133f01e2bc7a2171c14b2dcc89e403136e643e1ae27121",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-view-model.mjs#request",
+      "name": "request",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-view-model.mjs",
+      "span": "L12-L12",
+      "signature": "request()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "3baca0e4183bd60e9d27241e8a04eca8bfc08847c83462329bbbfc8a37fe84c7",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-dm-view-model.mjs#set",
+      "name": "set",
+      "kind": "method",
+      "path": "ndt/tests/test-dm-view-model.mjs",
+      "span": "L26-L26",
+      "signature": "set()",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "af0746f33f3c2735c11900e17c8355bd7c483d6450cc78976d285ae1da719c94",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py",
+      "name": "test-drive-http.py",
+      "kind": "file",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L1-L60",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cd88acd493f8b6577178516ab20487429cab56e98a3e9c4127f5ef12d3919191",
+      "chars": 2536,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "name": "DriveHTTP",
+      "kind": "class",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L16-L55",
+      "signature": "class DriveHTTP(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5320b560391a09656f3ca69b0f9ccb9ba097f9dcc860b903d3810cb8aab9a791",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py#DriveHTTP.request",
+      "name": "request",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L34-L39",
+      "signature": "def request(self, method, path, body=None, headers=None)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "3c26b0b7175d761e3e220933d2a1e7f35f7db12ebcd08794f935f2bacd64df7e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveHTTP"
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py#DriveHTTP.setUpClass",
+      "name": "setUpClass",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L18-L25",
+      "signature": "def setUpClass(cls)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "611f3251db8d77e4419daa935732f5222621ce8be4d80cd30ed3ce7e9801b5b8",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveHTTP"
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py#DriveHTTP.tearDownClass",
+      "name": "tearDownClass",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L28-L32",
+      "signature": "def tearDownClass(cls)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "fbc49b4246ff3083d5f36a7f7535d1f25ce93f26e99bc346539c242ccb02f888",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveHTTP"
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py#DriveHTTP.test_same_origin_guard_and_unknown_paths",
+      "name": "test_same_origin_guard_and_unknown_paths",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L51-L55",
+      "signature": "def test_same_origin_guard_and_unknown_paths(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "77b7923802eaa1aeace087f2567c7aa01646bcdfcce58c64cafa0f4969b638f8",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveHTTP"
+    },
+    {
+      "id": "ndt/tests/test-drive-http.py#DriveHTTP.test_workspace_is_self_contained_and_catalog_uses_the_served_database",
+      "name": "test_workspace_is_self_contained_and_catalog_uses_the_served_database",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-http.py",
+      "span": "L41-L49",
+      "signature": "def test_workspace_is_self_contained_and_catalog_uses_the_served_database(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "035e0bff2f9c7cdae66841a9ac2aa383fd28b9751f24a5362ebbb3f1646e7ebb",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveHTTP"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py",
+      "name": "test-drive-integration.py",
+      "kind": "file",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L1-L188",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "56062fcae46df5b6e39dc3c7d7f9057bd45858e214297225f6dc38df6ae30293",
+      "chars": 11039,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "name": "DriveIntegration",
+      "kind": "class",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L25-L183",
+      "signature": "class DriveIntegration(unittest.TestCase)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "404b27a1284875a59cdb2da903fc79e97d7e92f9be17d3dc17cae2c4a442d45a",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.context",
+      "name": "context",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L47-L48",
+      "signature": "def context(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "482a3f55da6b72ab66de3b8f8545b18083a9bbd6ecb313e65b34829edb5d10a5",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "name": "selection",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L50-L51",
+      "signature": "def selection(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "fe0e07d4ba2e21cb70b468839470d6e91cf1cbbdf653fc8016f523268e1e6f43",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.setUp",
+      "name": "setUp",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L26-L45",
+      "signature": "def setUp(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "dfd953e853c673a32ef1304f9a79e50d25f4c3f2525502b876b6305a52192af3",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "name": "specification",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L53-L55",
+      "signature": "def specification(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ef92b05e5ffedd4545291020c12e4e65c2aaa1f06bc510565ff5ac11d9ac9868",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "name": "test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L134-L154",
+      "signature": "def test_association_versions_and_comparisons_keep_their_original_matching_basis(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "bc7914e5b7eba25ee3fee78d40e21e259c05de465853be2e891d78b6ff3907d9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "name": "test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L156-L162",
+      "signature": "def test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "5a92748323a70feb68a90f074c9368235fb682f29c21d7983234015f1f31b236",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "name": "test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L94-L105",
+      "signature": "def test_conflicting_retry_invalid_inputs_and_cancellation_are_safe(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "9cbd35edd2ebfb7868117f44a2a37e498121f600f0f435b02878ec7ab9db0829",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "name": "test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L120-L132",
+      "signature": "def test_generated_runs_are_distinct_from_old_demo_and_capture_payloads(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "31fb727631401bc5fb42d9513915280cc4adb7942ca8f0998433981f4d8e28e0",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_missing_gps_on_one_rat_does_not_break_a_shared_timestamp_fix",
+      "name": "test_missing_gps_on_one_rat_does_not_break_a_shared_timestamp_fix",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L164-L169",
+      "signature": "def test_missing_gps_on_one_rat_does_not_break_a_shared_timestamp_fix(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "160fde72bcf7e545ecf56182f232a15885e7810a869c1733d688fa09116164cd",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "name": "test_only_the_worker_owner_recovers_interrupted_jobs",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L171-L183",
+      "signature": "def test_only_the_worker_owner_recovers_interrupted_jobs(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f921afc0672b4f431a9486c043d2715d2c0013259107b15e0f528c38400346b9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "name": "test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L70-L92",
+      "signature": "def test_paired_power_runs_are_deterministic_and_survive_task_deletion(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "82daf175f24c262b9360c7657c6d5b4cc0e97e0f904803e643683fd76e5e337c",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "name": "test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L57-L68",
+      "signature": "def test_route_context_is_complete_and_stale_selection_cannot_launch(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "f5a170c8e4a17092e9f5720d228bcfc57b3278629302cc17cb85c6973adb4921",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-integration.py#DriveIntegration.test_trace_association_retains_gaps_and_rejects_wrong_route_or_direction",
+      "name": "test_trace_association_retains_gaps_and_rejects_wrong_route_or_direction",
+      "kind": "method",
+      "path": "ndt/tests/test-drive-integration.py",
+      "span": "L107-L118",
+      "signature": "def test_trace_association_retains_gaps_and_rejects_wrong_route_or_direction(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "958c1736bfd0e4536e05c2870b967f545740da0a75ee6c288af8fa70b3c4b034",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "DriveIntegration"
+    },
+    {
+      "id": "ndt/tests/test-drive-model-parity.mjs",
+      "name": "test-drive-model-parity.mjs",
+      "kind": "file",
+      "path": "ndt/tests/test-drive-model-parity.mjs",
+      "span": "L1-L13",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "2e50ee03e4f557d3a0eeeef4f8918f1f5d54f67b9a905c90933ac91d799070de",
+      "chars": 1057,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/test-lighting.mjs",
       "name": "test-lighting.mjs",
       "kind": "file",
@@ -1301,8 +3049,8 @@
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "d7506dd552afbacbcfcc8e6c50067cb982c2868f397faf411dcc73b37a3c5d06",
-      "chars": 1183,
+      "body_hash": "68dcdbb452ec4a5db69733a77cefdcac40dd6a11dd2f9135ec0170ade6b52435",
+      "chars": 1243,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1316,7 +3064,7 @@
       "signature": "function verify(file)",
       "exported": false,
       "origin": "ast",
-      "body_hash": "fd2676f2a0e0672eb5e8a2a3839288fe54415902196cacefa59e05876c1571ea",
+      "body_hash": "8a296730b7956cf43b995a1cb4e638314b2f85bc8900f6f90591c05fd5250ece",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1488,12 +3236,12 @@
       "name": "test-regions.py",
       "kind": "file",
       "path": "ndt/tests/test-regions.py",
-      "span": "L1-L321",
+      "span": "L1-L367",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "a610ce4b489732ca1be797711b8b8341a1f86a6c803f8fb46cbbce178413cd85",
-      "chars": 21781,
+      "body_hash": "9b6af410ad3131326535e815519f5d7fe15d3869deebd8ba36ec824b61a709d2",
+      "chars": 24499,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1503,11 +3251,11 @@
       "name": "RegionTests",
       "kind": "class",
       "path": "ndt/tests/test-regions.py",
-      "span": "L22-L316",
+      "span": "L22-L362",
       "signature": "class RegionTests(unittest.TestCase)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "2b8fe9f39c9b0e50931e1476141116a1c93eb83de786431d0d5801d4250c81bd",
+      "body_hash": "66f33dba0a06900bdb1657eccfefbab47c4e4ac308fcf761109f4e46c35aa4dc",
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -1517,7 +3265,7 @@
       "name": "test_asset_endpoint_and_project_validation_use_site_rows",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L237-L265",
+      "span": "L283-L311",
       "signature": "def test_asset_endpoint_and_project_validation_use_site_rows(self)",
       "exported": true,
       "origin": "ast",
@@ -1532,11 +3280,11 @@
       "name": "test_custom_database_does_not_migrate_default",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L95-L105",
+      "span": "L138-L150",
       "signature": "def test_custom_database_does_not_migrate_default(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "710da48ce0cd9167fd7900848f6ae810c2e56a479e27443bee00585eda2ccc7c",
+      "body_hash": "08610d0dffab57b9ba540c38c0dc0e559d5a6f1a21390b19661fb5da75a021b0",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -1547,11 +3295,11 @@
       "name": "test_default_database_is_in_project_directory",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L107-L118",
+      "span": "L152-L164",
       "signature": "def test_default_database_is_in_project_directory(self)",
       "exported": true,
       "origin": "ast",
-      "body_hash": "ac1c836275d25a542e61c89b69c04c5a668bba52919506363e3c33c12e915f5b",
+      "body_hash": "b7142652ed169b757b4489af3554e72836282eeb6cbff94cd600c8d7eafb3a01",
       "summary_state": "pending",
       "summary": null,
       "crux": null,
@@ -1562,7 +3310,7 @@
       "name": "test_default_port_fallback_and_exact_port",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L120-L138",
+      "span": "L166-L184",
       "signature": "def test_default_port_fallback_and_exact_port(self)",
       "exported": true,
       "origin": "ast",
@@ -1577,7 +3325,7 @@
       "name": "test_existing_database_migrates_stored_snapshot_and_membership",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L188-L203",
+      "span": "L234-L249",
       "signature": "def test_existing_database_migrates_stored_snapshot_and_membership(self)",
       "exported": true,
       "origin": "ast",
@@ -1592,7 +3340,7 @@
       "name": "test_invalid_refresh_rolls_back_existing_data",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L205-L235",
+      "span": "L251-L281",
       "signature": "def test_invalid_refresh_rolls_back_existing_data(self)",
       "exported": true,
       "origin": "ast",
@@ -1607,7 +3355,7 @@
       "name": "changed_files",
       "kind": "function",
       "path": "ndt/tests/test-regions.py",
-      "span": "L214-L216",
+      "span": "L260-L262",
       "signature": "def changed_files(region)",
       "exported": true,
       "origin": "ast",
@@ -1621,7 +3369,7 @@
       "name": "test_migration_preserves_edits_and_does_not_overwrite",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L64-L82",
+      "span": "L107-L125",
       "signature": "def test_migration_preserves_edits_and_does_not_overwrite(self)",
       "exported": true,
       "origin": "ast",
@@ -1636,7 +3384,7 @@
       "name": "test_missing_or_invalid_legacy_database",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L84-L93",
+      "span": "L127-L136",
       "signature": "def test_missing_or_invalid_legacy_database(self)",
       "exported": true,
       "origin": "ast",
@@ -1651,7 +3399,7 @@
       "name": "test_network_records_preserve_source_and_serve_database_changes",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L161-L186",
+      "span": "L207-L232",
       "signature": "def test_network_records_preserve_source_and_serve_database_changes(self)",
       "exported": true,
       "origin": "ast",
@@ -1666,7 +3414,7 @@
       "name": "test_project_tasks_are_validated_isolated_and_preserved",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L267-L308",
+      "span": "L313-L354",
       "signature": "def test_project_tasks_are_validated_isolated_and_preserved(self)",
       "exported": true,
       "origin": "ast",
@@ -1681,7 +3429,7 @@
       "name": "put",
       "kind": "function",
       "path": "ndt/tests/test-regions.py",
-      "span": "L275-L281",
+      "span": "L321-L327",
       "signature": "def put(tasks, project='northyork', region='toronto')",
       "exported": true,
       "origin": "ast",
@@ -1695,7 +3443,7 @@
       "name": "test_project_use_cases_are_validated_isolated_and_persistent",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L23-L62",
+      "span": "L66-L105",
       "signature": "def test_project_use_cases_are_validated_isolated_and_persistent(self)",
       "exported": true,
       "origin": "ast",
@@ -1710,7 +3458,7 @@
       "name": "put",
       "kind": "function",
       "path": "ndt/tests/test-regions.py",
-      "span": "L29-L35",
+      "span": "L72-L78",
       "signature": "def put(value, project='northyork', region='toronto')",
       "exported": true,
       "origin": "ast",
@@ -1724,7 +3472,7 @@
       "name": "test_sqlite_region_assets_and_restart",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L140-L159",
+      "span": "L186-L205",
       "signature": "def test_sqlite_region_assets_and_restart(self)",
       "exported": true,
       "origin": "ast",
@@ -1739,7 +3487,7 @@
       "name": "test_verizon_filter_preserves_reported_status",
       "kind": "method",
       "path": "ndt/tests/test-regions.py",
-      "span": "L310-L316",
+      "span": "L356-L362",
       "signature": "def test_verizon_filter_preserves_reported_status(self)",
       "exported": true,
       "origin": "ast",
@@ -1748,6 +3496,35 @@
       "summary": null,
       "crux": null,
       "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_virtual_ues_are_validated_isolated_and_persistent",
+      "name": "test_virtual_ues_are_validated_isolated_and_persistent",
+      "kind": "method",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L23-L64",
+      "signature": "def test_virtual_ues_are_validated_isolated_and_persistent(self)",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cae0326f327ec996ac11c73bba4c312e968d862af5a8ce27cfbc0ade9d9168b9",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null,
+      "owner": "RegionTests"
+    },
+    {
+      "id": "ndt/tests/test-regions.py#RegionTests.test_virtual_ues_are_validated_isolated_and_persistent.put",
+      "name": "put",
+      "kind": "function",
+      "path": "ndt/tests/test-regions.py",
+      "span": "L31-L35",
+      "signature": "def put(payload, url=base + '/ue-1')",
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "fb18496f73e34a13aa735a8c3710016836693d36881c09d2d9c64e3325e1bd8e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
     },
     {
       "id": "ndt/tests/test-reservations-view-model.mjs",
@@ -2172,8 +3949,8 @@
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "abdd182c22d002c58c5020ce1593b344302481fdaa72003dd267abd422edf270",
-      "chars": 9686,
+      "body_hash": "2b99c631f511ea8b337baa266f764f5ba110737401fefbf5fcb1c073f0df08c0",
+      "chars": 9788,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -2451,8 +4228,8 @@
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "7bc61b5b078875fc57adf8da47ae6038642afb88fc6717494f84ce9fa7d01f51",
-      "chars": 43034,
+      "body_hash": "b1d1e0dd6d9e43af750ec87e8596b9c798810956549c5958658b33efe9b09355",
+      "chars": 42957,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -2542,6 +4319,108 @@
       "crux": null
     },
     {
+      "id": "ndt/tests/ui/dm-drive-test.spec.cjs",
+      "name": "dm-drive-test.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/dm-drive-test.spec.cjs",
+      "span": "L1-L127",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "781ec535963de2813c77f009b8127bf318f2f76a8707c9dc24e22cd7335f89f4",
+      "chars": 7634,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/dm-integration.spec.cjs",
+      "name": "dm-integration.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/dm-integration.spec.cjs",
+      "span": "L1-L123",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "ab771528dc1f22f07335517ea74a57175e1f1de0e4a3321f88b02e37b6d668d5",
+      "chars": 9466,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/dm-review.spec.cjs",
+      "name": "dm-review.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/dm-review.spec.cjs",
+      "span": "L1-L201",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "cd33a62f99ffea85ab21b5b7447e6feec06ab817cf31b6061147d25e90a9653c",
+      "chars": 12373,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/dm-review.spec.cjs#capture",
+      "name": "capture",
+      "kind": "function",
+      "path": "ndt/tests/ui/dm-review.spec.cjs",
+      "span": "L32-L37",
+      "signature": "async function capture(page, name)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "4ec5e6af46dc12bcb31571383344d74471df4dd7f4f026e901a0cecaa4670505",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/drive-fixture.cjs",
+      "name": "drive-fixture.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/drive-fixture.cjs",
+      "span": "L1-L31",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "d6344737746cca2ba849e8d3c3896aaca17f662f9b5b47b284c91b5a0c4fda43",
+      "chars": 2239,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/drive-fixture.cjs#installTask",
+      "name": "installTask",
+      "kind": "function",
+      "path": "ndt/tests/ui/drive-fixture.cjs",
+      "span": "L23-L23",
+      "signature": "async function installTask(request,origin,value=task)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "b0ed9b65e6c624ab04b71c91e139a69605dada0c6470d141120836bc32e6534e",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
+      "id": "ndt/tests/ui/drive-fixture.cjs#maps",
+      "name": "maps",
+      "kind": "function",
+      "path": "ndt/tests/ui/drive-fixture.cjs",
+      "span": "L24-L29",
+      "signature": "async function maps(page)",
+      "exported": false,
+      "origin": "ast",
+      "body_hash": "79f5e21cc4a3065594f6370f71b36522a90e0e84fc5104105845035b46eb40f1",
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "ndt/tests/ui/failures.spec.cjs",
       "name": "failures.spec.cjs",
       "kind": "file",
@@ -2576,12 +4455,12 @@
       "name": "region-click.spec.cjs",
       "kind": "file",
       "path": "ndt/tests/ui/region-click.spec.cjs",
-      "span": "L1-L18",
+      "span": "L1-L24",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "c5416a3d8b295fc5a2ee9e3703be79ab4ac6d219022039870dc2be05f8c1b6ed",
-      "chars": 1165,
+      "body_hash": "7ed0fedc8d8777c2e0f3829b2ed6c5216bcb873fb5d5af32793257613bc26dd1",
+      "chars": 1484,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -2595,7 +4474,7 @@
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "461df48b14519fc5543e723237370b29a7a5a2c882383233bd5d7778b42aade2",
+      "body_hash": "7e896ac475bb6a3e3a802a6820cebad5e0e0533eef844c17d70517c08dfaa37c",
       "chars": 3289,
       "summary_state": "pending",
       "summary": null,
@@ -2667,8 +4546,8 @@
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "153d2d401cc5bcb6eb0a67a114adfe045e7f7f07e5f2a3c541aa220d162586c9",
-      "chars": 5441,
+      "body_hash": "3bfe67b51133e0fbf855a5442042fcb6e762172eee6a85b8ac41df3834b01efc",
+      "chars": 5418,
       "summary_state": "pending",
       "summary": null,
       "crux": null
@@ -2688,22 +4567,1393 @@
       "crux": null
     },
     {
+      "id": "ndt/tests/ui/virtual-ues.spec.cjs",
+      "name": "virtual-ues.spec.cjs",
+      "kind": "file",
+      "path": "ndt/tests/ui/virtual-ues.spec.cjs",
+      "span": "L1-L107",
+      "signature": null,
+      "exported": true,
+      "origin": "ast",
+      "body_hash": "60852a12ed8c16440a6625f5673df19640dd69e8ebd896fe2e7e65ad572245ca",
+      "chars": 8467,
+      "summary_state": "pending",
+      "summary": null,
+      "crux": null
+    },
+    {
       "id": "playwright.config.cjs",
       "name": "playwright.config.cjs",
       "kind": "file",
       "path": "playwright.config.cjs",
-      "span": "L1-L13",
+      "span": "L1-L24",
       "signature": null,
       "exported": true,
       "origin": "ast",
-      "body_hash": "1de8f7bfd8da88753b4aa18b3b823d3aacfafadb3f0b0886311bc045690183fb",
-      "chars": 413,
+      "body_hash": "0d489fbab24b0a0635ef2b5b23393f7a2ffeb9fc87e03a66b142a8f34d5e3948",
+      "chars": 1166,
       "summary_state": "pending",
       "summary": null,
       "crux": null
     }
   ],
   "edges": [
+    {
+      "source": "ndt/dm/demo.py",
+      "target": "ndt/dm/demo.py#demo_csv",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py",
+      "target": "ndt/dm/demo.py#seed",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py",
+      "target": ".dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py",
+      "target": "csv",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py",
+      "target": "datetime",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py#seed",
+      "target": "ndt/dm/demo.py#demo_csv",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/demo.py#seed",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/demo.py#seed",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#audit_entry",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#Conflict",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#initialize",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#list_tests",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#metadata",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#normalize",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#save_issue",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#save_profile",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#set_issue_status",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#validate_profile",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "ndt/dm/dm_model.py#workspace",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "contextlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "copy",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "csv",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "datetime",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "hashlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "os",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "re",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "uuid",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py",
+      "target": "zlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#Conflict",
+      "target": "ValueError",
+      "relation": "extends",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#get_test",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#get_test",
+      "target": "ndt/dm/dm_model.py#metadata",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#get_test",
+      "target": "ndt/dm/dm_model.py#workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#initialize",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#list_tests",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#list_tests",
+      "target": "ndt/dm/dm_model.py#metadata",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_issue",
+      "target": "ndt/dm/dm_model.py#audit_entry",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_issue",
+      "target": "ndt/dm/dm_model.py#Conflict",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_issue",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_issue",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_issue",
+      "target": "ndt/dm/dm_model.py#workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_profile",
+      "target": "ndt/dm/dm_model.py#audit_entry",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_profile",
+      "target": "ndt/dm/dm_model.py#Conflict",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_profile",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_profile",
+      "target": "ndt/dm/dm_model.py#validate_profile",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_profile",
+      "target": "ndt/dm/dm_model.py#workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_test",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_test",
+      "target": "ndt/dm/dm_model.py#metadata",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#save_test",
+      "target": "ndt/dm/dm_model.py#normalize",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#set_issue_status",
+      "target": "ndt/dm/dm_model.py#audit_entry",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#set_issue_status",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#set_issue_status",
+      "target": "ndt/dm/dm_model.py#workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/dm_model.py#workspace",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "ndt/dm/experiments.py#ExperimentStore",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "ndt/dm/experiments.py#ExperimentWorker",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "ndt/dm/experiments.py#now",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "ndt/dm/experiments.py#valid_number",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": ".dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": ".integration",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": ".simulation",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "copy",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "datetime",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "fcntl",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "statistics",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "threading",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "uuid",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py",
+      "target": "zlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.cancel",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.is_running",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.list",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.recover_interrupted",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore",
+      "target": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.__init__",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/experiments.py#now",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/integration.py#canonical",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/integration.py#freeze_context",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "target": "ndt/dm/integration.py#match_route",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.cancel",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.cancel",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare.bins",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare.mean",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/integration.py#canonical",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/integration.py#route_lengths",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare.bins",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare.mean",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.get",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.is_running",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.list",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.recover_interrupted",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/experiments.py#ExperimentStore.cancel",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/experiments.py#ExperimentStore.is_running",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/experiments.py#now",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/experiments.py#valid_number",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/integration.py#canonical",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "target": "ndt/dm/simulation.py#simulate",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/dm_model.py#Conflict",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/dm_model.py#connection",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/experiments.py#now",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/experiments.py#valid_number",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/integration.py#canonical",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/integration.py#freeze_context",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "target": "ndt/dm/integration.py#route_lengths",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentWorker",
+      "target": "ndt/dm/experiments.py#ExperimentWorker.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentWorker",
+      "target": "ndt/dm/experiments.py#ExperimentWorker.close",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/experiments.py#ExperimentWorker",
+      "target": "ndt/dm/experiments.py#ExperimentWorker.run",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "ndt/dm/http.py#DriveTestAPI",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "ndt/dm/http.py#DriveTestService",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "ndt/dm/http.py#plain",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "ndt/dm/http.py#registry_path",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": ".dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": ".experiments",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": ".integration",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "urllib.parse",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py",
+      "target": "uuid",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_experiment_post",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_PATCH",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_path",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_PUT",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_respond",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI",
+      "target": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_experiment_post",
+      "target": "ndt/dm/dm_model.py#validate_profile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_experiment_post",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "target": "ndt/dm/dm_model.py#list_tests",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_path",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_GET",
+      "target": "ndt/dm/integration.py#catalog",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_respond",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "target": "ndt/dm/dm_model.py#save_issue",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "target": "ndt/dm/dm_model.py#save_profile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "target": "ndt/dm/dm_model.py#set_issue_status",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_path",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_PATCH",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_PATCH",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_experiment_post",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_path",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/http.py#plain",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_POST",
+      "target": "ndt/dm/integration.py#catalog",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_PUT",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_local",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.dm_PUT",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_mutate_workspace",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "target": "ndt/dm/http.py#DriveTestAPI.dm_json",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestService",
+      "target": "ndt/dm/http.py#DriveTestService.__init__",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestService",
+      "target": "ndt/dm/http.py#DriveTestService.close",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestService.__init__",
+      "target": "ndt/dm/experiments.py#ExperimentStore",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestService.__init__",
+      "target": "ndt/dm/experiments.py#ExperimentWorker",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/http.py#DriveTestService.close",
+      "target": "ndt/dm/experiments.py#ExperimentWorker.close",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#canonical",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#catalog",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#distance",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#freeze_context",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#match_route",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#number",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#route_lengths",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "ndt/dm/integration.py#transmitters",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": ".dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "contextlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "copy",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "hashlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py",
+      "target": "task_store",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#catalog",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#catalog",
+      "target": "ndt/dm/integration.py#transmitters",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#catalog",
+      "target": "ndt/task_store.py#read_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/integration.py#digest",
+      "target": "ndt/dm/integration.py#canonical",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#freeze_context",
+      "target": "ndt/dm/dm_model.py#Conflict",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/integration.py#freeze_context",
+      "target": "ndt/dm/integration.py#catalog",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#freeze_context",
+      "target": "ndt/dm/integration.py#digest",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#match_route",
+      "target": "ndt/dm/integration.py#distance",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#match_route",
+      "target": "ndt/dm/integration.py#route_lengths",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#route_lengths",
+      "target": "ndt/dm/integration.py#distance",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#transmitters",
+      "target": "ndt/dm/integration.py#distance",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/integration.py#transmitters",
+      "target": "ndt/dm/integration.py#number",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py",
+      "target": "ndt/dm/simulation.py#path_loss",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py",
+      "target": "ndt/dm/simulation.py#simulate",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py",
+      "target": "ndt/dm/simulation.py#trajectory",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py",
+      "target": ".integration",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py",
+      "target": "bisect",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py",
+      "target": "math",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py#simulate",
+      "target": "ndt/dm/integration.py#distance",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/dm/simulation.py#simulate",
+      "target": "ndt/dm/simulation.py#path_loss",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py#simulate",
+      "target": "ndt/dm/simulation.py#trajectory",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/dm/simulation.py#trajectory",
+      "target": "ndt/dm/integration.py#route_lengths",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
     {
       "source": "ndt/road_routing.py",
       "target": "ndt/road_routing.py#driving_route",
@@ -3588,6 +6838,12 @@
     },
     {
       "source": "ndt/server.py",
+      "target": "dm.http",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
       "target": "errno",
       "relation": "imports",
       "confidence": "extracted"
@@ -3631,6 +6887,12 @@
     {
       "source": "ndt/server.py",
       "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py",
+      "target": "re",
       "relation": "imports",
       "confidence": "extracted"
     },
@@ -3690,7 +6952,19 @@
     },
     {
       "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.do_DELETE",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
       "target": "ndt/server.py#handler_for.Handler.do_GET",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/server.py#handler_for.Handler.do_PATCH",
       "relation": "contains",
       "confidence": "extracted"
     },
@@ -3720,8 +6994,44 @@
     },
     {
       "source": "ndt/server.py#handler_for.Handler",
+      "target": "ndt/dm/http.py#DriveTestAPI",
+      "relation": "extends",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler",
       "target": "SimpleHTTPRequestHandler",
       "relation": "extends",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_DELETE",
+      "target": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_DELETE",
+      "target": "ndt/server.py#handler_for.Handler.known_project",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_DELETE",
+      "target": "ndt/server.py#handler_for.Handler.respond",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_DELETE",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_GET",
+      "target": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "relation": "calls",
       "confidence": "inferred"
     },
     {
@@ -3755,6 +7065,18 @@
       "confidence": "inferred"
     },
     {
+      "source": "ndt/server.py#handler_for.Handler.do_PATCH",
+      "target": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_POST",
+      "target": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
       "source": "ndt/server.py#handler_for.Handler.do_POST",
       "target": "ndt/road_routing.py#driving_route",
       "relation": "calls",
@@ -3771,6 +7093,12 @@
       "target": "ndt/server.py#handler_for.Handler.respond",
       "relation": "calls",
       "confidence": "extracted"
+    },
+    {
+      "source": "ndt/server.py#handler_for.Handler.do_PUT",
+      "target": "ndt/dm/http.py#DriveTestAPI.handle_dm",
+      "relation": "calls",
+      "confidence": "inferred"
     },
     {
       "source": "ndt/server.py#handler_for.Handler.do_PUT",
@@ -3829,6 +7157,18 @@
     {
       "source": "ndt/server.py#initialize",
       "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#main",
+      "target": "ndt/dm/http.py#DriveTestService",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/server.py#main",
+      "target": "ndt/dm/http.py#registry_path",
       "relation": "calls",
       "confidence": "inferred"
     },
@@ -4007,6 +7347,42 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/tests/serve-drive-fixture.py",
+      "target": "ndt/dm/demo.py#seed",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/serve-drive-fixture.py",
+      "target": "dm.demo",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/serve-drive-fixture.py",
+      "target": "dm.dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/serve-drive-fixture.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/serve-drive-fixture.py",
+      "target": "server",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/serve-drive-fixture.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-bell-outdoor.py",
       "target": "ndt/tests/test-bell-outdoor.py#BellOutdoorTest",
       "relation": "contains",
@@ -4112,6 +7488,948 @@
       "source": "ndt/tests/test-convert-osm.py#ConvertOsmTest",
       "target": "ndt/tests/test-convert-osm.py#ConvertOsmTest.test_converts_supported_ways_and_skips_incomplete_geometry",
       "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "ndt/tests/test-dm-analytics.mjs#beginPath",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "ndt/tests/test-dm-analytics.mjs#fillText",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "ndt/tests/test-dm-analytics.mjs#lineTo",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "ndt/tests/test-dm-analytics.mjs#moveTo",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "ndt/tests/test-dm-analytics.mjs#setLineDash",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "ndt/tests/test-dm-analytics.mjs#stroke",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "../dist/drive-test/graphics.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "../dist/drive-test/test-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "../dist/drive-test/test-view.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-analytics.mjs",
+      "target": "node:test",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "concurrent.futures",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "contextlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "copy",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "dm.demo",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "dm.dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "dm.http",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_import_validates_and_normalizes_atomically",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_issue_idempotency_sample_binding_and_audit",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_new_capture_registry_is_private",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_boundary_validation",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_persistence_conflict_and_non_destructive_upgrade",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_registry_location_preserves_previous_test_ids",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/dm/demo.py#demo_csv",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/dm/demo.py#seed",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/dm/dm_model.py#list_tests",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids.save",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids",
+      "target": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids.save",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids.save",
+      "target": "ndt/dm/demo.py#demo_csv",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_concurrent_retry_and_distinct_execution_ids.save",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_import_validates_and_normalizes_atomically",
+      "target": "ndt/dm/dm_model.py#normalize",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_issue_idempotency_sample_binding_and_audit",
+      "target": "ndt/dm/demo.py#seed",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_issue_idempotency_sample_binding_and_audit",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_issue_idempotency_sample_binding_and_audit",
+      "target": "ndt/dm/dm_model.py#save_issue",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_issue_idempotency_sample_binding_and_audit",
+      "target": "ndt/dm/dm_model.py#set_issue_status",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "target": "ndt/dm/demo.py#seed",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "target": "ndt/dm/dm_model.py#save_issue",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_legacy_kind_constraint_upgrade_keeps_capture_profiles_issues_and_history",
+      "target": "ndt/dm/dm_model.py#save_profile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_boundary_validation",
+      "target": "ndt/dm/dm_model.py#validate_profile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_persistence_conflict_and_non_destructive_upgrade",
+      "target": "ndt/dm/demo.py#seed",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_persistence_conflict_and_non_destructive_upgrade",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_profile_persistence_conflict_and_non_destructive_upgrade",
+      "target": "ndt/dm/dm_model.py#save_profile",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_registry_location_preserves_previous_test_ids",
+      "target": "ndt/dm/demo.py#demo_csv",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_registry_location_preserves_previous_test_ids",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_registry_location_preserves_previous_test_ids",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-model.py#TestRegistry.test_registry_location_preserves_previous_test_ids",
+      "target": "ndt/dm/http.py#registry_path",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "ndt/tests/test-dm-view-model.mjs#cancel",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "ndt/tests/test-dm-view-model.mjs#clear",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "ndt/tests/test-dm-view-model.mjs#request",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "ndt/tests/test-dm-view-model.mjs#set",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "../dist/drive-test/experiment-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "../dist/drive-test/test-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "../dist/drive-test/test-view-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-dm-view-model.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "contextlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "dm.http",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "http.client",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "server",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "threading",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.request",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.setUpClass",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.tearDownClass",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.test_same_origin_guard_and_unknown_paths",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.test_workspace_is_self_contained_and_catalog_uses_the_served_database",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP.setUpClass",
+      "target": "ndt/dm/http.py#DriveTestService",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP.test_same_origin_guard_and_unknown_paths",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.request",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-http.py#DriveHTTP.test_workspace_is_self_contained_and_catalog_uses_the_served_database",
+      "target": "ndt/tests/test-drive-http.py#DriveHTTP.request",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "concurrent.futures",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "contextlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "dm.dm_model",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "dm.experiments",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "dm.integration",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "pathlib",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "sqlite3",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "task_store",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "tempfile",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py",
+      "target": "unittest",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.context",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.setUp",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_missing_gps_on_one_rat_does_not_break_a_shared_timestamp_fix",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.test_trace_association_retains_gaps_and_rejects_wrong_route_or_direction",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.context",
+      "target": "ndt/dm/integration.py#catalog",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.context",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.setUp",
+      "target": "ndt/dm/experiments.py#ExperimentStore",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.setUp",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.setUp",
+      "target": "ndt/task_store.py#initialize_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.setUp",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "target": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "target": "ndt/dm/experiments.py#ExperimentStore.compare",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_association_versions_and_comparisons_keep_their_original_matching_basis",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "target": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "target": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_concurrent_retry_creates_one_job_and_identical_variants_compare_to_zero",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "target": "ndt/dm/experiments.py#ExperimentStore.cancel",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "target": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "target": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_conflicting_retry_invalid_inputs_and_cancellation_are_safe",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "target": "ndt/dm/dm_model.py#save_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "target": "ndt/dm/experiments.py#ExperimentStore.associate",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_generated_runs_are_distinct_from_old_demo_and_capture_payloads",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_missing_gps_on_one_rat_does_not_break_a_shared_timestamp_fix",
+      "target": "ndt/dm/integration.py#match_route",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "target": "ndt/dm/experiments.py#ExperimentStore",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "target": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "target": "ndt/dm/experiments.py#ExperimentWorker",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_only_the_worker_owner_recovers_interrupted_jobs",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/dm/dm_model.py#get_test",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/dm/experiments.py#ExperimentStore.get",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/dm/experiments.py#ExperimentStore.run_one",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/dm/experiments.py#ExperimentStore.submit",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_paired_power_runs_are_deterministic_and_survive_task_deletion",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.specification",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "target": "ndt/dm/integration.py#freeze_context",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "target": "ndt/task_store.py#connect",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "target": "ndt/task_store.py#write_tasks",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.context",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_route_context_is_complete_and_stale_selection_cannot_launch",
+      "target": "ndt/tests/test-drive-integration.py#DriveIntegration.selection",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-integration.py#DriveIntegration.test_trace_association_retains_gaps_and_rejects_wrong_route_or_direction",
+      "target": "ndt/dm/integration.py#match_route",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/test-drive-model-parity.mjs",
+      "target": "../dist/radio-model.mjs",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-model-parity.mjs",
+      "target": "node:assert/strict",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-model-parity.mjs",
+      "target": "node:child_process",
+      "relation": "imports",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-drive-model-parity.mjs",
+      "target": "node:url",
+      "relation": "imports",
       "confidence": "extracted"
     },
     {
@@ -4547,6 +8865,12 @@
       "confidence": "extracted"
     },
     {
+      "source": "ndt/tests/test-regions.py#RegionTests",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_virtual_ues_are_validated_isolated_and_persistent",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
       "source": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data",
       "target": "ndt/tests/test-regions.py#RegionTests.test_invalid_refresh_rolls_back_existing_data.changed_files",
       "relation": "contains",
@@ -4561,6 +8885,12 @@
     {
       "source": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent",
       "target": "ndt/tests/test-regions.py#RegionTests.test_project_use_cases_are_validated_isolated_and_persistent.put",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/test-regions.py#RegionTests.test_virtual_ues_are_validated_isolated_and_persistent",
+      "target": "ndt/tests/test-regions.py#RegionTests.test_virtual_ues_are_validated_isolated_and_persistent.put",
       "relation": "contains",
       "confidence": "extracted"
     },
@@ -5371,6 +9701,42 @@
     {
       "source": "ndt/tests/ui/app.spec.cjs",
       "target": "ndt/tests/ui/app.spec.cjs#snapshot~3",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/dm-integration.spec.cjs",
+      "target": "ndt/tests/ui/drive-fixture.cjs#installTask",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/ui/dm-integration.spec.cjs",
+      "target": "ndt/tests/ui/drive-fixture.cjs#maps",
+      "relation": "calls",
+      "confidence": "inferred"
+    },
+    {
+      "source": "ndt/tests/ui/dm-review.spec.cjs",
+      "target": "ndt/tests/ui/dm-review.spec.cjs#capture",
+      "relation": "calls",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/dm-review.spec.cjs",
+      "target": "ndt/tests/ui/dm-review.spec.cjs#capture",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/drive-fixture.cjs",
+      "target": "ndt/tests/ui/drive-fixture.cjs#installTask",
+      "relation": "contains",
+      "confidence": "extracted"
+    },
+    {
+      "source": "ndt/tests/ui/drive-fixture.cjs",
+      "target": "ndt/tests/ui/drive-fixture.cjs#maps",
       "relation": "contains",
       "confidence": "extracted"
     },
