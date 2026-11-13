@@ -1,4 +1,5 @@
 import * as api from './test-data.mjs';
+import {bindRFReview} from './rf-review-view.mjs';
 import {bindExperiments} from './experiment-view.mjs';
 import {renderAlignedComparison} from './comparison-view.mjs';
 import {analysisPackage, bands, DEFAULT_PROFILE, METRICS, utc} from './test-model.mjs';
@@ -21,6 +22,7 @@ const explorer = {search: '', status: 'all', page: 0};
 const map = makeMap($('route-canvas'), $('live-map'), $('map-mode'), $('map-status'), $('map-attribution'), $('map-scale'), $('snapshot-controls'),
   row => vm.jump(row));
 
+const rfReview=bindRFReview({getWorkspace:()=>vm,download,onReplay:index=>{vm.jump(vm.test.rows[index]);selectTab('replay');}});
 function drawChart() {
   if (!vm.test || !chart.clientWidth) return;
   const width = chart.clientWidth, height = chart.clientHeight;
@@ -29,18 +31,22 @@ function drawChart() {
 }
 
 function selectTab(tab) {
-  const tabs = ['replay', 'analytics', 'investigate', 'report'];
+  const tabs = ['replay', 'analytics', 'rf-results', 'investigate', 'report'];
   const restoreFocus = tabs.some(name => name !== tab && $(name).contains(document.activeElement));
   vm.stop();
   vm.tab = tab;
+  rfReview.active(tab==='rf-results');if(tab==='rf-results')$('execution-details').open=false;
+  for(const id of ['analysis-controls','kpis','quality-summary'])show(id,tab!=='rf-results');
+  renderRouteContext();if(tab==='rf-results')$('route-context-panel').hidden=true;
   for (const button of document.querySelectorAll('[data-tab]')) {
     if (button.dataset.tab === tab) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   }
   for (const name of tabs) show(name, name === tab);
+  if(tab==='rf-results'){$('rf-heading').focus({preventScroll:true});$('rf-results').scrollIntoView({block:'start'});}
   if (tab === 'analytics' && vm.test) {renderAnalytics(vm);renderAligned();}
   if (tab === 'investigate' && vm.test) renderInvestigations(vm, explorer);
-  if (tab === 'report' && vm.test) renderReport(vm, snapshot);
+  if (tab === 'report' && vm.test) renderReport(vm, snapshot,rfReview.report());
   if (tab === 'replay' && vm.test) {
     map.update(vm, false);
     drawChart();
@@ -61,6 +67,7 @@ vm.listen(change => {
     }
     return;
   }
+  rfReview.sync();
   const {test, error} = vm;
   for(const button of document.querySelectorAll('[data-tab]')){
     button.disabled=!test;
@@ -83,7 +90,7 @@ vm.listen(change => {
     history.replaceState(null, '', url);
     explorer.page = 0;
   }
-  renderRouteContext();
+  renderRouteContext();if(vm.tab==='rf-results')$('route-context-panel').hidden=true;
   for(const button of document.querySelectorAll('[data-tab]'))button.disabled=!test;
   if (change !== 'comparison') {
     renderHeading(vm);
@@ -99,7 +106,7 @@ vm.listen(change => {
     renderAligned();
     if (focused) $('baseline')?.focus();
   }
-  if (vm.tab === 'report') renderReport(vm, snapshot);
+  if (vm.tab === 'report') renderReport(vm, snapshot,rfReview.report());
   if (vm.tab === 'investigate') renderInvestigations(vm, explorer);
 });
 
@@ -200,7 +207,7 @@ $('export').addEventListener('click', () => {
   download(`${vm.test.id}.csv`, lines.join('\r\n') + '\r\n');
 });
 $('package').addEventListener('click', () => {
-  download(`${vm.test.id}-analysis.json`, JSON.stringify(analysisPackage(vm), null, 2) + '\n', 'application/json');
+  download(`${vm.test.id}-analysis.json`, JSON.stringify({...analysisPackage(vm),rfReview:rfReview.export()}, null, 2) + '\n', 'application/json');
 });
 $('template').addEventListener('click', () => {
   download('drive-test-dm-template.csv', header.join(',') + '\r\n' +
@@ -380,4 +387,4 @@ const experiments=bindExperiments({api,clock:{set:(callback,delay)=>setTimeout(c
 });
 await experiments.load(vm.catalog.tasks?.length?vm.catalog:undefined);
 if(query.get('experiment'))await experiments.open(query.get('experiment'));
-window.addEventListener('pagehide',()=>{leaving=true;api.disposeRequests();vm.stop();experiments.dispose();});
+window.addEventListener('pagehide',()=>{leaving=true;rfReview.dispose();api.disposeRequests();vm.stop();experiments.dispose();});

@@ -9,9 +9,11 @@ const coord = row => [row.longitude, Math.max(-85, Math.min(85, row.latitude))];
 export function makeMap(canvas, live, mode, status, attribution, scale, controls, onPick) {
   let rows = [], state, snapshot, scene, background, map, activeMode, pixelRatio, generation = 0;
   const view = {zoom: 1, x: 0, y: 0};
+  live.setAttribute('role','region');if(!live.hasAttribute('aria-label'))live.setAttribute('aria-label','Interactive drive trace map');
   const [zoomIn, zoomOut] = controls.querySelectorAll('button');
-  let drag, drawFrame;
+  let drag, drawFrame,rfMarkers=[];
   const setStatus = text => { status.textContent = text; status.hidden = !text; };
+  const boundsRows=()=>{const sites=state?.rfBounds||state?.rfSites;return sites?.length?[...rows,...sites.map(s=>({longitude:s.coordinates[0],latitude:s.coordinates[1]}))]:rows;};
 
   function fallback() {
     if (!state || !canvas.clientWidth) return;
@@ -24,6 +26,7 @@ export function makeMap(canvas, live, mode, status, attribution, scale, controls
       rows, snapshot: mode.value === 'snapshot' ? snapshot : null, metric: state.metric,
       limits: state.limits, gap: state.gap, events: state.analysis.events.filter(event => state.rat === 'all' || event.row.rat === state.rat),
       view,
+      boundsRows:boundsRows(),colorFor:state.colorFor,
     });
     const planned=state.test?.context?.route?.coordinates;
     if(planned?.length){
@@ -31,6 +34,8 @@ export function makeMap(canvas, live, mode, status, attribution, scale, controls
       planned.forEach(([longitude,latitude],i)=>{const pixel=scene.project({longitude,latitude});if(pixel)i?backing.lineTo(...pixel):backing.moveTo(...pixel);});
       backing.stroke();backing.restore();
     }
+    for(const link of state.rfLinks||[]){const a=scene.project({longitude:link.coordinates[0][0],latitude:link.coordinates[0][1]}),b=scene.project({longitude:link.coordinates[1][0],latitude:link.coordinates[1][1]});if(!a||!b)continue;backing.save();backing.strokeStyle=link.color;backing.lineWidth=1.5;backing.setLineDash([4,4]);backing.beginPath();backing.moveTo(...a);backing.lineTo(...b);backing.stroke();backing.restore();}
+    for(const site of state.rfSites||[]){const pixel=scene.project({longitude:site.coordinates[0],latitude:site.coordinates[1]});if(!pixel)continue;const [x,y]=pixel;backing.save();backing.fillStyle=site.color;backing.strokeStyle='white';backing.lineWidth=2;backing.beginPath();backing.arc(x,y,7,0,2*Math.PI);backing.fill();backing.stroke();backing.font='bold 11px sans-serif';const label=site.label.length>44?site.label.slice(0,41)+'…':site.label,w=backing.measureText(label).width,lx=Math.max(5,Math.min(width-w-9,x+10)),ly=Math.max(18,y-10);backing.fillStyle='#ffffffed';backing.fillRect(lx-3,ly-12,w+6,17);backing.fillStyle='#183c30';backing.textAlign='left';backing.fillText(label,lx,ly);backing.restore();}
     const hasTrace = Boolean(scene.scale);
     zoomIn.disabled = !hasTrace || view.zoom >= 8;
     zoomOut.disabled = !hasTrace || view.zoom <= .5;
@@ -60,13 +65,15 @@ export function makeMap(canvas, live, mode, status, attribution, scale, controls
     }
     const bounds = new maplibregl.LngLatBounds();
     const anchor = rows.find(FIX)?.longitude;
-    for (const row of rows) {
+    for (const row of boundsRows()) {
       if (FIX(row)) {
         const [lng, lat] = coord(row);
         bounds.extend([anchor + ((lng - anchor + 540) % 360) - 180, lat]);
       }
     }
-    if (!bounds.isEmpty()) map.fitBounds(bounds, {padding: 40, maxZoom: 17, duration: 0});
+    const sidePadding=Math.min(125,map.getContainer().clientWidth*.38);
+    const padding=state?.rfBounds?.length?{top:45,bottom:45,left:sidePadding,right:sidePadding}:40;
+    if (!bounds.isEmpty()) map.fitBounds(bounds, {padding, maxZoom: 17, duration: 0});
   }
 
   function overlays() {
@@ -78,12 +85,15 @@ export function makeMap(canvas, live, mode, status, attribution, scale, controls
     map.getSource('trace').setData({type: 'FeatureCollection', features: segments.filter(segment => segment.length >= 2)
       .map(segment => line(segment.map(coord)))});
     source.setData({type: 'FeatureCollection', features: rows.flatMap((row, i) => FIX(row) ?
-      [point(coord(row), {index: i, color: observationColor(row, state.metric, state.limits)})] : [])});
+      [point(coord(row), {index: i, color:state.colorFor?state.colorFor(row):observationColor(row, state.metric, state.limits)})] : [])});
+    map.getSource('rf-links')?.setData({type:'FeatureCollection',features:(state.rfLinks||[]).map(link=>({...line(link.coordinates),properties:{color:link.color}}))});
+    rfMarkers.forEach(marker=>marker.remove());rfMarkers=[];for(const site of state.rfSites||[]){const label=document.createElement('div');label.className='rf-frozen-site';label.textContent=site.label;label.title=site.label;label.style.borderColor=site.color;rfMarkers.push(new maplibregl.Marker({element:label,anchor:'bottom',offset:[0,-7]}).setLngLat(site.coordinates).addTo(map));}
     cursor();
   }
 
   function useFallback(text) {
     generation++;
+    rfMarkers.forEach(marker=>marker.remove());rfMarkers=[];
     map?.remove();
     map = null;
     activeMode = 'fallback';
@@ -127,6 +137,8 @@ export function makeMap(canvas, live, mode, status, attribution, scale, controls
         instance.addLayer({id:'planned-route',type:'line',source:'planned-route',paint:{'line-color':'#884b9c','line-width':3,'line-dasharray':[3,2]}});
         instance.addSource('observations', {type: 'geojson', data: EMPTY});
         instance.addSource('cursor', {type: 'geojson', data: EMPTY});
+        instance.addSource('rf-links',{type:'geojson',data:EMPTY});
+        instance.addLayer({id:'rf-links',type:'line',source:'rf-links',paint:{'line-color':['get','color'],'line-width':1.5,'line-dasharray':[2,2]}});
         instance.addLayer({id: 'trace', type: 'line', source: 'trace', paint: {'line-color': '#647a91', 'line-width': 3}});
         instance.addLayer({id: 'observations', type: 'circle', source: 'observations',
           paint: {'circle-color': ['get', 'color'], 'circle-radius': 3}});

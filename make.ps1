@@ -105,6 +105,8 @@ $javascriptTests = @(
     'tests/unit/test-dm-analytics.mjs'
     'tests/unit/test-dm-view-model.mjs'
     'tests/unit/test-drive-model-parity.mjs'
+    'tests/unit/test-rf-review-model.mjs'
+    'tests/unit/test-rf-review-view-model.mjs'
     'tests/unit/test-scenario-run-view-model.mjs'
     'tests/unit/test-scenario-comparison-view-model.mjs'
     'tests/unit/test-scenario-comparison-format.mjs'
@@ -196,7 +198,7 @@ $syntaxFiles = @(
     'dist/scenario-view-model.mjs'
     'dist/street-detail.mjs'
 )
-$pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"
+$pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py', 'tests/fixtures/rf-review-vectors.py')]"
 
 $originalPython = $env:PYTHON
 Push-Location $root

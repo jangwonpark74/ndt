@@ -24,6 +24,7 @@
       <button id="setup-open" type="button">Test setup</button>
       <button data-tab="replay" aria-current="page">Replay</button>
       <button data-tab="analytics">KPI analytics</button>
+      <button data-tab="rf-results">RF results</button>
       <button data-tab="investigate">Investigate</button>
       <button data-tab="report">Test report</button>
     </nav>
@@ -86,7 +87,7 @@
             <h2 id="run-title"></h2>
             <p id="run-context"></p>
           </div>
-          <div class="filters" aria-label="Analysis filters">
+          <div id="analysis-controls" class="filters" aria-label="Analysis filters">
             <label>Radio technology<select id="rat"><option value="all">LTE + NR</option><option value="LTE">4G LTE</option><option value="NR">5G NR</option></select></label>
             <label>Metric<select id="metric"></select></label>
             <button id="rules" aria-haspopup="dialog">Thresholds</button>
@@ -150,6 +151,7 @@
             </section>
           </div>
         </div>
+        <section id="rf-results" hidden></section>
         <section id="analytics" hidden></section>
         <section id="investigate" class="investigate" hidden>
           <section class="panel">

@@ -30,6 +30,14 @@ Prediction uses center-frequency linear-power interpolation with complete occupi
 
 This is a custom scalar model format, not a 3GPP pattern exchange specification or complete antenna/channel conformance. The UMa basis remains pinned to TR 38.901. A measured/vendor-simulated pattern label is an unverified source claim; numerical qualification is explicitly separate. Receiver polarization, coherent inter-port phases, MIMO and measured field accuracy remain outside this implementation.
 
+## Frozen RF result review implementation
+
+The dedicated **RF results** workspace now replays all contributors under the frozen v1-v5 engine, verifies recorded strongest power/serving identity, and provides selected cell/site or port overlays on offline/live maps. Frozen site labels and geometric connectors support exact observation review. Concise cards precede expandable both-side domain summaries and paginated path calculations. Current/reference IDs remain visible; large inventories have bounded search controls. This keeps detailed diagnostics out of the map-side inventory inspector.
+
+Paired A/B deltas require the same experiment, snapshot, speed case, route, RAT and exact observation grid. Assignment changes remain explicit; unsupported samples stay unavailable. Valid published members of a comparison that failed acceptance remain inspectable without changing acceptance. Sensitivity is blank by default; optional symmetric 0-30 dB user assumptions use twice the half-width for a conservative delta bound, with no confidence, calibration or error-cancellation claim. Counts describe samples rather than coverage.
+
+An owned module worker supplies progress, cancellation, source-byte/qualification verification and guards against stale run/reference/target messages. Full JSON retains all samples and both frozen source contexts; Test report contains a concise optional summary. The review writes no planning or test state. The numerical/receiver/terrain/interference limitations of the underlying models remain in force.
+
 ## Remaining enhancement plan
 
 | Priority | Next work | Acceptance criteria and evidence needed |
@@ -39,13 +47,34 @@ This is a custom scalar model format, not a 3GPP pattern exchange specification 
 | P1 | Field-data compatibility and calibration workflow | Accept real operator captures with compatible metric definitions, carrier/time/route identity and observation quality. Produce chronological/site-separated holdout evaluation and residuals by band/environment. Do not fit synthetic/license data as measured accuracy. |
 | P2 | Terrain, buildings and clutter | Specify coordinate/height datum, terrain resolution, obstruction/clutter provenance and propagation domains. Validate independent known paths and holdout measurements before coverage maps or optimization use them. |
 | P2 | Reference-signal and interference models | Define LTE/NR resource/power mapping and co-channel activity/load before RSRP/SS-RSRP or SINR. Reject incompatible metric comparisons and disclose missing neighbor/channel data. |
-| P2 | RF result map and comparison workflow | Add selected-cell/path-aware result overlays, uncertainty and unsupported-domain summaries using the frozen model. Keep normal inspection concise; put full diagnostics in details/exports. |
 | P3 | Constrained optimization | Introduce explicit objective, demand, allowed changes, power/hardware constraints and uncertainty only after the applicable model is validated. Require reviewable proposed changes and reproducible before/after evidence. |
 | P3 | Operational twin freshness | Connect operator configuration/telemetry with observation and retrieval timestamps, versioned identity and stale/missing-state handling. Delayed data must never appear as verified current operation. |
 
 Real equipment/pattern files and compatible measured captures/endpoints were requested earlier and remain unavailable in the local application. Software workflow and model validation can progress; field calibration, verified deployment and operational freshness require those inputs. The local registry contains existing simulated/synthetic demonstrations, not a measured network validation set.
 
-## Current validation checkpoint
+## Current RF result validation checkpoint
+
+The workbook and both Typst registers contain **192 matching features**, adding RF-23 frozen cell/port overlays, RF-24 paired domain/sensitivity diagnostics and RF-25 responsive worker/evidence review. All 189 existing review-status/note pairs are preserved. Both Typst documents compile; every changed workbook/register row, new design section, desktop/phone map and printed RF summary has been rendered and visually inspected.
+
+Model and ViewModel red/green tests cover the five frozen engines against 14 canonical Python member runs, including deep-null output gating and paired RAT-assignment membership changes. They verify complete-cell versus standalone-port status, exact paired grids, both-side unsupported reasons, replay/source-hash refusal, explicit sensitivity, cancellation, source changes and late replies. The full core check passes with the existing MVVM dependency guard retained; lightweight summary arithmetic is separated from worker physics.
+
+All **118 distinct cases per browser** are covered: 114 controlled workflows and four separately enabled live-provider cases. No automatic retries or accessibility exclusions are enabled.
+
+| Browser | Complete controlled suite | Separate live-provider suite |
+|---|---|---|
+| Chromium | 114 passed, 4 opt-in skips (13.5m) | 4 passed (33.7s) |
+| Firefox | 114 passed, 4 opt-in skips (8.2m) | 4 passed (18.1s) |
+| Webkit | 114 passed, 4 opt-in skips (9.6m) | 4 passed (17.7s) |
+
+The Chromium full suite preceded the final RF-only live-map sizing/label-fit corrections. All five affected RF workflows then passed on the final source (26.2s); the complete Firefox/WebKit suites include those corrections. The existing replay sizing and fit behavior retain their defaults.
+
+Visual review first exposed a zero-height RF live-map container despite existing marker DOM nodes, then a clipped phone label. New assertions reproduce both failures and verify map/canvas dimensions plus complete label bounds after Fit at 320/390/768/1440 px. Final screenshots show the route, selected observation and frozen label. A native WebKit direct-click regression also reproduced input-blur rendering that replaced pressed button text; unchanged labels are now retained without adding an extra user action.
+
+The five RF browser workflows exercise LTE/NR frozen source use after inventory replacement, cell-incomplete paths, valid paired deltas, sensitivity and full JSON/report export, worker cancellation with a held late script response, incompatible/unreadable reference recovery and all 100000 observations with UI responsiveness. Source-grid and legacy physics remain uncalibrated planning power; software verification is not measured network accuracy.
+
+Before publication, the actual local registry baseline contains six captures (four simulated, two synthetic, zero measured), two completed jobs, zero active jobs and nine projects with no operator equipment imports or saved scenarios. Disposable test fixtures supply the equipment/model workflows; no demonstration is presented as verified deployment. Publication is followed by a separate read-only check of the running viewer and registry identity.
+
+## Previous source-pattern validation checkpoint
 
 The required feature inventory and both Typst registers contain **189 matching features**, including RF-20 scalar-model qualification, RF-21 frozen prediction and RF-22 model evidence review/reporting. All 186 previously recorded review-status/note pairs are preserved. Both Typst documents compile; changed workbook rows, new document sections, mobile/desktop dialogs and the model report have been rendered and visually inspected.
 

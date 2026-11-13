@@ -52,7 +52,10 @@ export function bindExperiments({api,clock,scope,openRun,download,onContext}) {
       `${route.name} · ${fmt(preview.distanceKm,3)} km · ${route.roadFit==='fitted'?'Legacy road fit, accuracy unverified':'Provisional path'} · ${preview.runCount} runs · about ${preview.observationCount.toLocaleString()} observations`;
     const running=current&&['queued','running'].includes(current.status);
     $('execution-submit').disabled=busy||running||!route||!cases.length||!transmitters.length||!!issue;
-    $('execution-submit').textContent=state.submitting?'Submitting…':comparing?'Run scenario comparison':state.draft.experiment_type==='parameter-ab'?'Run A/B experiment':'Run virtual drive';
+    const submitLabel=state.submitting?'Submitting…':comparing?'Run scenario comparison':state.draft.experiment_type==='parameter-ab'?'Run A/B experiment':'Run virtual drive';
+    // Retain the pressed button contents when an input blur emits a render.
+    // Replacing them between pointerdown/up suppresses WebKit's native click.
+    if($('execution-submit').textContent!==submitLabel)$('execution-submit').textContent=submitLabel;
     $('execution-power-b').disabled=state.draft.experiment_type!=='parameter-ab';
     for(const id of ['execution-power-b-field','execution-transmitter-field'])$(id).hidden=comparing;
     $('execution-transmitter').disabled=comparing || busy;

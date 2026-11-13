@@ -55,6 +55,8 @@ test:
 	cd ndt && $(NODE) tests/unit/test-dm-analytics.mjs
 	cd ndt && $(NODE) tests/unit/test-dm-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-drive-model-parity.mjs
+	cd ndt && $(NODE) tests/unit/test-rf-review-model.mjs
+	cd ndt && $(NODE) tests/unit/test-rf-review-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-run-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-comparison-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-comparison-format.mjs
@@ -147,4 +149,4 @@ check: test
 	cd ndt && $(NODE) --check dist/equipment-view.mjs
 	cd ndt && $(NODE) --check dist/scenario-view-model.mjs
 	cd ndt && $(NODE) --check dist/street-detail.mjs
-	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py')]"
+	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py', 'tests/fixtures/rf-review-vectors.py')]"

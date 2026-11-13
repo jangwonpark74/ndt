@@ -26,8 +26,8 @@ export function extent(rows) {
   return {anchor, left, right, low, high};
 }
 
-export function drawRoute(ctx, width, height, {rows, snapshot, metric, limits, gap, events = [], view = {zoom: 1, x: 0, y: 0}}) {
-  const {anchor, left, right, low, high} = extent(rows);
+export function drawRoute(ctx, width, height, {rows, snapshot, metric, limits, gap, events = [], view = {zoom: 1, x: 0, y: 0},boundsRows=rows,colorFor=null}) {
+  const {anchor, left, right, low, high} = extent(boundsRows);
   ctx.fillStyle = snapshot ? '#e8edeb' : '#edf3f6';
   ctx.fillRect(0, 0, width, height);
   if (!Number.isFinite(left)) {
@@ -106,7 +106,7 @@ export function drawRoute(ctx, width, height, {rows, snapshot, metric, limits, g
   for (const alert of [false, true]) {
     for (const row of rows) {
       if (!FIX(row)) continue;
-      const color = observationColor(row, metric, limits);
+      const color = colorFor?colorFor(row):observationColor(row, metric, limits);
       if ((color === ALERT_COLOR) !== alert) continue;
       ctx.fillStyle = color; ctx.beginPath(); ctx.arc(...project(row), alert ? 3.5 : 2.6, 0, Math.PI * 2); ctx.fill();
     }
