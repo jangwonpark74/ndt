@@ -36,7 +36,7 @@ export function createTaskTableView({viewModel,openTask,driveTestUrl}) {
         const inputs={};
         if (active) {
           const suffix=entry.key===NEW?'new task':entry.key;
-          inputs.id=field(`Task ID for ${suffix}`,state.draft.id);inputs.id.required=true;inputs.id.maxLength=64;inputs.id.pattern='[A-Za-z0-9_-]+';
+          inputs.id=field(`Task ID for ${suffix}`,state.draft.id);inputs.id.required=true;inputs.id.maxLength=64;inputs.id.pattern='[A-Za-z0-9_\\-]+';
           inputs.name=field(`Task name for ${suffix}`,state.draft.name);inputs.name.required=true;inputs.name.maxLength=120;
           inputs.speedCases=field(`Drive speeds (km/h) for ${suffix}`,state.speedText);inputs.speedCases.placeholder='20, 40, 60';inputs.speedCases.maxLength=1000;
           for (const [property,input] of Object.entries(inputs)) input.oninput=()=>property==='speedCases'?viewModel.editSpeeds(input.value):viewModel.edit({[property]:input.value});

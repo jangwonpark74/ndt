@@ -241,14 +241,14 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
   await page.reload();
   await expect(page.locator('#network-status')).toContainText('In view:', {timeout:20000});
   const snapshot = () => page.evaluate(() => ({boundary:window.testMap.getSource('project-coverage')._data, sites:window.testMap.getSource('project-sites')._data}));
-  await expect.poll(async () => (await snapshot()).boundary.features.length).toBe(4);
-  expect((await snapshot()).boundary.features.map(f=>f.properties.project_id).sort()).toEqual(['etobicoke','harbourfront','northyork','scarborough']);
+  await expect.poll(async () => (await snapshot()).boundary.features.map(f=>f.properties.project_id).sort()).toEqual(['etobicoke','harbourfront','northyork','scarborough']);
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
   await expect(page.locator('#project-status')).toContainText('7 Bell locations');
   await expect(page.locator('#project-sites li')).toHaveCount(7);
   await expect.poll(async () => (await snapshot()).sites.features.length).toBe(7);
   await expect.poll(() => page.evaluate(() => !window.testMap.isMoving()),{timeout:15000}).toBe(true);
-  const initial = await snapshot();
+  let initial;
+  await expect.poll(async () => {initial=await snapshot();return {projects:initial.boundary.features.map(f=>f.properties.project_id).sort(),sites:initial.sites.features.length};}).toEqual({projects:['etobicoke','harbourfront','northyork','scarborough'],sites:7});
   expect(initial.boundary.features).toHaveLength(4);
   expect(initial.boundary.features.every(f=>f.geometry.type === 'Polygon' && f.geometry.coordinates.length === 1)).toBe(true);
   expect(await page.evaluate(() => window.testMap.getPaintProperty('project-boundary','line-width'))).toBe(4);
@@ -259,15 +259,15 @@ test('Toronto projects outline seven full-radius sites and react to invalid assu
   await page.getByText('Map display and fan assumptions',{exact:true}).click();
   await page.getByLabel('Assumed EIRP (dBm)').fill('100');
   await expect(page.locator('#project-status')).toContainText('Boundary unavailable');
-  expect((await snapshot()).boundary.features).toHaveLength(0);
-  expect((await snapshot()).sites.features).toHaveLength(7);
+  await expect.poll(async () => (await snapshot()).boundary.features.length).toBe(0);
+  await expect.poll(async () => (await snapshot()).sites.features.length).toBe(7);
   await page.getByLabel('Assumed EIRP (dBm)').fill('46');
   await expect(page.locator('#project-status')).toContainText('7 Bell locations');
-  expect((await snapshot()).boundary.features).toHaveLength(4);
-  expect((await snapshot()).sites.features.map(f=>f.properties.site_id)).toEqual(initial.sites.features.map(f=>f.properties.site_id));
+  await expect.poll(async () => (await snapshot()).boundary.features.length).toBe(4);
+  await expect.poll(async () => (await snapshot()).sites.features.map(f=>f.properties.site_id)).toEqual(initial.sites.features.map(f=>f.properties.site_id));
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'North York'});
   await expect(page.locator('#project-title')).toHaveText('North York');
-  expect((await snapshot()).boundary.features).toHaveLength(4);
+  await expect.poll(async () => (await snapshot()).boundary.features.length).toBe(4);
 });
 
 test('New York projects disclose missing radio parameters', async ({ page }) => {

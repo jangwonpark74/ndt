@@ -24,6 +24,8 @@ On Windows 11, use PowerShell (uv and Node.js must be installed):
 
 The PowerShell `test-ui` target installs missing npm dependencies and the selected Playwright browser; downloads require network access. Set `NDT_BROWSER` to `chromium`, `firefox` or `webkit` (default: `chromium`). The test commands use uv-managed Python; `PYTHON` can select another interpreter for browser fixtures and JavaScript parity tests. Run `.\make.ps1 help` for all targets. Set `-HostAddress` or `-Port` for the server, for example `.\make.ps1 run -Port 5180`. `HOST`, `PORT`, `UV`, `NODE` and `UV_CACHE_DIR` environment variables are also supported.
 
+Playwright is temporarily pinned to 1.63.0 because 1.65.0 triggers a [confirmed Firefox ARIA reflection crash](https://github.com/microsoft/playwright/issues/43967). The 1.64.1 Firefox build also hangs on a blank-page viewport resize here. Keep the named-reference and resize regression passing when upgrading; no axe rules are disabled.
+
 ## Directory layout
 
 ```text

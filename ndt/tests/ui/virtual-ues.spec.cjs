@@ -85,7 +85,7 @@ for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:32
   await editor.click();
   await expect(page.getByRole('region',{name:'Virtual UE editor'})).toBeVisible();
   await expect(page.getByRole('button',{name:'New virtual UE'})).toBeEnabled();
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test('New York projects can store virtual UEs independently of Toronto',async({page})=>{

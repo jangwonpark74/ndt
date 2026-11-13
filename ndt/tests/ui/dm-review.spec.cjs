@@ -110,7 +110,7 @@ test('saved acceptance profiles, CDF, sample investigations and reproducible exp
   await expect(page.locator('#issue-count')).toHaveText('1 open · 0 resolved');
   for (const width of [1280, 768, 390]) {
     await page.setViewportSize({width, height: 900});
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    await expect.poll(()=>page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
   }
   await capture(page, 'investigate-mobile.png');
   expect(errors).toEqual([]);

@@ -71,7 +71,7 @@
       <button id="task-new" class="task-primary" type="button">New task</button>
       <form id="task-form" hidden>
         <div class="task-form-header"><h3>Task details</h3><span id="task-save-state"></span></div>
-        <label for="task-id">Task ID</label><input id="task-id" required maxlength="64" pattern="[A-Za-z0-9_-]+" autocomplete="off">
+        <label for="task-id">Task ID</label><input id="task-id" required maxlength="64" pattern="[A-Za-z0-9_\-]+" autocomplete="off">
         <label for="task-name">Task name</label><input id="task-name" required maxlength="120" autocomplete="off" placeholder="e.g. Morning drive test">
         <h3>Drive plan</h3>
         <label for="task-speed">Drive speeds (km/h)</label><input id="task-speed" type="text" maxlength="1000" placeholder="e.g. 20, 40, 60" aria-describedby="task-drive-note">

@@ -44,7 +44,7 @@ test('durable scenarios retain baseline/applied history and protect drafts from 
   await expect(page.locator('#scenario-history')).toContainText('Revision 1');
   await expect(page.locator('#scenario-history')).toContainText('Revision 2');
   const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze();expect(result.violations).toEqual([]);
-  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
   await page.setViewportSize({width:390,height:844});await page.locator('#scenario-picker').scrollIntoViewIfNeeded();
   await page.screenshot({path:'.cache/planning-docs/scenario-phone.png'});
 });

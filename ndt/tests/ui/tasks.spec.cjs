@@ -68,7 +68,7 @@ for (const viewport of [{width:390,height:844},{width:320,height:568}]) test(`ta
   await page.getByRole('button',{name:'Open project overview'}).click(); await expect(page.locator('#project-overview')).toBeFocused(); await expect(page.locator('#overview-task-status')).toContainText('Unsaved draft');
   await expect(page.locator('#project-status')).toContainText('Bell locations');
   const rect=await page.locator('#project-overview').boundingBox(); expect(rect.width).toBeCloseTo(viewport.width,0); expect(rect.y+rect.height).toBeCloseTo(viewport.height,0);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:joinTempPath(tmpdir(), `ndt-task-overview-${viewport.width}.png`)});
   await page.getByRole('button',{name:'Map task editor',exact:true}).click(); await expect(page.getByLabel('Task name',{exact:true})).toHaveValue('Phone route');
   await page.getByRole('button',{name:'Discard changes',exact:true}).click();
@@ -163,12 +163,6 @@ test('Overview manages tasks in a lower table and persists canonical database ro
   await table.getByRole('button',{name:'1 route',exact:true}).click();await expect(table.locator('.task-route-data')).toContainText('Yonge Street');await expect(table.locator('.task-route-data')).toContainText('Start Lat');
   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
   await page.screenshot({path:joinTempPath(tmpdir(), 'ndt-overview-table-desktop.png')});
-  for(const viewport of [{width:390,height:844},{width:320,height:568}]) {
-   await page.setViewportSize(viewport);const region=page.getByRole('region',{name:'Drive-task data table',exact:true});await region.scrollIntoViewIfNeeded();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-   await region.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>region.evaluate(element=>element.scrollLeft)).toBeGreaterThan(0);
-   await page.screenshot({path:joinTempPath(tmpdir(), `ndt-overview-table-${viewport.width}.png`)});
-  }
-  await page.setViewportSize({width:1440,height:900});
   await table.getByRole('button',{name:'Edit task',exact:true}).click();const name=page.getByRole('textbox',{name:'Task name for TABLE-1',exact:true});await name.fill('Retain failed draft');
   await page.route('**/projects/northyork/tasks',route=>route.request().method()==='PUT'?route.fulfill({status:503}):route.continue());await table.getByRole('button',{name:'Save',exact:true}).click();await expect(page.locator('#overview-task-error')).toContainText('draft is still available');await expect(name).toHaveValue('Retain failed draft');
   await page.unroute('**/projects/northyork/tasks');await table.getByRole('button',{name:'Cancel',exact:true}).click();await expect(table).toContainText('Table drive');
@@ -191,4 +185,38 @@ test('multiple speed cases compare the same saved route without copying or rerou
   await table.getByRole('button',{name:'Edit task',exact:true}).click();await speeds.fill('30, 30');expect(await speeds.evaluate(element=>element.validity.valid)).toBe(false);await table.getByRole('button',{name:'Cancel',exact:true}).click();
   await page.reload();await expect(page.locator('#loading')).toBeHidden();await select(page,'North York');await page.getByRole('button',{name:'MULTI · Same route comparison',exact:true}).click();await expect(input).toHaveValue('30, 60, 90');
  } finally {await page.request.put(endpoint,{data:original});}
+});
+
+
+test('Task ID validation rejects punctuation in both task editors',async({page})=>{
+ await select(page,'North York');await page.getByRole('button',{name:'New task',exact:true}).click();
+ const mapId=page.getByLabel('Task ID',{exact:true});await mapId.fill('invalid.id');
+ expect(await mapId.evaluate(input=>input.validity.patternMismatch)).toBe(true);
+ await mapId.fill('TASK_1-2');expect(await mapId.evaluate(input=>input.validity.valid)).toBe(true);
+ await page.getByRole('button',{name:'Discard changes',exact:true}).click();
+ await page.getByRole('button',{name:'Open project overview'}).click();
+ await page.locator('#project-overview').getByRole('button',{name:'New task',exact:true}).click();
+ const tableId=page.getByRole('textbox',{name:'Task ID for new task',exact:true});await tableId.fill('invalid.id');
+ expect(await tableId.evaluate(input=>input.validity.patternMismatch)).toBe(true);
+ await tableId.fill('TASK_1-2');expect(await tableId.evaluate(input=>input.validity.valid)).toBe(true);
+ await page.locator('#overview-task-rows').getByRole('button',{name:'Cancel',exact:true}).click();
+});
+
+
+for (const width of [390,320]) test.describe(`Overview task table at ${width}px`,()=>{
+ test.use({viewport:{width,height:844}});
+ test('route details remain readable and the table scrolls with the keyboard',async({page})=>{
+  const original=await(await page.request.get(endpoint)).json();
+  try {
+   await page.request.put(endpoint,{data:[{id:'PHONE-TABLE',name:'Phone table review',driveSpeedKmh:30,routes:[{id:'r1',name:'Yonge Street',coordinates:geojson.features[0].geometry.coordinates,roadFit:'fitted'}]}]});
+   await select(page,'North York');await page.getByRole('button',{name:'Open project overview'}).click();
+   await page.locator('#overview-task-rows').getByRole('button',{name:'1 route',exact:true}).click();
+   await expect(page.locator('.task-route-data')).toContainText('Start Lat');
+   const region=page.getByRole('region',{name:'Drive-task data table',exact:true});await region.scrollIntoViewIfNeeded();
+   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+   await region.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>region.evaluate(element=>element.scrollLeft)).toBeGreaterThan(0);
+   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
+   await page.screenshot({path:joinTempPath(tmpdir(),`ndt-overview-table-${width}.png`)});
+  } finally {await page.request.put(endpoint,{data:original});}
+ });
 });

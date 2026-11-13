@@ -40,7 +40,7 @@ test('operator equipment import previews, persists, traces ports and rejects bro
   await expect(page.locator('#equipment-error')).toContainText('missing-port');await expect(page.locator('#equipment-import')).toBeDisabled();
   expect((await (await request.get(endpoint)).json()).revision).toBe(1);
   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
-  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
   await page.setViewportSize({width:390,height:844});await page.locator('#equipment-error').scrollIntoViewIfNeeded();await expect(page.locator('#equipment-error')).toBeInViewport();await page.screenshot({path:'.cache/planning-docs/equipment-phone.png'});
 });
 

@@ -24,6 +24,6 @@ test('an applied qualified scenario drives frozen directional pairs, reports and
  await page.getByRole('button',{name:'Test report',exact:true}).click();await expect(page.locator('#report')).toContainText('Frozen directional templates');await expect(page.locator('#report')).toContainText('Route scenario / revision 1');
  if(browserName==='chromium')await page.pdf({path:'.cache/planning-docs/scenario-run-report.pdf',printBackground:true,preferCSSPageSize:true});
  expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
- for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+ for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
  await page.setViewportSize({width:390,height:844});await page.locator('#execution-scenario-status').scrollIntoViewIfNeeded();await page.screenshot({path:'.cache/planning-docs/scenario-run-phone.png'});
 });

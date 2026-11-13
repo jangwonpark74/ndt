@@ -68,7 +68,7 @@ test('project inventory opens site inspector and remains accessible at phone wid
   for(const width of [320,390,768,1440]) {
     await page.setViewportSize({width,height:844});
     const panel=await page.locator('#context-panel').boundingBox();expect(panel.x).toBeGreaterThanOrEqual(0);expect(panel.x+panel.width).toBeLessThanOrEqual(width);
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:'.cache/planning-docs/phone.png'});

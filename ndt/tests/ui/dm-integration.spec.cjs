@@ -112,7 +112,8 @@ test('workspace hierarchy is accessible and stays inside desktop, tablet and pho
   await expect(page.getByRole('button',{name:'Run A/B experiment'})).toBeEnabled();
   for(const width of [1440,1280,768,390,320]){
     await page.setViewportSize({width,height:900});
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(width);
+    await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth)).toBe(width);
+    expect(await page.evaluate(()=>{window.scrollTo(10000,0);return scrollX;})).toBe(0);
   }
   await page.setViewportSize({width:1280,height:900});
   expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze()).violations).toEqual([]);
@@ -120,4 +121,6 @@ test('workspace hierarchy is accessible and stays inside desktop, tablet and pho
   await page.screenshot({path:path.join(output,'setup-desktop.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.screenshot({path:path.join(output,'setup-mobile.png'),fullPage:true});
+  await page.emulateMedia({media:'print'});
+  expect(await page.locator('.shell').evaluate(element=>getComputedStyle(element).contain)).toBe('none');
 });

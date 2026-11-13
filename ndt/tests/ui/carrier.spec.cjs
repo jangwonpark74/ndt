@@ -21,7 +21,7 @@ test('carrier checks guide a valid channel, reject incompatible inputs and retai
  await expect(page.getByLabel('Check a supported 3GPP carrier')).toBeChecked();await expect(channel).toHaveValue('640000');await expect(page.locator('#carrier-check-status')).toContainText('n78');
  expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
  await page.screenshot({path:'.cache/planning-docs/carrier-desktop.png'});
- for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+ for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
  await page.setViewportSize({width:390,height:844});await page.locator('#carrier-controls').scrollIntoViewIfNeeded();await page.screenshot({path:'.cache/planning-docs/carrier-phone.png'});
  await channel.fill('640001');await expect(page.locator('#carrier-check-status')).toContainText('channel raster');await page.locator('#carrier-check-status').scrollIntoViewIfNeeded();await page.screenshot({path:'.cache/planning-docs/carrier-error-phone.png'});
  await page.locator('#template-preset').selectOption('lte');await expect(page.getByLabel('Check a supported 3GPP carrier')).not.toBeChecked();await page.getByLabel('Check a supported 3GPP carrier').check();

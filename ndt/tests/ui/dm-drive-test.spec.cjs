@@ -105,7 +105,7 @@ test('Test ID import, replay, analytics, report and responsive controls', async 
     assert.match(exported, /-91/);
 
     await page.setViewportSize({width: 390, height: 844});
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390);
+    await expect.poll(()=>page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
     await expect(page.locator('#route-canvas')).toBeVisible();
     if (!process.env.DM_LIVE_MAP) {
       await page.route('https://tiles.openfreemap.org/styles/liberty', route =>

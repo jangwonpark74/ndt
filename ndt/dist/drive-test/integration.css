@@ -1,5 +1,6 @@
 :root{--nav:var(--ndt-paper);--ink:var(--ndt-ink);--muted:var(--ndt-muted);--line:var(--ndt-line);--accent:var(--ndt-primary);--background:var(--ndt-background);font-family:var(--ndt-font)}
 h1,h2,h3{font-family:var(--ndt-heading)}
+.shell{contain:layout}
 .sidebar{color:var(--ink);border-right:1px solid var(--line);background:var(--ndt-paper)}
 .brand{font-size:17px}.brand small,.sidebar-foot,.sidebar-foot b{color:var(--muted)}.brand-mark{background:#dcebd5}.brand-mark i{background:var(--accent)}
 .planning-back{display:block;margin:22px 7px 12px;font-weight:700;color:var(--accent);text-decoration:none}.scope-label{font-size:11px;line-height:1.6;margin:0 7px;overflow-wrap:anywhere;color:var(--muted)}
@@ -12,4 +13,4 @@ h1,h2,h3{font-family:var(--ndt-heading)}
 .route-context{padding:12px 14px;margin:14px 0;display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;line-height:1.6}.route-context label{display:grid;gap:3px}.run-heading h2{font-size:28px;margin:8px 0;letter-spacing:-.04em}.run-heading{align-items:start}.filters{flex-shrink:1}.filters select{max-width:240px}#route-aligned-comparison{padding:16px;margin-top:14px}#route-aligned-comparison h3{margin-bottom:8px}#compare-aligned{margin-top:12px}.comparison-map{width:100%;height:210px;display:block;background:#f4f7f0;border:1px solid var(--line);border-radius:4px;margin-top:12px}.comparison-note{font-size:12px;line-height:1.6;margin:10px 0;color:var(--muted)}
 @media(max-width:1200px){.execution-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.route-context{align-items:start;flex-direction:column}}
 @media(max-width:610px){.nav{grid-template-columns:repeat(3,minmax(0,1fr))}.scope-label{margin-bottom:12px}.planning-back{margin:12px 7px}.execution-panel{padding:12px}.execution-grid{grid-template-columns:minmax(0,1fr)}.execution-grid .wide{grid-column:auto}.execution-panel summary span{display:block;margin:6px 0 0}.workspace-intro h1{font-size:25px}.filters{max-width:100%}.filters label{min-width:0;flex:1}.filters select{width:100%;max-width:100%}.execution-actions button{flex:1}#execution-results>button{font-size:12px}.actions{justify-content:start}.topbar{gap:10px}.route-context .actions{width:100%}#execution-progress{line-height:1.6}}
-@media print{.workspace-intro,.execution-panel,.route-context{display:none!important}}
+@media print{.shell{contain:none}.workspace-intro,.execution-panel,.route-context{display:none!important}}
