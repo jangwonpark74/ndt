@@ -85,6 +85,7 @@ $javascriptTests = @(
     'tests/unit/test-carrier-plan.mjs'
     'tests/unit/test-scenario-view-model.mjs'
     'tests/unit/test-equipment-view-model.mjs'
+    'tests/unit/test-inventory-cluster-view-model.mjs'
     'tests/unit/test-fixture-cleanup.cjs'
     'tests/unit/test-project-coverage.mjs'
     'tests/unit/test-tasks.mjs'
@@ -116,6 +117,7 @@ $pythonTests = @(
     'tests/python/test-dm-model.py'
     'tests/python/test-drive-integration.py'
     'tests/python/test-directional-radio.py'
+    'tests/python/test-inventory-clusters.py'
     'tests/python/test-drive-http.py'
 )
 $syntaxFiles = @(

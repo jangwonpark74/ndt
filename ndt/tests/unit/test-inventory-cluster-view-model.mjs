@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {createInventoryClusterViewModel,inventoryRows,clusterBounds} from '../../dist/inventory-cluster-view-model.mjs';
+let body,resolveOld;
+const saved={revision:1,currentSourceFingerprint:'source',sourceFingerprint:'source',clusters:[{id:'a',name:'A',siteIds:['one']}],missingSiteIds:[]};
+const vm=createInventoryClusterViewModel({load:async()=>saved,save:async(project,value)=>{body=value;return {...saved,revision:2,clusters:value.clusters};}});
+await vm.load('project');vm.rename('a','North');vm.toggle('a','two');await vm.save();assert.equal(body.expectedRevision,1);assert.deepEqual(body.clusters[0].siteIds,['one','two']);assert.equal(vm.getState().dirty,false);
+vm.add('b','South');assert.throws(()=>vm.add('c','south'));vm.remove('b');assert.equal(vm.getState().draft.length,1);
+vm.removeMissing(new Set(['one']));assert.deepEqual(vm.getState().draft[0].siteIds,['two']);
+const stale=createInventoryClusterViewModel({load:project=>project==='old'?new Promise(r=>resolveOld=r):Promise.resolve(saved),save:async()=>{throw Error('changed elsewhere');}});
+const old=stale.load('old');await stale.load('new');resolveOld({...saved,revision:9});await old;assert.equal(stale.getState().projectId,'new');assert.equal(stale.getState().saved.revision,1);
+stale.rename('a','Retained');await assert.rejects(stale.save());assert.equal(stale.getState().draft[0].name,'Retained');await stale.load('other');await stale.load('new');assert.equal(stale.getState().draft[0].name,'Retained');assert.equal(stale.getState().expectedRevision,1);stale.useSaved();assert.equal(stale.getState().draft[0].name,'A');
+let finishSave;const racing=createInventoryClusterViewModel({load:async()=>saved,save:()=>new Promise(r=>finishSave=r)});
+await racing.load('one');racing.rename('a','Submitted');const pending=racing.save();await racing.load('two');await racing.load('one');racing.rename('a','New draft');await racing.load('two');finishSave({...saved,revision:2});await pending;await racing.load('one');assert.equal(racing.getState().draft[0].name,'New draft');
+const sites=[{properties:{site_id:'one',provider:'Bell',technologies:{LTE:2},locations:['West road']},geometry:{coordinates:[-79,43]}},{properties:{site_id:'two',technologies:{'5GNR':1},locations:['East road']},geometry:{coordinates:[-78,44]}}];
+assert.equal(inventoryRows(sites,{query:'west',rat:'LTE'}).length,1);assert.equal(inventoryRows(sites,{rat:'NR'})[0].properties.site_id,'two');assert.equal(inventoryRows(sites,{members:new Set(['one']),membership:'members'})[0].properties.site_id,'one');assert.deepEqual(clusterBounds(sites),[[-79,43],[-78,44]]);assert.equal(clusterBounds([]),null);
+console.log('Cluster drafts, stale replies, conflict recovery, filtering and bounds passed.');

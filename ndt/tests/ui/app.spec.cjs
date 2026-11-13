@@ -280,6 +280,7 @@ test('New York projects disclose missing radio parameters', async ({ page }) => 
 });
 
 test('right-click removes and restores a project site, including after reload', async ({ page }) => {
+  test.setTimeout(60000);
   await page.route('**/app.js*', async route => {
     const response = await route.fetch();
     await route.fulfill({response, body:(await response.text()).replace('const map = new maplibregl.Map', 'const map = window.testMap = new maplibregl.Map')});

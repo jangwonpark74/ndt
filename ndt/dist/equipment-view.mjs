@@ -3,7 +3,7 @@ import {createEquipmentViewModel} from './equipment-view-model.mjs';
 
 export function bindEquipmentView({regionId,getProject}){
   const $=id=>document.getElementById(id),model=createEquipmentModel(regionId),vm=createEquipmentViewModel(model);
-  let reservation=null;
+  let reservation=null,renderedInventory=null,renderedProject=null;
   const element=(tag,text,className)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;};
   const value=(v,unit='')=>v===null || v===undefined ? 'Not reported' : `${v}${unit}`;
   function download(raw,name){const link=element('a');link.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);}
@@ -66,14 +66,15 @@ export function bindEquipmentView({regionId,getProject}){
     $('equipment-status').textContent=state.busy ? 'Loading or validating equipment...' : !state.projectId ? 'Select a project to review its equipment inventory.' : state.inventory ? `Revision ${state.inventory.revision} · ${counts.sites.length} sites · ${counts.cells.length} cells · ${counts.radios.length} radios · ${counts.antennas.length} antennas` : 'No operator equipment has been imported for this project.';
     const preview=$('equipment-preview');preview.replaceChildren();preview.hidden=!state.preview;
     if(state.preview){preview.append(element('strong',state.fileName),element('p',Object.entries(state.preview.counts).map(([key,count])=>`${count} ${key}`).join(' · ')));if(state.preview.unlinkedCells)preview.append(element('p',`${state.preview.unlinkedCells} cells have no mapped antenna connection.`));const hash=element('p',`Source SHA-256: ${state.preview.sha256.slice(0,16)}...`);hash.title=state.preview.sha256;preview.append(hash);}
-    $('equipment-history').replaceChildren();for(const version of state.inventory?.history || []){const li=element('li'),button=element('button',`Download revision ${version.revision}`);button.type='button';button.onclick=async()=>{try{const saved=await model.load(state.projectId,version.revision);download(saved.raw,`equipment-revision-${version.revision}.json`);}catch(error){vm.fail(error.message);}};li.append(button,element('span',` ${new Date(version.importedAt).toLocaleString()}`));$('equipment-history').append(li);}
-    if(reservation && regionId==='new-york')renderSite($('nyc-detail'),reservation);
-    document.dispatchEvent(new CustomEvent('equipmentinventorychange'));
+    $('equipment-history').replaceChildren();for(const version of state.inventory?.history || []){const li=element('li'),button=element('button',`Download revision ${version.revision}`);button.type='button';button.onclick=async()=>{const token=vm.getState();try{const saved=await model.load(state.projectId,version.revision);download(saved.raw,`equipment-revision-${version.revision}.json`);}catch(error){if(vm.getState()===token)vm.fail(error.message);}};li.append(button,element('span',` ${new Date(version.importedAt).toLocaleString()}`));$('equipment-history').append(li);}
+    if(renderedProject!==state.projectId){$('equipment-file').value='';renderedProject=state.projectId;}
+    if(renderedInventory!==state.inventory){renderedInventory=state.inventory;if(reservation && regionId==='new-york')renderSite($('nyc-detail'),reservation);document.dispatchEvent(new CustomEvent('equipmentinventorychange'));}
   });
   $('equipment-file').onchange=async event=>{
-    const file=event.target.files[0],project=vm.getState().projectId;if(!file)return;
-    try{if(file.size>2000000)throw Error('Select a UTF-8 equipment JSON file up to 2 MB.');const raw=new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(await file.arrayBuffer());if(vm.getState().projectId===project)await vm.preview(raw,file.name);}
-    catch(error){vm.fail(error instanceof TypeError ? 'Equipment file must use UTF-8 text encoding.' : error.message);}
+    const file=event.target.files[0];if(!file)return;
+    const token=vm.stageFile(file.name);
+    try{if(file.size>2000000)throw Error('Select a UTF-8 equipment JSON file up to 2 MB.');const raw=new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(await file.arrayBuffer());if(vm.getState()===token)await vm.preview(raw,file.name);}
+    catch(error){if(vm.getState()===token)vm.fail(error instanceof TypeError ? 'Equipment file must use UTF-8 text encoding.' : error.message);}
   };
   $('equipment-reload').onclick=()=>vm.load(getProject()?.id || null).catch(()=>{});
   $('equipment-repreview').onclick=()=>vm.preview(vm.getState().raw,vm.getState().fileName).catch(()=>{});

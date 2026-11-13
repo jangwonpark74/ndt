@@ -9,12 +9,14 @@ import {bindPlanningView} from './planning-view.mjs';
 import {createPlanningLabels} from './planning-label-view.mjs';
 import {bindEquipmentView} from './equipment-view.mjs';
 
-export function createNetworkView({map, region, projectViewModel, viewModel:networkViewModel, projectView, setLayers, getNetworkLayer, emptyFeatures}) {
+export function createNetworkView({map, region, projectViewModel, viewModel:networkViewModel, projectView, inventoryReview, setLayers, getNetworkLayer, emptyFeatures}) {
 const $ = id => document.getElementById(id);
 let networkListSignature = null;
 const labels=createPlanningLabels({map,onSelect:site=>selectNetwork(site),getSites:()=>{const s=networkViewModel.getState();return (s.features || []).filter(f=>f.properties.provider === 'Bell' ? s.bell : s.telus);},
   getSelected:()=>networkViewModel.getState().selected,getProjects:()=>region.projects,
-  getProjectData:()=>projectViewModel.getState().data,getActiveProject:()=>projectViewModel.getState().selected});
+  getProjectData:()=>projectViewModel.getState().data,getActiveProject:()=>projectViewModel.getState().selected,
+  getInventoryGroups:()=>inventoryReview.groups(),getInventorySites:()=>networkViewModel.getState().features || []});
+document.addEventListener('inventorygroupschange',()=>{labels.refresh();const selected=networkViewModel.getState().selected;if(selected)renderSiteDetail(selected);});
 bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected,getSelectedSite:()=>networkViewModel.getState().selected});
 const equipment=bindEquipmentView({regionId:region.id,getProject:()=>projectViewModel.getState().selected});
 document.addEventListener('equipmentinventorychange',()=>{const site=networkViewModel.getState().selected;if(site)renderSiteDetail(site);});
@@ -141,7 +143,9 @@ function renderSiteDetail(feature) {
   const location=document.createElement('p');location.className='site-address';location.textContent=siteLocations(feature).join(' / ') || 'Location not reported';detail.append(location);
   const memberships=region.projects.filter(project=>projectViewModel.getState().data?.clusters.get(project.id)?.some(site=>site.properties.site_id === p.site_id));
   const summary=document.createElement('dl');summary.className='site-facts';
-  const fields=[['Licensee',p.licensees.join(', ')],['Reported RATs',Object.keys(p.technologies).join(', ') || 'Not reported'],['Licensed records',p.record_count.toLocaleString()],['Tower height',height === null ? 'Not reported' : `${height} m`],['Project / cluster',memberships.map(project=>project.name).join(', ') || 'Not assigned'],['Coordinates',`${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}`]];
+  const reviewGroups=inventoryReview.groups().filter(group=>group.siteIds.includes(p.site_id)),project=projectViewModel.getState().selected;
+  const groupContext=!project?'Select a project':!inventoryReview.ready()?'Loading or unavailable':reviewGroups.length?`${project.name} / ${reviewGroups.map(c=>c.name).join(', ')}`:'None in selected project';
+  const fields=[['Licensee',p.licensees.join(', ')],['Reported RATs',Object.keys(p.technologies).join(', ') || 'Not reported'],['Licensed records',p.record_count.toLocaleString()],['Tower height',height === null ? 'Not reported' : `${height} m`],['Planning projects',memberships.map(project=>project.name).join(', ') || 'Not assigned'],['Review clusters',groupContext],['Coordinates',`${feature.geometry.coordinates[1].toFixed(6)}, ${feature.geometry.coordinates[0].toFixed(6)}`]];
   for(const [name,value]of fields){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=name;dd.textContent=value;summary.append(dt,dd);}detail.append(summary);
   const viewButton = document.createElement('button'); viewButton.className = 'network-view-site'; viewButton.type = 'button'; viewButton.textContent = 'View site in 3D';
   viewButton.onclick = () => map.flyTo({center:feature.geometry.coordinates,zoom:Math.max(map.getZoom(),16.5),pitch:60}); detail.append(viewButton);

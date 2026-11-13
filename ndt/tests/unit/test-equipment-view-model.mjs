@@ -11,4 +11,5 @@ assert.equal(vm.getState().projectId,'project-b');assert.equal(vm.getState().pre
 const conflict=createEquipmentViewModel({load:async()=>inventory,preview:async()=>({sourceFingerprint:'source-1'}),commit:async()=>{throw Error('Inventory changed elsewhere');}});
 await conflict.load('project-a');await conflict.preview('retained source','source.json');await assert.rejects(conflict.commit());
 assert.equal(conflict.getState().raw,'retained source');assert.match(conflict.getState().error,/changed elsewhere/);
+const reading=conflict.stageFile('new-file.json');assert.equal(reading.raw,'');assert.equal(reading.preview,null);assert.equal(reading.fileName,'new-file.json');assert.equal(reading.busy,true);conflict.fail('Decode failed');assert.equal(conflict.getState().raw,'');
 console.log('Equipment preview, original-byte preservation, stale response and conflict recovery passed.');

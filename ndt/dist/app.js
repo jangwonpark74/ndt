@@ -22,6 +22,7 @@ import { createTaskViewModel } from './task-view-model.mjs';
 import { createTaskView } from './task-view.mjs';
 import { createVirtualUeView } from './virtual-ue-view.mjs';
 import { bindContextPanel } from './context-panel.mjs';
+import {bindInventoryReview} from './inventory-cluster-view.mjs';
 
 const $ = id => document.getElementById(id);
 const regionId = new URLSearchParams(location.search).get('region') || 'toronto';
@@ -60,7 +61,8 @@ const projectViewModel = createProjectViewModel(createProjectModel(region,assetB
 const taskView = createTaskView({map,viewModel:createTaskViewModel(createTaskModel(region.id)),regionId:region.id});
 const virtualUeView = createVirtualUeView({map,regionId:region.id});
 const projectView = createProjectView({region,map,viewModel:projectViewModel,siteLocations,emptyFeatures,taskView,virtualUeView});
-const networkView = createNetworkView({map,region,projectViewModel,viewModel:networkViewModel,projectView,setLayers:mapView.setLayers,getNetworkLayer:sceneView.getNetworkLayer,emptyFeatures});
+const inventoryReview=bindInventoryReview({region,map,projectViewModel,networkViewModel});
+const networkView = createNetworkView({map,region,projectViewModel,viewModel:networkViewModel,projectView,inventoryReview,setLayers:mapView.setLayers,getNetworkLayer:sceneView.getNetworkLayer,emptyFeatures});
 bindSearchView({form:$('location-search'), query:$('location-query'), panel:$('search-results'), status:$('search-status'), list:$('search-list')}, createSearchViewModel(searchLocations), map);
 sceneView.start();
 map.once('load',async()=>{

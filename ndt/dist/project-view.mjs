@@ -5,6 +5,10 @@ import {driveTestUrl} from './drive-navigation.mjs';
 export function createProjectView({region, map, viewModel:projectViewModel, siteLocations, emptyFeatures, taskView, virtualUeView}) {
 const $ = id => document.getElementById(id);
 let projectPopup = null;
+let previousProjectData=null;
+projectViewModel.subscribe(state=>{
+  if(state.data!==previousProjectData){previousProjectData=state.data;if(state.selected && state.data){renderProjectSites();updateProjectCoverage();}}
+});
 for (const id of ['project-use-case','overview-use-case']) {
   for (const item of PROJECT_USE_CASES) $(id).add(new Option(item.name,item.id));
   $(id).onchange = event => {

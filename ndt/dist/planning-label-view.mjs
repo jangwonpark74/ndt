@@ -1,6 +1,7 @@
 import {siteLabel} from './planning-model.mjs';
+import {clusterBounds} from './inventory-cluster-view-model.mjs';
 
-export function createPlanningLabels({map,onSelect,getSites,getSelected,getProjects,getProjectData,getActiveProject}) {
+export function createPlanningLabels({map,onSelect,getSites,getSelected,getProjects,getProjectData,getActiveProject,getInventoryGroups=()=>[],getInventorySites=()=>[]}) {
   let markers=[];
   function refresh() {
     markers.forEach(marker=>marker.remove()); markers=[];
@@ -9,17 +10,23 @@ export function createPlanningLabels({map,onSelect,getSites,getSelected,getProje
     const overlays=[...document.querySelectorAll('.intro,#context-panel,.map-controls,.topbar')].filter(el=>el.offsetWidth && el.offsetHeight).map(el=>el.getBoundingClientRect());
     function add(coordinates,text,kind,click,force=false) {
       if (!bounds.contains(coordinates)) return;
-      const p=map.project(coordinates), width=Math.min(210,text.length*7+20), box={x:p.x,y:p.y,w:width,h:26};
+      const offset=kind.includes('inventory-cluster-label')?-76:kind.includes('project-label')?-44:-12;
+      const p=map.project(coordinates), width=Math.min(210,text.length*7+20), box={x:p.x,y:p.y+offset-13,w:width,h:26};
       if(!force && overlays.some(b=>p.x+width/2>b.left && p.x-width/2<b.right && p.y>b.top && p.y-40<b.bottom))return;
       if (!force && occupied.some(b=>Math.abs(b.x-box.x)<(b.w+box.w)/2 && Math.abs(b.y-box.y)<30)) return;
       occupied.push(box);
       const el=document.createElement(click ? 'button' : 'span');el.className=`planning-map-label ${kind}`;el.textContent=text;el.title=text;el.setAttribute('aria-label',click ? `Review ${text}` : text);
       if(click){el.type='button';el.onclick=event=>{event.stopPropagation();click();};}
-      markers.push(new maplibregl.Marker({element:el,anchor:'bottom',offset:[0,kind === 'project-label' ? -28 : -12]}).setLngLat(coordinates).addTo(map));
+      markers.push(new maplibregl.Marker({element:el,anchor:'bottom',offset:[0,offset]}).setLngLat(coordinates).addTo(map));
     }
     for(const project of getProjects()) {
       const sites=data?.clusters.get(project.id);
-      if(sites?.length) add(sites[0].geometry.coordinates,`${project.name} · Cluster (${sites.length} sites)`,'project-label',null,true);
+      if(sites?.length) add(sites[0].geometry.coordinates,`${project.name} · Planning sites (${sites.length})`,'project-label',null,true);
+    }
+    for(const group of getInventoryGroups()) {
+      if(markers.length>=44)break;
+      const ids=new Set(group.siteIds),bounds=clusterBounds(getInventorySites().filter(s=>ids.has(s.properties.site_id)));
+      if(bounds)add(bounds[0].map((v,i)=>(v+bounds[1][i])/2),`${getActiveProject()?.name || ''} · ${group.name} (${group.siteIds.length})`,'project-label inventory-cluster-label',null,group.selected);
     }
     if(selected) add(selected.geometry.coordinates,siteLabel(selected),'selected-label',()=>onSelect(selected),true);
     if(map.getZoom()<13) return;

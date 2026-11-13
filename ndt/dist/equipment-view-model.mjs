@@ -25,5 +25,6 @@ export function createEquipmentViewModel(model){
     catch(error){if(token===generation)update({busy:false,error:error.message});throw error;}
   }
   return {getState:()=>state,subscribe(listener){listeners.add(listener);listener(state);return()=>listeners.delete(listener);},load,preview,commit,
+    stageFile(fileName){if(!state.projectId || !state.ready)throw Error('Select a project and load its saved inventory before previewing.');generation++;update({raw:'',fileName,preview:null,busy:true,error:''});return state;},
     fail(message){generation++;update({preview:null,busy:false,error:message});}};
 }

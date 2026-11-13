@@ -19,6 +19,7 @@ from .task_store import connect, validate_tasks, initialize_tasks, read_tasks, w
 from .dm.http import DriveTestAPI, DriveTestService
 from .radio_scenarios import initialize_scenarios, list_scenarios, save_scenario, ScenarioConflict
 from .equipment_inventory import initialize_inventory, read_inventory, preview_inventory, import_inventory, InventoryConflict
+from .inventory_clusters import initialize_clusters, read_clusters, save_clusters, ClusterConflict
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / 'dist'
@@ -138,6 +139,7 @@ def initialize(db_path):
             PRIMARY KEY (region_id, dataset_path, site_id), UNIQUE (region_id, dataset_path, ordinal));
             CREATE INDEX IF NOT EXISTS network_sites_location ON network_sites(region_id, dataset_path, longitude, latitude);''')
         initialize_scenarios(db)
+        initialize_clusters(db)
         initialize_inventory(db)
         for region in regions:
             files = list(region_files(region))
@@ -174,6 +176,8 @@ def handler_for(db_path):
             super().__init__(*args, directory=str(DIST), **kwargs)
 
         def do_GET(self):
+            if self.handle_inventory_clusters('GET'):
+                return
             if self.handle_equipment_inventory('GET'):
                 return
             if self.handle_radio_scenarios('GET'):
@@ -226,6 +230,8 @@ def handler_for(db_path):
             return super().do_GET()
 
         def do_PUT(self):
+            if self.handle_inventory_clusters('PUT'):
+                return
             if self.handle_equipment_inventory('PUT'):
                 return
             if self.handle_radio_scenarios('PUT'):
@@ -379,6 +385,26 @@ def handler_for(db_path):
             except (ValueError,UnicodeError) as error:self.dm_json(400,{'error':str(error)})
             except LookupError as error:self.dm_json(404,{'error':str(error)})
             except sqlite3.Error:self.dm_json(503,{'error':'Equipment storage unavailable. Your selected file is retained; retry.'})
+            return True
+
+        def handle_inventory_clusters(self, method):
+            parts=unquote(urlsplit(self.path).path).split('/')
+            if len(parts)!=7 or parts[1:3]!=['api','regions'] or parts[4]!='projects' or parts[6]!='inventory-clusters':
+                return False
+            if not self.dm_local():return True
+            try:
+                with closing(connect(db_path)) as db,db:
+                    if method=='GET':
+                        db.execute('BEGIN');result=read_clusters(db,parts[3],parts[5])
+                    else:
+                        length=int(self.headers.get('Content-Length','0'))
+                        if not 0<length<=1000000:raise ValueError('Expected an inventory cluster request up to 1 MB')
+                        result=save_clusters(db,parts[3],parts[5],json.loads(self.rfile.read(length)))
+                self.dm_json(200,result)
+            except ClusterConflict as error:self.dm_json(409,{'error':str(error)})
+            except (ValueError,UnicodeError) as error:self.dm_json(400,{'error':str(error)})
+            except LookupError as error:self.dm_json(404,{'error':str(error)})
+            except sqlite3.Error:self.dm_json(503,{'error':'Inventory group storage unavailable. Your draft is retained; retry.'})
             return True
 
         def handle_radio_scenarios(self, method):
