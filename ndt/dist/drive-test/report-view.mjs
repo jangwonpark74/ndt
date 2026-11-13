@@ -5,6 +5,8 @@ import {$, compact, compareTable, distribution, esc, kpiRows, legend, table, uni
 const footer = (test, page) => `<div class="report-foot"><span>CongitV NDT Drive tests · ${esc(test.id)}${test.kind === 'synthetic' ? ' · Synthetic demonstration' : test.kind==='simulated'?' · Simulated planning power':''}</span><span class="section-number">${page} / ${3+(test.issues?.length?1:0)+(test.context?1:0)}</span></div>`;
 
 const fmtPercent=value=>Number(value).toFixed(1)+'%';
+// Archived v1 manifests predate saved reference metadata.
+const legacyReferences=[{title:'3GPP TR 38.901 v18.0.0',url:'https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf'}];
 
 function reportFinding(vm, events) {
   const {metric, test} = vm, def = METRICS[metric];
@@ -20,6 +22,8 @@ function reportFinding(vm, events) {
 
 export function renderReport(vm, snapshot) {
   const {test, metric, analysis, rat} = vm, {scope} = test, def = METRICS[metric];
+  const radioScenario=test.context?.radioScenario,inventory=test.context?.inventorySnapshot;
+  const transmitterNames=new Map((test.context?.transmitters || []).map(t=>[t.id,t.label || t.site_id || t.id]));
   const title = esc(test.label), rats = bands(rat);
   const events = analysis.events.filter(event => rats.includes(event.row.rat));
   const counts = [['Logged', 'logged event'], ['Observed cell change', 'observed cell change'],
@@ -44,7 +48,7 @@ export function renderReport(vm, snapshot) {
       <p class="identity"><b>${esc(test.id)}</b> · ${esc(scope.region)} / ${esc(scope.project)} / ${esc(scope.task_id)}</p>
       <p class="identity">Capture ${esc(utc(test.start))} to ${esc(utc(test.end))} · ${elapsed(test.end - test.start, true)}</p>
       ${test.kind === 'synthetic' ? '<p class="synthetic-note"><b>Synthetic demonstration.</b> The route observations and radio values are simulated for workflow evaluation.</p>' : ''}
-      ${test.kind==='simulated'?'<p class="synthetic-note"><b>Uncalibrated planning received power.</b> Fixed-height isotropic UMa estimates; no measured RSRP, antenna tilt, interference, handover or service performance.</p>':''}
+      ${test.kind==='simulated'?`<p class="synthetic-note"><b>Uncalibrated planning received power.</b> ${radioScenario?'Fixed-height UMa with saved carrier, orientation and reference-element/isotropic templates. Deployment, terrain/clutter, interference and service performance remain unverified.':'Fixed-height isotropic UMa estimates; no measured RSRP, antenna tilt, interference, handover or service performance.'}</p>`:''}
       <h3>Results summary</h3>
       ${table(['KPI', 'Result', 'Basis'], kpiRows(vm).map(([name, value, unit, detail]) => [name, [value, unit].filter(Boolean).join(' '), detail]))}
       <p class="note">${valid ? esc(reportFinding(vm, events)) : 'The selected technologies have no valid values for this metric.'}</p>
@@ -95,9 +99,9 @@ export function renderReport(vm, snapshot) {
       ARFCN/PCI pairs. These events record changes in observed identity. Handover attempts and outcomes require signaling evidence.</p>
       <p class="note">Recorded distance sums great-circle distances between consecutive GPS fixes within the gap cutoff.
       A timestamp with no GPS fix breaks the line. The map draws a recorded trace using the first valid fix when both technologies report at the same timestamp.</p>
-      <p class="note">LTE reference-signal measurements follow the source export’s mapping to <a href="https://www.etsi.org/deliver/etsi_TS/136200_136299/136214/18.01.00_60/ts_136214v180100p.pdf">3GPP TS 36.214</a>.
+      ${test.kind==='simulated'?`<p class="note">Model references: ${(test.context?.modelReferences || legacyReferences).filter(r=>!r.rat || r.rat===test.context.rat).map(r=>`<a href="${esc(r.url)}">${esc(r.title)}</a>`).join(' · ')}. Planning received power has no reference-signal/resource allocation and is not measured RSRP.</p>`:`<p class="note">LTE reference-signal measurements follow the source export’s mapping to <a href="https://www.etsi.org/deliver/etsi_TS/136200_136299/136214/18.01.00_60/ts_136214v180100p.pdf">3GPP TS 36.214</a>.
       NR RF columns expect SS measurements as described in <a href="https://www.etsi.org/deliver/etsi_TS/138200_138299/138215/17.04.00_60/ts_138215v170400p.pdf">3GPP TS 38.215</a>.
-      Thresholds are analyst settings.</p>
+      Thresholds are analyst settings.</p>`}
       <h3>Source record</h3>
       <p class="note">${esc(test.source)} · ${test.kind === 'synthetic' ? 'Synthetic demo' : test.kind==='simulated'?'Simulated; hash covers manifest and observations':'Imported CSV'} · ${esc(scope.region_id)} / ${esc(scope.project_id)} / ${esc(scope.task_id)}</p>
       ${test.notes ? `<p class="note">${esc(test.notes)}</p>` : ''}
@@ -106,10 +110,11 @@ export function renderReport(vm, snapshot) {
       ${footer(test, 3)}
     </article>${test.context?`<article class="report-sheet"><div class="overline">Task route and experiment provenance</div>
       <h2>Frozen route context</h2><p class="identity">${esc(test.id)} · ${esc(test.context.scope.task_id)} / ${esc(test.context.route.name)}</p>
-      ${table(['Input','Saved value'],[['Route quality',test.context.route_quality],['Geometry SHA-256',test.context.geometry_hash],['Model',test.context.model||'Imported capture route association'],['Drive speed',test.context.case?test.context.case.speedKmh+' km/h':'Recorded capture timing'],['Profile',vm.profile.name],['Planning revision',test.context.context_hash]])}
-      ${test.context.powers?`<h3>Effective planning transmitter powers</h3>${table(['Planning transmitter','EIRP dBm'],Object.entries(test.context.powers))}<p class="note">RAT is an assumed analysis label. Each site uses its lowest reported usable frequency. This isotropic planning model does not assign frequencies to verified live cells.</p>`:''}
+      ${table(['Input','Saved value'],[['Route quality',test.context.route_quality],['Geometry SHA-256',test.context.geometry_hash],['Model',test.context.model||'Imported capture route association'],['Drive speed',test.context.case?test.context.case.speedKmh+' km/h':'Recorded capture timing'],['Profile',vm.profile.name],['Planning revision',test.context.context_hash],...(radioScenario?[['Applied scenario',`${radioScenario.name || radioScenario.payload.name} / revision ${radioScenario.revision}`],['Library baseline pointer',radioScenario.baselineRevision ?? 'None']]:[]),...(inventory?[['Regional source fingerprint',inventory.regionalFingerprint],['Contributing licensed locations',inventory.licensedSites.length],['Equipment source',inventory.operatorEquipment?`Revision ${inventory.operatorEquipment.revision} / SHA-256 ${inventory.operatorEquipment.sha256}`:'No equipment file imported']]:[])])}
+      ${radioScenario?`<h3>Frozen directional templates</h3>${table(['Planning transmitter','Carrier / pattern','Orientation / environment','EIRP dBm'],test.context.transmitters.filter(t=>t.template.rat===test.context.rat).map(t=>[t.label || t.site_id,`${t.template.rat} ${t.template.carrier.band} / ${t.template.frequencyMHz} MHz / ${t.template.bandwidthMHz} MHz / ${t.template.pattern==='element'?'Reference element':'Isotropic'}`,`${t.template.azimuthDeg} deg azimuth / ${t.template.tiltDeg} deg downtilt / ${t.template.mode}`,test.context.powers[t.id]]))}<p class="note">Carrier checks use the pinned Release 18 subset of TS 36.104/38.104 v18.5.0. Reference-element attenuation follows TR 38.901 v18.0.0 table 7.3-1. A starts from the applied revision; B changes one transmitter EIRP. The library baseline pointer is recorded separately. These are study assignments; imported equipment and vendor cuts remain source evidence.</p>`:''}
+      ${test.context.powers && !radioScenario?`<h3>Effective planning transmitter powers</h3>${table(['Planning transmitter','EIRP dBm'],Object.entries(test.context.powers).filter(([id])=>!radioScenario || test.context.transmitters.some(t=>t.id===id && t.template.rat===test.context.rat)).map(([id,power])=>[transmitterNames.get(id)||id,power]))}<p class="note">${radioScenario?'A uses the frozen template powers; B changes the selected transmitter EIRP. Carrier power is per modeled port, with peak gain and feeder loss already accounted for. The library baseline pointer is retained as provenance.':'RAT is an assumed analysis label. Each site uses its lowest reported usable frequency. This isotropic planning model does not assign frequencies to verified live cells.'}</p>`:''}
       ${test.association?`<p class="note">Association ${esc(test.association.id)} · ${esc(test.association.direction)} · ${test.association.tolerance_m} m tolerance · ${fmtPercent(test.association.route_coverage_pct)} continuous route coverage.</p>`:''}
-      ${vm.routeComparison?`<h3>Saved route comparison</h3>${table(['Comparison input','Saved result'],[['Mode',vm.routeComparison.mode],['A',vm.routeComparison.a_id],['B',vm.routeComparison.b_id],['Common coverage',fmtPercent(vm.routeComparison.common_coverage_pct)],['Median B minus A',(vm.routeComparison.median_delta??vm.routeComparison.median_delta_db)+' '+(vm.routeComparison.delta_unit||(METRICS[vm.routeComparison.metric].unit==='dBm'?'dB':METRICS[vm.routeComparison.metric].unit))],['Frozen profile',vm.routeComparison.profile.name]])}<p class="note">${vm.routeComparison.bin_m} m spatial bins. Export analysis for both inputs, matching rules, paired values and effective parameters.</p>`:''}
+      ${vm.routeComparison?`<div class="report-comparison"><h3>Saved route comparison</h3>${table(['Comparison input','Saved result'],[['Mode',vm.routeComparison.mode],['A',vm.routeComparison.a_id],['B',vm.routeComparison.b_id],['Common coverage',fmtPercent(vm.routeComparison.common_coverage_pct)],['Median B minus A',(vm.routeComparison.median_delta??vm.routeComparison.median_delta_db)+' '+(vm.routeComparison.delta_unit||(METRICS[vm.routeComparison.metric].unit==='dBm'?'dB':METRICS[vm.routeComparison.metric].unit))],['Frozen profile',vm.routeComparison.profile.name]])}<p class="note">${vm.routeComparison.bin_m} m spatial bins. Export analysis for both inputs, matching rules, paired values and effective parameters.</p></div>`:''}
       ${footer(test,4)}</article>`:''}${test.issues?.length ? `<article class="report-sheet"><div class="overline">Investigation register</div>
       <h2>Recorded findings</h2><p class="identity">${esc(test.id)} · ${test.issues.filter(i => i.status === 'open').length} open issues · all technologies</p>
       <p class="note">${test.issues.length > 12 ? `First 12 of ${test.issues.length} findings. Export analysis for the complete register.` : 'Findings are analyst annotations linked to recorded observations.'}</p>

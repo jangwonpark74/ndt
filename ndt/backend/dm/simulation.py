@@ -3,8 +3,15 @@ from bisect import bisect_right
 import math
 
 from .integration import distance, route_lengths
+from .antenna import element_attenuation,initial_bearing
+from ..radio_scenarios import validate_radio_template
+from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL
 
-MODEL = 'uma-mean-power-fixed-heights-v1'
+def model_for(snapshot):
+    model=snapshot.get('predictionModel',MODEL)
+    if model not in (MODEL,DIRECTIONAL_MODEL):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
+    if bool(snapshot.get('radioScenario'))!=(model==DIRECTIONAL_MODEL):raise ValueError('The frozen model and scenario inputs do not match.')
+    return model
 
 
 def path_loss(distance_m, frequency_mhz, mode):
@@ -43,13 +50,29 @@ def trajectory(route, speed_kmh, interval_s, time_origin):
 
 def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, cancelled):
     rows = []
+    directional=model_for(snapshot)==DIRECTIONAL_MODEL
+    transmitters=snapshot['transmitters']
+    if directional:
+        for transmitter in transmitters:
+            template=transmitter.get('template')
+            # Qualification is frozen at submission; execution must not reinterpret a later band plan.
+            validate_radio_template({k:v for k,v in template.items() if k!='carrier'} if isinstance(template,dict) else template)
+        transmitters=[t for t in transmitters if t['template']['rat']==rat]
+        if not transmitters:raise ValueError(f'The frozen scenario has no {rat} transmitters.')
     for index, position in enumerate(trajectory(snapshot['route'], case['speedKmh'], interval_s, time_origin)):
         if index % 100 == 0 and cancelled():
             raise InterruptedError('Experiment cancelled.')
         candidates = []
-        for transmitter in snapshot['transmitters']:
-            loss = path_loss(distance([position['longitude'], position['latitude']], transmitter['coordinates']), transmitter['frequency_mhz'], mode)
+        for transmitter in transmitters:
+            receiver=[position['longitude'],position['latitude']]
+            separation=distance(receiver,transmitter['coordinates'])
+            template=transmitter.get('template') if directional else None
+            loss = path_loss(separation,template['frequencyMHz'] if directional else transmitter['frequency_mhz'],template['mode'] if directional else mode)
             if loss is not None:
+                if directional and template['pattern']=='element':
+                    elevation=math.degrees(math.atan2(1.5-25,separation))
+                    bearing=initial_bearing(transmitter['coordinates'],receiver)
+                    loss+=element_attenuation(bearing-template['azimuthDeg'],elevation,template['tiltDeg'])
                 candidates.append((powers[transmitter['id']]-loss, transmitter['id']))
         row = dict(**position, rat=rat, leg_id=snapshot['route']['id'])
         if candidates:

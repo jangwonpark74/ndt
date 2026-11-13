@@ -99,6 +99,7 @@ $javascriptTests = @(
     'tests/unit/test-dm-analytics.mjs'
     'tests/unit/test-dm-view-model.mjs'
     'tests/unit/test-drive-model-parity.mjs'
+    'tests/unit/test-scenario-run-view-model.mjs'
 )
 $pythonTests = @(
     'tests/python/test-tree-sampling.py'
@@ -114,6 +115,7 @@ $pythonTests = @(
     'tests/python/test-equipment-inventory.py'
     'tests/python/test-dm-model.py'
     'tests/python/test-drive-integration.py'
+    'tests/python/test-directional-radio.py'
     'tests/python/test-drive-http.py'
 )
 $syntaxFiles = @(

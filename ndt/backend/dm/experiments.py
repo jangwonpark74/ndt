@@ -8,6 +8,7 @@ else:
     import fcntl
 import json
 import math
+import re
 import statistics
 import threading
 import uuid
@@ -15,7 +16,7 @@ import zlib
 
 from .dm_model import Conflict, DEFAULT_PROFILE, LIMITS, MAX_ROWS, connection, get_test, initialize
 from .integration import canonical, digest, freeze_context, match_route, route_lengths
-from .simulation import MODEL, simulate
+from .simulation import MODEL, simulate, model_for
 
 
 def now():
@@ -23,7 +24,7 @@ def now():
 
 
 def valid_number(value, low, high):
-    return type(value) in (int, float) and math.isfinite(value) and low <= value <= high
+    return type(value) in (int, float) and low <= value <= high and math.isfinite(value)
 
 
 class ExperimentStore:
@@ -59,8 +60,11 @@ class ExperimentStore:
             raise ValueError('Provide an idempotent request ID and experiment specification.')
         allowed = {'region_id','project_id','task_id','route_id','context_hash','case_ids','interval_s','rat','mode',
                    'power_a_dbm','power_b_dbm','transmitter_id','experiment_type'}
-        if set(spec) != allowed or spec['experiment_type'] not in ('parameter-ab', 'virtual-drive'):
+        if set(spec)-{'scenario_id'} != allowed or spec['experiment_type'] not in ('parameter-ab', 'virtual-drive'):
             raise ValueError('Use the supported power A/B or virtual-drive parameters.')
+        scenario_id=spec.get('scenario_id')
+        if scenario_id not in (None,'') and (not isinstance(scenario_id,str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',scenario_id)):
+            raise ValueError('Choose a saved applied scenario or the legacy model.')
         if not all(valid_number(spec[k], 0, 90) for k in ('power_a_dbm', 'power_b_dbm')) or not valid_number(spec['interval_s'], .1, 10):
             raise ValueError('EIRP must be 0–90 dBm; the sampling interval must be 0.1–10 s.')
         if spec['rat'] not in ('LTE', 'NR') or spec['mode'] not in ('LOS', 'NLOS'):
@@ -76,7 +80,9 @@ class ExperimentStore:
         case_ids = spec['case_ids']
         if not isinstance(case_ids, list) or not case_ids or not all(isinstance(c, str) for c in case_ids) or len(set(case_ids)) != len(case_ids) or not set(case_ids) <= {c['id'] for c in snapshot['speedCases']}:
             raise ValueError('Choose one or more saved speed cases.')
-        if not snapshot['transmitters'] or spec['transmitter_id'] not in {t['id'] for t in snapshot['transmitters']}:
+        active=[t for t in snapshot['transmitters'] if not snapshot.get('radioScenario') or t['template']['rat']==spec['rat']]
+        if not active or spec['transmitter_id'] not in {t['id'] for t in active}:
+            if snapshot.get('radioScenario'):raise ValueError(f"Select a {spec['rat']} transmitter assigned in this scenario.")
             raise ValueError('Select a supported planning transmitter. This region/project may lack usable radio data.')
         length = route_lengths(snapshot['route']['coordinates'])[-1]
         counts = [math.ceil(length/(c['speedKmh']/3.6)/spec['interval_s'])+1 for c in snapshot['speedCases'] if c['id'] in case_ids]
@@ -142,10 +148,11 @@ class ExperimentStore:
                 pair = []
                 variants = ('A', 'B') if spec['experiment_type'] == 'parameter-ab' else ('A',)
                 for variant in variants:
-                    powers = {t['id']: spec['power_a_dbm'] for t in snapshot['transmitters']}
+                    powers = ({t['id']:t['template']['powerDbm']+t['template']['gainDbi']-t['template']['lossDb'] for t in snapshot['transmitters']}
+                              if snapshot.get('radioScenario') else {t['id']:spec['power_a_dbm'] for t in snapshot['transmitters']})
                     if variant == 'B':
                         powers[spec['transmitter_id']] = spec['power_b_dbm']
-                    manifest = dict(**snapshot, model=MODEL, case=case, powers=powers, mode=spec['mode'], interval_s=spec['interval_s'], rat=spec['rat'],
+                    manifest = dict(**snapshot, model=model_for(snapshot), case=case, powers=powers, mode='per-template' if snapshot.get('radioScenario') else spec['mode'], interval_s=spec['interval_s'], rat=spec['rat'],
                                     evaluation_profile=deepcopy(DEFAULT_PROFILE), experiment_id=identity, variant=variant)
                     rows = simulate(snapshot, case, powers, interval_s=spec['interval_s'], rat=spec['rat'], mode=spec['mode'], time_origin=snapshot['time_origin'],
                                     cancelled=lambda: not self.is_running(identity))
@@ -158,7 +165,8 @@ class ExperimentStore:
                         if not rows or len(rows) > MAX_ROWS or any(not valid_number(r['predicted_rx_dbm'], *LIMITS['predicted_rx_dbm']) for r in rows if 'predicted_rx_dbm' in r):
                             raise ValueError('Generated observations failed validation.')
                         db.execute('INSERT INTO tests VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', (test_id, f'{identity}:{case["id"]}:{variant}', canonical(snapshot['scope']),
-                            f'{snapshot["scope"]["task"]} / {snapshot["route"]["name"]} · {case["speedKmh"]} km/h · {variant}', 'Uncalibrated isotropic planning power; no RSRP, interference, mobility or service model.',
+                            f'{snapshot["scope"]["task"]} / {snapshot["route"]["name"]} · {case["speedKmh"]} km/h · {variant}',
+                            'Uncalibrated scenario planning power; no RSRP, interference, mobility or service model.' if snapshot.get('radioScenario') else 'Uncalibrated isotropic planning power; no RSRP, interference, mobility or service model.',
                             'execution-manifest.json', digest(dict(manifest=manifest, rows=rows)), 'simulated', now(), rows[0]['t'], rows[-1]['t'], len(rows), packed))
                         db.execute('INSERT INTO test_contexts VALUES (?,?,NULL)', (test_id, canonical(manifest)))
                         runs.append(dict(test_id=test_id, case_id=case['id'], speed_kmh=case['speedKmh'], variant=variant))

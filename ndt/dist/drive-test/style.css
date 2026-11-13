@@ -284,6 +284,6 @@ legend { font-weight: 700; font-size: 12px; padding: 0 5px; }
   .report-sheet:last-child { break-after: auto; }
   .report-sheet .report-split { grid-template-columns: 1fr 1fr; }
   .report-foot .section-number { display: none; }
-  tr, .report-graphic { break-inside: avoid; }
+  tr, .report-graphic, .report-comparison { break-inside: avoid; }
   .report-sheet td, .report-sheet th { padding: 6px; }
 }
