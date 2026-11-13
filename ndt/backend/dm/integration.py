@@ -78,6 +78,32 @@ def scenario_transmitters(payload,network):
     return result
 
 
+def scenario_baseline(db,region,project,identity,revision,network,fingerprint):
+    if revision is None:raise ValueError('Set a saved baseline revision in the radio study library.')
+    row=db.execute('SELECT payload FROM radio_scenario_versions WHERE region_id=? AND project_id=? AND scenario_id=? AND revision=?',(region,project,identity,revision)).fetchone()
+    if not row:raise ValueError('Baseline revision is unavailable. Set a current saved baseline.')
+    payload=json.loads(row[0])
+    if payload['sourceFingerprint']!=fingerprint:raise ValueError('Baseline source inventory changed. Save and set a current baseline revision.')
+    try:derived=scenario_transmitters(payload,network)
+    except ValueError as error:raise ValueError(f'Baseline: {error}') from error
+    return dict(id=identity,name=payload['name'],revision=revision,baselineRevision=revision,payload=payload),derived
+
+
+def scenario_changes(baseline,applied,rat):
+    sides=[{t['id']:t for t in rows if t['template']['rat']==rat} for rows in (baseline,applied)]
+    result=[]
+    fields=('frequencyMHz','mode','pattern','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier')
+    for identity in sorted(sides[0].keys() | sides[1].keys()):
+        a,b=[side.get(identity) for side in sides];transmitter=b or a
+        for field in (fields if a and b else ('assignment',)):
+            before=a['template'].get(field) if a and field!='assignment' else rat if a else None
+            after=b['template'].get(field) if b and field!='assignment' else rat if b else None
+            if before==after:continue
+            affects=field not in ('bandwidthMHz','carrier') and not (field in ('azimuthDeg','tiltDeg') and a and b and a['template']['pattern']==b['template']['pattern']=='isotropic')
+            result.append(dict(siteId=transmitter['site_id'],label=transmitter.get('label',transmitter['site_id']),parameter=field,baseline=before,applied=after,affectsPrediction=affects))
+    return result
+
+
 def project_radio_context(db,region,project,network,fingerprint):
     key=(region,project)
     equipment=db.execute('SELECT revision,sha256,source_fingerprint,imported_at FROM equipment_inventory_versions WHERE region_id=? AND project_id=? ORDER BY revision DESC LIMIT 1',key).fetchone()
@@ -91,7 +117,11 @@ def project_radio_context(db,region,project,network,fingerprint):
             try:derived=scenario_transmitters(payload,network)
             except ValueError as error:
                 if not issue:issue=str(error)
+        baseline_issue='';baseline_derived=[]
+        try:_,baseline_derived=scenario_baseline(db,region,project,identity,baseline,network,fingerprint)
+        except ValueError as error:baseline_issue=str(error)
         scenarios.append(dict(id=identity,name=payload.get('name',name) if payload else name,revision=revision,draftRevision=draft_revision,baselineRevision=baseline,qualified=not bool(issue),issue=issue,
+                              baselineQualified=not bool(baseline_issue),baselineIssue=baseline_issue,baselineRats=sorted({t['template']['rat'] for t in baseline_derived}),
                               transmitters=[dict(id=t['id'],site_id=t['site_id'],label=t.get('label',t['site_id']),rat=t['template']['rat'],frequency_mhz=t['frequency_mhz'],
                                                  eirp_dbm=t['template']['powerDbm']+t['template']['gainDbi']-t['template']['lossDb']) for t in derived]))
     return dict(id=f'{region}/{project}',region_id=region,project_id=project,sourceFingerprint=fingerprint,scenarios=scenarios,
@@ -157,6 +187,7 @@ def _freeze_context(db,selection):
         licensedSites=features,operatorEquipment={k:equipment[k] for k in ('revision','sha256','sourceFingerprint','importedAt','raw')} if equipment else None,
         equipmentUsage='Retained source evidence; study templates, not imported hardware configuration, govern directional predictions.')
     identity=selection.get('scenario_id')
+    if selection.get('experiment_type')=='scenario-ab' and not identity:raise ValueError('Choose a saved scenario with a baseline revision for scenario A/B.')
     if identity:
         scenario=next((s for s in context['scenarios'] if s['id']==identity),None)
         if scenario is None:raise LookupError('Applied scenario is unavailable. Refresh the planning selection.')
@@ -167,8 +198,13 @@ def _freeze_context(db,selection):
         value['predictionModel']=DIRECTIONAL_UMA
         value['radioScenario']=dict(id=identity,name=payload['name'],revision=scenario['revision'],draftRevision=scenario['draftRevision'],baselineRevision=scenario['baselineRevision'],payload=payload)
         value['transmitters']=scenario_transmitters(payload,entry['transmitters'])
+        if selection.get('experiment_type')=='scenario-ab':
+            value['radioBaseline'],value['baselineTransmitters']=scenario_baseline(db,region,project,identity,scenario['baselineRevision'],entry['transmitters'],context['sourceFingerprint'])
+            value['comparisonKind']='scenario-revisions'
+            value['scenarioComparison']=dict(baselineRevision=scenario['baselineRevision'],appliedRevision=scenario['revision'],baselineName=value['radioBaseline']['name'],appliedName=payload['name'])
+            value['scenarioChanges']=scenario_changes(value['baselineTransmitters'],value['transmitters'],selection.get('rat'))
         value['modelReferences'] += [dict(title=f"3GPP TS {'36.104' if rat=='LTE' else '38.104'} v{PLAN['edition']} Release {PLAN['release']}",url=PLAN['references'][rat],rat=rat)
-                                    for rat in sorted({t['template']['rat'] for t in value['transmitters']})]
+                                    for rat in sorted({t['template']['rat'] for t in value['transmitters']+value.get('baselineTransmitters',[])})]
     value['id'] = 'SNAP-'+digest(value)[:24]
     return value
 

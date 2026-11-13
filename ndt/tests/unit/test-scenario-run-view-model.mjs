@@ -25,3 +25,7 @@ let rejectSubmission;
 const failed=new ExperimentWorkspace({...slowApi,submitExperiment:()=>new Promise((resolve,reject)=>rejectSubmission=reject)},{set:()=>0,clear:()=>{}},{region_id:'toronto',project_id:'p',task_id:'T'});
 await failed.load({...catalog,tasks:[task,{...task,task_id:'T2'}]});const rejection=failed.submit('failed');failed.selectTask('toronto/p/T2');rejectSubmission(Error('Previous task error'));await rejection;assert.equal(failed.state.error,'');
 console.log('Scenario selection, frozen result identity and pending-request context isolation passed.');
+let finishCancel,cancelLoads=0;
+const cancelling=new ExperimentWorkspace({...api,cancelExperiment:()=>new Promise(resolve=>finishCancel=resolve),loadExperiment:async()=>{cancelLoads++;return {id:'prior',status:'cancelled',spec:{}};}},{set:()=>0,clear:()=>{}},{region_id:'toronto',project_id:'p',task_id:'T'});
+await cancelling.load({...catalog,tasks:[task,{...task,task_id:'T2'}]});cancelling.state.experiment={id:'prior',status:'running'};
+const cancellation=cancelling.cancel();cancelling.selectTask('toronto/p/T2');finishCancel();await cancellation;assert.equal(cancelling.state.experiment,null);assert.equal(cancelLoads,0);assert.equal(cancelling.state.error,'');

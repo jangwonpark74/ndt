@@ -1,0 +1,18 @@
+const {test,expect,installTask,maps}=require('./drive-fixture.cjs');
+const fs=require('node:fs/promises');
+const AxeBuilder=require('@axe-core/playwright').default;
+test('saved baseline and applied revisions run, compare and report their frozen antenna settings',async({page,request,driveOrigin,browserName})=>{
+ test.setTimeout(60000);await installTask(request,driveOrigin);
+ const url=driveOrigin+'/api/regions/toronto/projects/northyork/radio-scenarios';
+ const template={rat:'NR',frequencyMHz:3600,bandwidthMHz:100,powerDbm:40,gainDbi:8,lossDb:2,azimuthDeg:180,tiltDeg:6,pattern:'element',mode:'NLOS',carrier:{standard:'3gpp-rel18-carrier-subset-v1',band:'n78',channel:640000,scsKHz:30}};
+ for(const [action,expectedRevision,tiltDeg]of [['save',0,6],['baseline',1,6],['save',1,24],['apply',2,24]])expect((await request.put(url,{data:{id:'revisions',name:'Antenna comparison',action,expectedRevision,template:{...template,tiltDeg},overrides:{}}})).ok()).toBe(true);
+ await maps(page);await page.goto(driveOrigin+'/drive-test/?region=toronto&project=northyork&task=MERGE-TEST');await page.getByRole('combobox',{name:'Radio scenario',exact:true}).selectOption('revisions');await page.locator('#execution-type').selectOption('scenario-ab');
+ await expect(page.locator('#execution-scenario-status')).toContainText('A baseline revision 1');await expect(page.locator('#execution-scenario-status')).toContainText('B applied revision 2');await expect(page.locator('#execution-power-b')).toBeDisabled();await expect(page.locator('#execution-transmitter')).toBeDisabled();
+ await page.getByRole('button',{name:'Run scenario comparison',exact:true}).click();await expect(page.locator('#execution-progress')).toContainText('completed',{timeout:20000});
+ const history=await(await request.get(driveOrigin+'/api/dm/experiments')).json(),result=await(await request.get(driveOrigin+'/api/dm/experiments/'+history[0].id)).json();expect(result.runs).toHaveLength(6);expect(result.comparisons).toHaveLength(3);expect(result.snapshot.radioBaseline.payload.template.tiltDeg).toBe(6);expect(result.snapshot.radioScenario.payload.template.tiltDeg).toBe(24);expect(result.snapshot.scenarioChanges.some(c=>c.parameter==='tiltDeg')).toBe(true);
+ await expect(page.locator('#execution-results')).toContainText('A revision 1 / B revision 2');await page.getByText('Changed template inputs',{exact:true}).click();await expect(page.locator('#execution-results')).toContainText('Downtilt (deg)');
+ const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Export experiment JSON',exact:true}).click();const exported=JSON.parse(await fs.readFile(await(await pending).path(),'utf8'));expect(exported.snapshot.radioBaseline.revision).toBe(1);expect(exported.snapshot.radioScenario.revision).toBe(2);
+ await page.getByRole('button',{name:'Test report',exact:true}).click();await expect(page.locator('#report')).toContainText('A baseline revision 1 / B applied revision 2');if(browserName==='chromium')await page.pdf({path:'.cache/planning-docs/scenario-comparison-report.pdf',printBackground:true,preferCSSPageSize:true});
+ expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
+ await page.setViewportSize({width:390,height:844});await page.locator('#execution-scenario-status').scrollIntoViewIfNeeded();await page.screenshot({path:'.cache/planning-docs/scenario-comparison-phone.png'});
+});

@@ -13,7 +13,16 @@ export class ExperimentWorkspace {
   task() {return this.tasks().find(task=>scopeKey(task)===this.state.taskKey);}
   projectContext(){const task=this.task(),id=task?.radio_context_id || (task?`${task.region_id}/${task.project_id}`:'');return this.state.catalog.projects?.find(project=>project.id===id);}
   scenario(){return this.projectContext()?.scenarios.find(s=>s.id===this.state.draft.scenario_id);}
-  scenarioIssue(){if(!this.state.draft.scenario_id)return '';const selected=this.scenario();return !selected?'Applied scenario is unavailable. Refresh planning inputs.':!selected.qualified?selected.issue || 'Carrier checks are required for this scenario.':'';}
+  scenarioIssue(){
+    const comparing=this.state.draft.experiment_type==='scenario-ab';
+    if(!this.state.draft.scenario_id)return comparing?'Choose a saved scenario with baseline and applied revisions.':'';
+    const selected=this.scenario();if(!selected)return 'Applied scenario is unavailable. Refresh planning inputs.';
+    if(!selected.qualified)return selected.issue || 'Carrier checks are required for this scenario.';
+    if(comparing && !selected.baselineQualified)return selected.baselineIssue || 'Set a qualified saved baseline in the radio study library.';
+    if(comparing && !selected.baselineRats?.includes(this.state.draft.rat))return `Baseline has no ${this.state.draft.rat} assignments. Choose a RAT present in both revisions.`;
+    return '';
+  }
+  availableRats(){const selected=this.scenario(),rats=[...new Set((selected?.transmitters || []).map(t=>t.rat))];return this.state.draft.experiment_type==='scenario-ab'?rats.filter(rat=>selected?.baselineRats?.includes(rat)):rats;}
   transmitters(){return this.state.draft.scenario_id?(this.scenario()?.transmitters || []).filter(t=>t.rat===this.state.draft.rat):this.task()?.transmitters || [];}
   syncTransmitter(resetPower=false){
     const candidates=this.transmitters(),current=candidates.find(t=>t.id===this.state.draft.transmitter_id) || candidates[0];
@@ -21,22 +30,22 @@ export class ExperimentWorkspace {
     if(resetPower && this.state.draft.scenario_id && Number.isFinite(current?.eirp_dbm))this.state.draft.power_b_dbm=current.eirp_dbm;
   }
   selectScenario(id){
-    this.state.draft.scenario_id=id;const selected=this.scenario();
+    this.state.draft.scenario_id=id;
     if(id && (!Number.isFinite(this.state.draft.power_a_dbm) || this.state.draft.power_a_dbm<0 || this.state.draft.power_a_dbm>90))this.state.draft.power_a_dbm=46;
-    if(selected?.transmitters.length && !selected.transmitters.some(t=>t.rat===this.state.draft.rat))this.state.draft.rat=selected.transmitters[0].rat;
+    const rats=this.availableRats();if(rats.length && !rats.includes(this.state.draft.rat))this.state.draft.rat=rats[0];
     if(!id)this.state.draft.power_b_dbm=49;
     this.syncTransmitter(true);this.state.error='';this.emit();
   }
   specification(){const task=this.task();return task?{...this.state.draft,region_id:task.region_id,project_id:task.project_id,task_id:task.task_id,route_id:this.state.routeId,case_ids:this.state.caseIds,context_hash:task.context_hash}:null;}
   setupDiffers(){
     const saved=this.state.experiment?.spec,current=this.specification();if(!saved || !current)return false;
-    const normalize=(item,key)=>key==='scenario_id'?item[key] || '':key==='case_ids'?[...(item[key] || [])].sort():item[key];
+    const normalize=(item,key)=>item.experiment_type==='scenario-ab' && ['power_a_dbm','power_b_dbm','mode','transmitter_id'].includes(key)?null:key==='scenario_id'?item[key] || '':key==='case_ids'?[...(item[key] || [])].sort():item[key];
     return [...new Set([...Object.keys(saved),...Object.keys(current)])].some(key=>JSON.stringify(normalize(saved,key))!==JSON.stringify(normalize(current,key)));
   }
   preview() {
     const task=this.task(),cases=task?.speedCases.filter(c=>this.state.caseIds.includes(c.id))||[];
     const distanceKm=task?.routeMetrics?.find(r=>r.id===this.state.routeId)?.distanceKm||0;
-    const variants=this.state.draft.experiment_type==='parameter-ab'?2:1;
+    const variants=this.state.draft.experiment_type==='virtual-drive'?1:2;
     return {distanceKm,runCount:cases.length*variants,observationCount:cases.reduce((sum,c)=>sum+Math.ceil(distanceKm*1000/(c.speedKmh/3.6)/this.state.draft.interval_s)+1,0)*variants};
   }
   async load(catalog) {
@@ -57,7 +66,14 @@ export class ExperimentWorkspace {
     this.state.draft.scenario_id=scenarioId;this.syncTransmitter();
     this.state.experiment=null;this.state.error='';this.emit();
   }
-  edit(fields) {Object.assign(this.state.draft,fields);if('rat' in fields || 'transmitter_id' in fields)this.syncTransmitter(true);this.state.error='';this.emit();}
+  edit(fields) {
+    Object.assign(this.state.draft,fields);
+    if(fields.experiment_type==='scenario-ab'){
+      for(const key of ['power_a_dbm','power_b_dbm'])if(!Number.isFinite(this.state.draft[key]) || this.state.draft[key]<0 || this.state.draft[key]>90)this.state.draft[key]=46;
+      const rats=this.availableRats();if(rats.length && !rats.includes(this.state.draft.rat))this.state.draft.rat=rats[0];
+    }
+    if('rat' in fields || 'transmitter_id' in fields)this.syncTransmitter(true);else if('experiment_type' in fields)this.syncTransmitter();this.state.error='';this.emit();
+  }
   selectRoute(id) {if(this.task()?.routes.some(route=>route.id===id)){this.state.routeId=id;this.state.error='';this.emit();}}
   selectCases(ids) {this.state.caseIds=(this.task()?.speedCases||[]).filter(item=>ids.includes(item.id)).map(item=>item.id);this.state.error='';this.emit();}
   async submit(requestId) {
@@ -86,8 +102,10 @@ export class ExperimentWorkspace {
   }
   async cancel() {
     if(!this.state.experiment)return;
-    try {await this.api.cancelExperiment(this.state.experiment.id);await this.open(this.state.experiment.id);}
-    catch(error){this.state.error=error.message;this.emit();}
+    const id=this.state.experiment.id,task=this.state.taskKey;
+    const active=()=>this.state.taskKey===task && this.state.experiment?.id===id;
+    try {await this.api.cancelExperiment(id);if(active())await this.open(id);}
+    catch(error){if(active()){this.state.error=error.message;this.emit();}}
   }
   history() {const scope=this.task()||this.scope;return this.state.history.filter(e=>['region_id','project_id','task_id'].every(k=>!scope[k]||e.spec[k]===scope[k]));}
   dispose() {++this.generation;this.clock.clear(this.timer);}

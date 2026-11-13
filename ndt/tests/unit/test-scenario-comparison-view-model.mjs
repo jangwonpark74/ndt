@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {ExperimentWorkspace} from '../../dist/drive-test/experiment-view-model.mjs';
+const task={region_id:'toronto',project_id:'p',task_id:'T',routes:[{id:'r'}],routeMetrics:[{id:'r',distanceKm:1}],speedCases:[{id:'a',speedKmh:20},{id:'b',speedKmh:40}],context_hash:'hash',radio_context_id:'toronto/p',transmitters:[]};
+const scenario={id:'study',qualified:true,revision:2,baselineRevision:1,baselineQualified:true,baselineRats:['LTE'],transmitters:[{id:'nr',rat:'NR',eirp_dbm:46},{id:'lte',rat:'LTE',eirp_dbm:40}]};
+const catalog={tasks:[task],regions:[],projects:[{id:'toronto/p',scenarios:[scenario]}]};
+let submitted,count=0;
+const api={loadExperiments:async()=>[],submitExperiment:async(id,spec)=>{count++;submitted=spec;return {id:'job'};},loadExperiment:async()=>({id:'job',status:'completed',spec:submitted,runs:[]})};
+const vm=new ExperimentWorkspace(api,{clear:()=>{},set:()=>0},{region_id:'toronto',project_id:'p',task_id:'T'});
+await vm.load(catalog);vm.edit({experiment_type:'scenario-ab'});assert.match(vm.scenarioIssue(),/[Ss]cenario/);await vm.submit('missing');assert.equal(count,0);
+vm.selectScenario('study');assert.equal(vm.state.draft.rat,'LTE');assert.equal(vm.preview().runCount,4);assert.equal(vm.scenarioIssue(),'');
+await vm.submit('pair');assert.equal(submitted.experiment_type,'scenario-ab');assert.equal(submitted.scenario_id,'study');assert.equal(vm.setupDiffers(),false);
+vm.edit({power_a_dbm:20,power_b_dbm:30,mode:'LOS',transmitter_id:'lte'});assert.equal(vm.setupDiffers(),false);vm.edit({interval_s:2});assert.equal(vm.setupDiffers(),true);
+await vm.load({...catalog,projects:[{id:'toronto/p',scenarios:[{...scenario,baselineQualified:false,baselineIssue:'Set a saved baseline.'}]}]});assert.match(vm.scenarioIssue(),/baseline/);await vm.submit('blocked');assert.equal(count,1);
+console.log('Scenario A/B revision gates, RAT intersection, run matrix and effective setup comparison passed.');

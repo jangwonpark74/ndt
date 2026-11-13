@@ -55,12 +55,12 @@
               <label class="wide">Radio scenario<select id="execution-scenario"><option value="">Legacy isotropic model</option></select></label>
               <p id="execution-scenario-status" class="note wide" role="status"></p>
               <label>Task route<select id="execution-route" required></select></label>
-              <label>Experiment<select id="execution-type"><option value="parameter-ab">Parameter A/B</option><option value="virtual-drive">Virtual drive</option></select></label>
+              <label>Experiment<select id="execution-type"><option value="parameter-ab">Parameter A/B</option><option value="scenario-ab">Scenario baseline/applied A/B</option><option value="virtual-drive">Virtual drive</option></select></label>
               <fieldset id="execution-cases" class="wide"><legend>Drive speed cases</legend><div id="execution-speeds"></div></fieldset>
-              <label>Planning transmitter to change in B<select id="execution-transmitter" required></select></label>
+              <label id="execution-transmitter-field">Planning transmitter to change in B<select id="execution-transmitter" required></select></label>
               <label>Radio technology<select id="execution-rat"><option value="NR">5G NR</option><option value="LTE">4G LTE</option></select></label>
               <label id="execution-power-a-field">Baseline EIRP A (dBm)<input id="execution-power-a" type="number" value="46" min="0" max="90" step="any" required></label>
-              <label>Changed transmitter EIRP B (dBm)<input id="execution-power-b" type="number" value="49" min="0" max="90" step="any" required></label>
+              <label id="execution-power-b-field">Changed transmitter EIRP B (dBm)<input id="execution-power-b" type="number" value="49" min="0" max="90" step="any" required></label>
               <label id="execution-mode-field">Propagation assumption<select id="execution-mode"><option value="NLOS">NLOS</option><option value="LOS">LOS</option></select></label>
               <label>Sampling interval (s)<input id="execution-interval" type="number" min="0.1" max="10" step="0.1" value="1" required></label>
             </div>

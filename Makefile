@@ -51,6 +51,8 @@ test:
 	cd ndt && $(NODE) tests/unit/test-dm-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-drive-model-parity.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-run-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-scenario-comparison-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-scenario-comparison-format.mjs
 	cd ndt && $(UV) run --locked python -B tests/python/test-tree-sampling.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-telus-matching.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-telus-sites.py
@@ -64,6 +66,7 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/python/test-equipment-inventory.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-dm-model.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-integration.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-scenario-comparison.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-directional-radio.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-inventory-clusters.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-http.py

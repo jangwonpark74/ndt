@@ -1,6 +1,7 @@
 import {ExperimentWorkspace} from './experiment-view-model.mjs';
 import {$,table} from './test-view.mjs';
 import {fmt} from './test-model.mjs';
+import {scenarioChangeRows} from './scenario-comparison-model.mjs';
 
 const key = task => [task.region_id,task.project_id,task.task_id].join('/');
 
@@ -8,8 +9,8 @@ export function bindExperiments({api,clock,scope,openRun,download,onContext}) {
   const vm=new ExperimentWorkspace(api,clock,scope);
   let structure=[],requestId,opened='',lastResult='';
   function render(state) {
-    const task=vm.task(),current=state.experiment,scenario=vm.scenario(),directional=!!state.draft.scenario_id,transmitters=vm.transmitters();
-    const signature=[state.catalog,state.taskKey,state.draft.scenario_id,state.draft.rat];
+    const task=vm.task(),current=state.experiment,scenario=vm.scenario(),directional=!!state.draft.scenario_id,comparing=state.draft.experiment_type==='scenario-ab',transmitters=vm.transmitters();
+    const signature=[state.catalog,state.taskKey,state.draft.scenario_id,state.draft.rat,state.draft.experiment_type];
     if(signature.some((value,index)=>value!==structure[index])){
       const contextChanged=state.catalog!==structure[0] || state.taskKey!==structure[1];
       structure=signature;
@@ -34,12 +35,13 @@ export function bindExperiments({api,clock,scope,openRun,download,onContext}) {
     $('execution-scenario').value=state.draft.scenario_id;
     $('execution-transmitter').value=state.draft.transmitter_id;
     $('execution-rat').value=state.draft.rat;
-    for(const option of $('execution-rat').options)option.disabled=directional && !scenario?.transmitters.some(t=>t.rat===option.value);
+    $('execution-type').value=state.draft.experiment_type;
+    for(const option of $('execution-rat').options)option.disabled=directional && !vm.availableRats().includes(option.value);
     for(const [id,property]of [['execution-power-a','power_a_dbm'],['execution-power-b','power_b_dbm']])$(id).value=Number.isFinite(state.draft[property])?String(state.draft[property]):'';
     const issue=vm.scenarioIssue(),target=transmitters.find(t=>t.id===state.draft.transmitter_id),busy=state.loading || state.submitting;
     $('execution-scenario').disabled=busy || !task;
-    $('execution-scenario-status').textContent=issue || (directional?`Applied revision ${scenario.revision} · ${transmitters.length} ${state.draft.rat} assumed transmitters · selected baseline ${target?.eirp_dbm ?? 'unknown'} dBm.${scenario.draftRevision>scenario.revision?` Saved revision ${scenario.draftRevision} has not been applied.`:''}`:'Legacy isotropic model; no scenario selected.');
-    $('execution-model-note').textContent=directional?'Saved templates set carrier, power, orientation, pattern and environment. Imported equipment remains source evidence; predictions use study assumptions.':'Uses each site’s lowest reported usable frequency with isotropic antennas. RAT is an assumed analysis label.';
+    $('execution-scenario-status').textContent=issue || (directional?`${comparing?`A baseline revision ${scenario.baselineRevision} / B applied revision ${scenario.revision} · ${state.draft.rat}`:`Applied revision ${scenario.revision} · ${transmitters.length} ${state.draft.rat} assumed transmitters · selected baseline ${target?.eirp_dbm ?? 'unknown'} dBm`}.${scenario.draftRevision>scenario.revision?` Saved revision ${scenario.draftRevision} has not been applied.`:''}`:'Legacy isotropic model; no scenario selected.');
+    $('execution-model-note').textContent=comparing?'Each saved revision supplies its carrier, EIRP, pattern, orientation and environment. Route, speed cases and sampling are shared. Bandwidth is recorded; predictions remain uncalibrated planning power.':directional?'Saved templates set carrier, power, orientation, pattern and environment. Imported equipment remains source evidence; predictions use study assumptions.':'Uses each site’s lowest reported usable frequency with isotropic antennas. RAT is an assumed analysis label.';
     for(const id of ['execution-power-a-field','execution-mode-field'])$(id).hidden=directional;
     for(const id of ['execution-power-a','execution-mode'])$(id).disabled=directional || busy;
     const route=task?.routes.find(r=>r.id===state.routeId),cases=task?.speedCases.filter(c=>state.caseIds.includes(c.id))||[];
@@ -49,12 +51,14 @@ export function bindExperiments({api,clock,scope,openRun,download,onContext}) {
       `${route.name} · ${fmt(preview.distanceKm,3)} km · ${route.roadFit==='fitted'?'Legacy road fit, accuracy unverified':'Provisional path'} · ${preview.runCount} runs · about ${preview.observationCount.toLocaleString()} observations`;
     const running=current&&['queued','running'].includes(current.status);
     $('execution-submit').disabled=busy||running||!route||!cases.length||!transmitters.length||!!issue;
-    $('execution-submit').textContent=state.submitting?'Submitting…':state.draft.experiment_type==='parameter-ab'?'Run A/B experiment':'Run virtual drive';
+    $('execution-submit').textContent=state.submitting?'Submitting…':comparing?'Run scenario comparison':state.draft.experiment_type==='parameter-ab'?'Run A/B experiment':'Run virtual drive';
     $('execution-power-b').disabled=state.draft.experiment_type!=='parameter-ab';
+    for(const id of ['execution-power-b-field','execution-transmitter-field'])$(id).hidden=comparing;
+    $('execution-transmitter').disabled=comparing || busy;
     $('execution-refresh').disabled=state.loading||state.submitting;
     $('execution-cancel').hidden=!running;
     $('execution-error').hidden=!state.error;$('execution-error').textContent=state.error;
-    $('execution-progress').textContent=current?`${current.id} · ${current.status} · ${current.progress}/${current.spec.case_ids.length*(current.spec.experiment_type==='parameter-ab'?2:1)} runs${current.error?' · '+current.error:''}`:'';
+    $('execution-progress').textContent=current?`${current.id} · ${current.status} · ${current.progress}/${current.spec.case_ids.length*(current.spec.experiment_type==='virtual-drive'?1:2)} runs${current.error?' · '+current.error:''}`:'';
     $('execution-results-state').hidden=!vm.setupDiffers();$('execution-results-state').textContent='Setup differs from the displayed run. Results retain their saved inputs; run again to use the current setup.';
     $('execution-history').replaceChildren();
     for(const item of vm.history()){
@@ -66,7 +70,8 @@ export function bindExperiments({api,clock,scope,openRun,download,onContext}) {
       if(current?.runs.length){
         const heading=document.createElement('h3');heading.textContent=current.status==='completed'?'Saved experiment results':'Completed member runs';$('execution-results').append(heading);
         const frozen=current.snapshot.radioScenario;
-        const summary=document.createElement('p');summary.className='note';summary.textContent=frozen?`Frozen route ${current.snapshot.route.name} · ${frozen.name || frozen.payload.name} · revision ${frozen.revision} · saved template powers and orientation${current.spec.experiment_type==='parameter-ab'?` · B changes the selected transmitter to ${current.spec.power_b_dbm} dBm`:''}. Uncalibrated planning power.`:`Frozen route ${current.snapshot.route.name} · ${current.spec.mode} · A ${current.spec.power_a_dbm} dBm${current.spec.experiment_type==='parameter-ab'?` · B ${current.spec.power_b_dbm} dBm at ${current.spec.transmitter_id}`:''}. Comparisons quantify this planning model.`;$('execution-results').append(summary);
+        const summary=document.createElement('p');summary.className='note';summary.textContent=current.snapshot.radioBaseline?`Frozen route ${current.snapshot.route.name} · ${frozen.name} · A revision ${current.snapshot.radioBaseline.revision} / B revision ${frozen.revision}. Uncalibrated planning power.`:frozen?`Frozen route ${current.snapshot.route.name} · ${frozen.name || frozen.payload.name} · revision ${frozen.revision} · saved template powers and orientation${current.spec.experiment_type==='parameter-ab'?` · B changes the selected transmitter to ${current.spec.power_b_dbm} dBm`:''}. Uncalibrated planning power.`:`Frozen route ${current.snapshot.route.name} · ${current.spec.mode} · A ${current.spec.power_a_dbm} dBm${current.spec.experiment_type==='parameter-ab'?` · B ${current.spec.power_b_dbm} dBm at ${current.spec.transmitter_id}`:''}. Comparisons quantify this planning model.`;$('execution-results').append(summary);
+        if(current.snapshot.scenarioChanges){const details=document.createElement('details'),title=document.createElement('summary'),changes=current.snapshot.scenarioChanges;title.textContent='Changed template inputs';details.append(title);const description=document.createElement('p');description.className='note';description.textContent=changes.length?`${changes.length} changed inputs in ${current.spec.rat} assignments${changes.length>100?' · first 100 shown; export contains all':''}.`: 'No changed inputs in the selected RAT; this is a zero-change comparison.';details.append(description);if(changes.length){const body=document.createElement('div');body.innerHTML=table(['Planning site','Input','A baseline','B applied'],scenarioChangeRows(changes.slice(0,100)));details.append(body);}$('execution-results').append(details);}
         for(const run of current.runs){
           const button=document.createElement('button');button.type='button';button.textContent=`Open ${run.variant} · ${run.speed_kmh} km/h`;
           button.onclick=()=>openRun(run.test_id,current);$('execution-results').append(button);
