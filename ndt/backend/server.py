@@ -422,9 +422,12 @@ def handler_for(db_path):
                         result = list_scenarios(db, parts[3], parts[5])
                     else:
                         length = int(self.headers.get('Content-Length', '0'))
-                        if not 0 < length <= 1000000:
-                            raise ValueError('Expected a scenario request of at most 1 MB')
-                        result = save_scenario(db, parts[3], parts[5], json.loads(self.rfile.read(length)))
+                        if not 0 < length <= 4000000:
+                            raise ValueError('Expected a scenario request of at most 4 MB')
+                        body=json.loads(self.rfile.read(length))
+                        if length>1000000 and (not isinstance(body,dict) or body.get('assignmentMode')!='cells'):
+                            raise ValueError('Assumed-site scenario requests are limited to 1 MB')
+                        result = save_scenario(db, parts[3], parts[5], body)
                 self.dm_json(200, result)
             except ScenarioConflict as error:
                 self.dm_json(409, {'error': str(error)})

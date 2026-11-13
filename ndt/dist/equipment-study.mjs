@@ -6,13 +6,18 @@ export function validateEquipmentReference(reference){
  return '';
 }
 
-export function equipmentStudyValues(inventory,reference,siteId){
+export function equipmentStudyPath(inventory,reference,siteId,{allowHistorical=false,lookup=null}={}){
  const error=validateEquipmentReference(reference);if(error)throw Error(error);
- if(!inventory || inventory.revision!==reference.revision || inventory.sha256!==reference.sha256 || (inventory.currentSourceFingerprint && inventory.sourceFingerprint!==inventory.currentSourceFingerprint))throw Error('Equipment source changed. Re-link reviewed equipment or keep the study as assumptions.');
- const data=inventory.data,find=(kind,id)=>data?.[kind]?.find(record=>record.id===id);
+ if(!inventory || inventory.revision!==reference.revision || inventory.sha256!==reference.sha256 || (!allowHistorical && inventory.currentSourceFingerprint && inventory.sourceFingerprint!==inventory.currentSourceFingerprint))throw Error('Equipment source changed. Re-link reviewed equipment or keep the study as assumptions.');
+ const data=inventory.data,find=lookup || ((kind,id)=>data?.[kind]?.find(record=>record.id===id));
  const cell=find('cells',reference.cellId),link=find('links',reference.linkId),sector=find('sectors',cell?.sectorId),site=find('sites',sector?.siteId);
  const rp=find('ports',link?.radioPortId),ap=find('ports',link?.antennaPortId),radio=find('radios',rp?.equipmentId),antenna=find('antennas',ap?.equipmentId);
  if(!cell || !link || link.cellId!==cell.id || !sector || !site || site.inventorySiteId!==siteId || rp?.role!=='radio' || ap?.role!=='antenna' || !radio || !antenna || radio.id!==cell.radioId || radio.siteId!==site.id || antenna.siteId!==site.id)throw Error('Equipment source needs an explicit cell/radio/port/antenna path at this site.');
+ return {cell,link,sector,site,radio,radioPort:rp,antennaPort:ap,antenna,pattern:find('patterns',antenna.patternId)};
+}
+
+export function equipmentStudyValues(inventory,reference,siteId,options){
+ const {cell,sector,antenna}=equipmentStudyPath(inventory,reference,siteId,options);
  return {rat:cell.rat,frequencyMHz:cell.frequencyMHz ?? null,bandwidthMHz:cell.bandwidthMHz ?? null,azimuthDeg:sector.azimuthDeg ?? null,gainDbi:antenna.gainDbi ?? null,tiltDeg:antenna.tiltDeg ?? null};
 }
 

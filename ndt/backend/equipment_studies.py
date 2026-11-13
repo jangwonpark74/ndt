@@ -1,6 +1,6 @@
 """Source links identify copied evidence; editable templates still govern RF estimates."""
 import re
-from .equipment_inventory import read_inventory,trace_cell
+from .equipment_inventory import read_inventory,trace_cell,COLLECTIONS
 
 
 def validate_equipment_reference(reference):
@@ -14,13 +14,11 @@ def validate_equipment_reference(reference):
         raise ValueError('Invalid equipment source cell or link ID')
 
 
-def validate_equipment_templates(db,region,project,template,overrides,*,current=False,cache=None):
-    if 'equipmentSource' in template:raise ValueError('Equipment source links require a site override, not a project default template')
-    references=[(site,value['equipmentSource']) for site,value in overrides.items() if 'equipmentSource' in value]
-    if not references:return
-    for _,reference in references:validate_equipment_reference(reference)
-    keys={(r['revision'],r['sha256']) for _,r in references}
-    if len(keys)!=1:raise ValueError('Source-linked site overrides must use one equipment import revision; re-link or clear older links')
+def resolve_equipment_paths(db,region,project,references,*,current=False,cache=None):
+    if not references:return [],None
+    for reference in references:validate_equipment_reference(reference)
+    keys={(r['revision'],r['sha256']) for r in references}
+    if len(keys)!=1:raise ValueError('Source-linked templates must use one equipment import revision; re-link or clear older links')
     revision,sha=next(iter(keys))
     if current:
         latest=db.execute('SELECT revision,sha256,source_fingerprint FROM equipment_inventory_versions WHERE region_id=? AND project_id=? ORDER BY revision DESC LIMIT 1',(region,project)).fetchone()
@@ -31,11 +29,21 @@ def validate_equipment_templates(db,region,project,template,overrides,*,current=
     if key not in cache:cache[key]=read_inventory(db,region,project,revision)
     inventory=cache[key]
     if not inventory or inventory['sha256']!=sha:raise ValueError('Equipment source revision/hash is unavailable in this project')
-    traces={}
-    for site,reference in references:
+    traces={};tables={kind:{row['id']:row for row in inventory['data'][kind]} for kind in COLLECTIONS};result=[]
+    for reference in references:
         try:
             cell=reference['cellId']
-            if cell not in traces:traces[cell]=trace_cell(inventory['data'],cell)
+            if cell not in traces:traces[cell]=trace_cell(inventory['data'],cell,tables=tables)
             trace=traces[cell]
-            if trace['site']['inventorySiteId']!=site or not any(c['link']['id']==reference['linkId'] for c in trace['connections']):raise KeyError('path')
-        except (KeyError,TypeError):raise ValueError(f'Equipment source needs an explicit cell/radio/port/antenna path at site override {site}') from None
+            connection=next(c for c in trace['connections'] if c['link']['id']==reference['linkId'])
+            result.append(dict(reference=reference,trace=trace,connection=connection))
+        except (KeyError,TypeError,StopIteration):raise ValueError('Equipment source needs an explicit cell/radio/port/antenna path') from None
+    return result,inventory
+
+
+def validate_equipment_templates(db,region,project,template,overrides,*,current=False,cache=None):
+    if 'equipmentSource' in template:raise ValueError('Equipment source links require a site override, not a project default template')
+    references=[(site,value['equipmentSource']) for site,value in overrides.items() if 'equipmentSource' in value]
+    paths,_=resolve_equipment_paths(db,region,project,[r for _,r in references],current=current,cache=cache)
+    for (site,_),path in zip(references,paths):
+        if path['trace']['site']['inventorySiteId']!=site:raise ValueError(f'Equipment source needs an explicit cell/radio/port/antenna path at site override {site}')

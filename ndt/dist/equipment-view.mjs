@@ -87,5 +87,5 @@ export function bindEquipmentView({regionId,getProject}){
   document.addEventListener('projectcontextchange',()=>vm.load(getProject()?.id || null).catch(()=>{}));
   document.addEventListener('reservationselected',event=>{reservation=event.detail;renderSite($('nyc-detail'),reservation);});
   vm.load(getProject()?.id || null).catch(()=>{});
-  return {renderSite,getInventory:()=>vm.getState().inventory};
+  return {renderSite,getInventory:()=>vm.getState().projectId===getProject()?.id?vm.getState().inventory:null};
 }

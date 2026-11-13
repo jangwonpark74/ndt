@@ -7,13 +7,14 @@ import math
 import sqlite3
 
 from ..task_store import read_tasks
-from ..radio_scenarios import validate_radio_template
+from ..radio_scenarios import validate_radio_template,validate_scenario_assignments
 from ..carrier_plan import validate_carrier,PLAN
 from ..equipment_inventory import read_inventory
 from ..equipment_studies import validate_equipment_templates
 from .dm_model import Conflict
-from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,UMA_REFERENCE
+from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,CELL_UMA,UMA_REFERENCE
 from .antenna import peak_eirp
+from ..cell_assignments import build_cell_transmitters,cell_eirp,transmitter_rat
 
 EARTH_RADIUS_M = 6371000
 
@@ -81,6 +82,15 @@ def scenario_transmitters(payload,network):
     return result
 
 
+def qualified_scenario(db,region,project,payload,network,cache=None):
+    resolved=validate_scenario_assignments(db,region,project,payload,current=True,qualified=True,cache=cache)
+    if payload.get('assignmentMode')!='cells':return scenario_transmitters(payload,network)
+    if payload.get('modelVersion')!='uma-source-cells-v3':raise ValueError('Source-cell assignments require their saved model version')
+    ids=sorted({item['site']['inventorySiteId'] for item in resolved['cells']})
+    features=[json.loads(row[0]) for row in db.execute(f"SELECT feature FROM network_sites WHERE region_id=? AND site_id IN ({','.join('?' for _ in ids)}) ORDER BY dataset_path,ordinal",(region,*ids))]
+    return build_cell_transmitters(resolved,features)
+
+
 def scenario_baseline(db,region,project,identity,revision,network,fingerprint,equipment_cache=None):
     if revision is None:raise ValueError('Set a saved baseline revision in the radio study library.')
     row=db.execute('SELECT payload FROM radio_scenario_versions WHERE region_id=? AND project_id=? AND scenario_id=? AND revision=?',(region,project,identity,revision)).fetchone()
@@ -88,24 +98,38 @@ def scenario_baseline(db,region,project,identity,revision,network,fingerprint,eq
     payload=json.loads(row[0])
     if payload['sourceFingerprint']!=fingerprint:raise ValueError('Baseline source inventory changed. Save and set a current baseline revision.')
     try:
-        validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=True,cache=equipment_cache)
-        derived=scenario_transmitters(payload,network)
+        derived=qualified_scenario(db,region,project,payload,network,equipment_cache)
     except ValueError as error:raise ValueError(f'Baseline: {error}') from error
     return dict(id=identity,name=payload['name'],revision=revision,baselineRevision=revision,payload=payload),derived
 
 
-def scenario_changes(baseline,applied,rat):
-    sides=[{t['id']:t for t in rows if t['template']['rat']==rat} for rows in (baseline,applied)]
+def scenario_changes(baseline,applied,rat,baseline_budgets=None,applied_budgets=None):
+    sides=[{t['id']:t for t in rows if transmitter_rat(t)==rat} for rows in (baseline,applied)]
     result=[]
     fields=('frequencyMHz','mode','pattern','array','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource')
     for identity in sorted(sides[0].keys() | sides[1].keys()):
         a,b=[side.get(identity) for side in sides];transmitter=b or a
+        if 'ports' in transmitter:
+            port_sides=[{p['linkId']:p for p in t['ports']} if t else {} for t in (a,b)]
+            for link in sorted(port_sides[0].keys() | port_sides[1].keys()):
+                ap,bp=[side.get(link) for side in port_sides];port=bp or ap
+                for field in (fields if ap and bp else ('portAssignment',)):
+                    before=ap['template'].get(field) if ap and field!='portAssignment' else rat if ap else None
+                    after=bp['template'].get(field) if bp and field!='portAssignment' else rat if bp else None
+                    if before==after:continue
+                    affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and ap and bp and ap['template']['pattern']==bp['template']['pattern']=='isotropic')
+                    result.append(dict(siteId=transmitter['site_id'],cellId=transmitter['cellId'],linkId=link,label=f"{transmitter['label']} / {port['radioPortName']} → {port['antennaPortName']}",parameter=field,baseline=before,applied=after,affectsPrediction=affects))
+            continue
         for field in (fields if a and b else ('assignment',)):
             before=a['template'].get(field) if a and field!='assignment' else rat if a else None
             after=b['template'].get(field) if b and field!='assignment' else rat if b else None
             if before==after:continue
             affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and a and b and a['template']['pattern']==b['template']['pattern']=='isotropic')
             result.append(dict(siteId=transmitter['site_id'],label=transmitter.get('label',transmitter['site_id']),parameter=field,baseline=before,applied=after,affectsPrediction=affects))
+    radios={p['radioId'] for side in sides for t in side.values() for p in t.get('ports',[])}
+    for radio in sorted(radios):
+        before=(baseline_budgets or {}).get(radio);after=(applied_budgets or {}).get(radio)
+        if before!=after:result.append(dict(siteId='',label=f'Radio {radio}',parameter='radioBudgetDbm',baseline=before,applied=after,affectsPrediction=False))
     return result
 
 
@@ -120,17 +144,17 @@ def project_radio_context(db,region,project,network,fingerprint):
         else:
             if payload['sourceFingerprint']!=fingerprint:issue='Source inventory changed. Save and apply a new scenario revision.'
             try:
-                validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=True,cache=equipment_cache)
-                derived=scenario_transmitters(payload,network)
+                derived=qualified_scenario(db,region,project,payload,network,equipment_cache)
             except ValueError as error:
                 if not issue:issue=str(error)
         baseline_issue='';baseline_derived=[]
         try:_,baseline_derived=scenario_baseline(db,region,project,identity,baseline,network,fingerprint,equipment_cache)
         except ValueError as error:baseline_issue=str(error)
         scenarios.append(dict(id=identity,name=payload.get('name',name) if payload else name,revision=revision,draftRevision=draft_revision,baselineRevision=baseline,qualified=not bool(issue),issue=issue,
-                              baselineQualified=not bool(baseline_issue),baselineIssue=baseline_issue,baselineRats=sorted({t['template']['rat'] for t in baseline_derived}),
-                              transmitters=[dict(id=t['id'],site_id=t['site_id'],label=t.get('label',t['site_id']),rat=t['template']['rat'],frequency_mhz=t['frequency_mhz'],
-                                                 eirp_dbm=peak_eirp(t['template'])) for t in derived]))
+                              assignmentMode=payload.get('assignmentMode','sites') if payload else 'sites',
+                              baselineQualified=not bool(baseline_issue),baselineIssue=baseline_issue,baselineRats=sorted({transmitter_rat(t) for t in baseline_derived}),
+                              transmitters=[dict(id=t['id'],site_id=t['site_id'],label=t.get('label',t['site_id']),rat=transmitter_rat(t),frequency_mhz=t['frequency_mhz'],
+                                                 portCount=len(t.get('ports',[])) or 1,eirp_dbm=cell_eirp(t)) for t in derived]))
     return dict(id=f'{region}/{project}',region_id=region,project_id=project,sourceFingerprint=fingerprint,scenarios=scenarios,
                 equipment=dict(zip(('revision','sha256','sourceFingerprint','importedAt'),equipment)) if equipment else None)
 
@@ -204,17 +228,28 @@ def _freeze_context(db,selection):
         value['schema']='ndt.execution.v2'
         value['predictionModel']=DIRECTIONAL_UMA
         value['radioScenario']=dict(id=identity,name=payload['name'],revision=scenario['revision'],draftRevision=scenario['draftRevision'],baselineRevision=scenario['baselineRevision'],payload=payload)
-        value['transmitters']=scenario_transmitters(payload,entry['transmitters'])
+        value['transmitters']=qualified_scenario(db,region,project,payload,entry['transmitters'])
         if selection.get('experiment_type')=='scenario-ab':
             value['radioBaseline'],value['baselineTransmitters']=scenario_baseline(db,region,project,identity,scenario['baselineRevision'],entry['transmitters'],context['sourceFingerprint'])
             value['comparisonKind']='scenario-revisions'
             value['scenarioComparison']=dict(baselineRevision=scenario['baselineRevision'],appliedRevision=scenario['revision'],baselineName=value['radioBaseline']['name'],appliedName=payload['name'])
-            value['scenarioChanges']=scenario_changes(value['baselineTransmitters'],value['transmitters'],selection.get('rat'))
-        if any(t['template']['pattern']=='array' for t in value['transmitters']+value.get('baselineTransmitters',[])):
-            value['schema']='ndt.execution.v3';value['predictionModel']=ARRAY_UMA
+            value['scenarioChanges']=scenario_changes(value['baselineTransmitters'],value['transmitters'],selection.get('rat'),value['radioBaseline']['payload'].get('radioBudgets'),payload.get('radioBudgets'))
+        all_transmitters=value['transmitters']+value.get('baselineTransmitters',[])
+        if any('ports' in t for t in all_transmitters):
+            value['schema']='ndt.execution.v4';value['predictionModel']=CELL_UMA
+            source_ids=sorted({t['site_id'] for t in all_transmitters})
+            value['inventorySnapshot'].pop('licensedSites',None)
+            value['inventorySnapshot'].update(sourceSites=[json.loads(row[0]) for row in db.execute(f"SELECT feature FROM network_sites WHERE region_id=? AND site_id IN ({','.join('?' for _ in source_ids)}) ORDER BY dataset_path,ordinal",(region,*source_ids))],
+                sourceSiteKind='Licensed inventory location' if value['inventorySnapshot']['region'].get('network')=='ised' else 'Reservation inventory location',
+                equipmentUsage='Assigned imported cells and port paths govern source-cell predictions; modeled power, antenna/receiver assumptions and reported values remain distinct.',
+                assignmentModes=dict(applied=payload.get('assignmentMode','sites'),baseline=value.get('radioBaseline',{}).get('payload',{}).get('assignmentMode','sites')))
+            value['cellAssumptions']=dict(combining='Uncorrelated mean port powers sum in linear units within each cell; no coherent inter-port combining',receiver='Ideal polarization-insensitive power collection; no receiver implementation or MIMO claim',membership='Explicit imported cell/port assignments; no fallback to Bell planning membership',power='Conducted carrier/port allocations share the modeled radio budget across all assigned RATs and cells',unsupported='No splitter/combiner networks, overlapping carriers on a shared TX port, interference, reference-signal allocation or field calibration')
+        templates=[p['template'] for t in all_transmitters for p in t.get('ports',[{'template':t.get('template')}])]
+        if any(t['pattern']=='array' for t in templates):
+            if value['predictionModel']!=CELL_UMA:value['schema']='ndt.execution.v3';value['predictionModel']=ARRAY_UMA
             value['arrayAssumptions']=dict(panelCount=1,polarizations=1,weights='Uniform unit-norm coherent weights, total conducted beam power shared across elements',eirp='TX power + element peak gain + 10log10(rows*columns) - loss; upper bound before element scan attenuation',nullFloorDb=120,farField='Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm=-300,geometry='Panel local y/z plane; mechanical downtilt and relative electrical steering are separate',limitations='Far-field narrowband scalar array; no coupling, polarization mismatch, multi-port allocation, measured vendor pattern or MIMO')
         value['modelReferences'] += [dict(title=f"3GPP TS {'36.104' if rat=='LTE' else '38.104'} v{PLAN['edition']} Release {PLAN['release']}",url=PLAN['references'][rat],rat=rat)
-                                    for rat in sorted({t['template']['rat'] for t in value['transmitters']+value.get('baselineTransmitters',[])})]
+                                    for rat in sorted({transmitter_rat(t) for t in all_transmitters})]
     value['id'] = 'SNAP-'+digest(value)[:24]
     return value
 

@@ -1,15 +1,24 @@
 """Versioned radio study scenarios; revisions retain source identity and never mutate."""
 import json
-import math
 import re
 from datetime import datetime, timezone
-from .carrier_plan import validate_carrier
-from .equipment_studies import validate_equipment_reference,validate_equipment_templates
-from .dm.antenna import validate_array
+from .equipment_studies import validate_equipment_templates
+from .radio_templates import validate_radio_template
+from .cell_assignments import resolve_cell_assignments
 
 
 class ScenarioConflict(ValueError):
     pass
+
+
+def validate_scenario_assignments(db,region,project,payload,*,current=False,qualified=False,cache=None):
+    mode=payload.get('assignmentMode','sites')
+    if mode not in ('sites','cells'):raise ValueError('Choose assumed site templates or imported cell/port assignments')
+    if mode=='cells':
+        if payload['overrides'] or 'equipmentSource' in payload['template']:raise ValueError('Cell assignment mode cannot mix assumed site overrides or source-linked defaults')
+        return resolve_cell_assignments(db,region,project,payload.get('cells'),payload.get('radioBudgets'),current=current,qualified=qualified,cache=cache)
+    if 'cells' in payload or 'radioBudgets' in payload:raise ValueError('Cell assignments and radio budgets require imported cell assignment mode')
+    validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=current,cache=cache)
 
 
 def initialize_scenarios(db):
@@ -25,27 +34,6 @@ def initialize_scenarios(db):
             PRIMARY KEY(region_id,project_id,scenario_id,revision),
             FOREIGN KEY(region_id,project_id,scenario_id) REFERENCES radio_scenarios);
     ''')
-
-
-def validate_radio_template(template):
-    bounds = dict(frequencyMHz=(500, 100000), bandwidthMHz=(.1, 400), powerDbm=(-30, 80),
-                  gainDbi=(0, 40), lossDb=(0, 40), tiltDeg=(-20, 90), azimuthDeg=(0, 359.999))
-    if not isinstance(template, dict) or set(template)-{'carrier','equipmentSource','array'} != set(bounds) | {'rat', 'pattern', 'mode'}:
-        raise ValueError('A complete radio template is required')
-    for field, (low, high) in bounds.items():
-        value = template[field]
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or not low <= value <= high or not math.isfinite(value):
-            raise ValueError(f'Invalid {field}: expected {low} to {high}')
-    if template['rat'] not in ('LTE', 'NR') or template['pattern'] not in ('element', 'isotropic','array') or template['mode'] not in ('LOS', 'NLOS'):
-        raise ValueError('Unsupported RAT, antenna pattern or environment')
-    if template['bandwidthMHz'] >= template['frequencyMHz']:
-        raise ValueError('Bandwidth must be smaller than carrier frequency')
-    if template['pattern'] == 'isotropic' and template['gainDbi'] != 0:
-        raise ValueError('An isotropic antenna requires 0 dBi gain')
-    validate_array(template)
-    validate_carrier(template)
-    if 'equipmentSource' in template:validate_equipment_reference(template['equipmentSource'])
-    return template
 
 
 def list_scenarios(db, region, project):
@@ -87,7 +75,7 @@ def save_scenario(db, region, project, body):
             raise ValueError('Unknown override site ID')
         for override in overrides.values():
             validate_radio_template(override)
-        validate_equipment_templates(db,region,project,template,overrides)
+        validate_scenario_assignments(db,region,project,{**body,'overrides':overrides})
         if expected >= 50:
             raise ValueError('Scenario limit reached: 50 retained revisions. Create a new scenario.')
         if not current and db.execute('SELECT COUNT(*) FROM radio_scenarios WHERE region_id=? AND project_id=?', (region, project)).fetchone()[0] >= 20:
@@ -95,6 +83,8 @@ def save_scenario(db, region, project, body):
         version = dict(revision=expected + 1, name=name.strip(), template=template, overrides=overrides,
                        sourceFingerprint=region_row[1], modelVersion='uma-array-v2' if any(t['pattern']=='array' for t in [template,*overrides.values()]) else 'uma-element-v1',
                        createdAt=datetime.now(timezone.utc).isoformat())
+        if body.get('assignmentMode')=='cells':
+            version.update(assignmentMode='cells',cells=body['cells'],radioBudgets=body['radioBudgets'],modelVersion='uma-source-cells-v3')
         db.execute('''INSERT INTO radio_scenarios VALUES (?,?,?,?,?,NULL,NULL)
                       ON CONFLICT(region_id,project_id,scenario_id) DO UPDATE SET name=excluded.name,revision=excluded.revision''',
                    (region, project, identity, name.strip(), expected + 1))
@@ -104,7 +94,7 @@ def save_scenario(db, region, project, body):
         version = json.loads(db.execute('SELECT payload FROM radio_scenario_versions WHERE region_id=? AND project_id=? AND scenario_id=? AND revision=?', (region, project, identity, expected)).fetchone()[0])
         if action == 'apply' and version['sourceFingerprint'] != region_row[1]:
             raise ValueError('Source inventory changed. Save a new revision before applying this scenario.')
-        validate_equipment_templates(db,region,project,version['template'],version['overrides'],current=True)
+        validate_scenario_assignments(db,region,project,version,current=True)
         field = 'applied_revision' if action == 'apply' else 'baseline_revision'
         db.execute(f'UPDATE radio_scenarios SET {field}=? WHERE region_id=? AND project_id=? AND scenario_id=?',
                    (expected, region, project, identity))

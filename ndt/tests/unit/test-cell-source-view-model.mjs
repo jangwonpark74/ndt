@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {createCellSourceViewModel} from '../../dist/cell-source-view-model.mjs';
+const ref={revision:1,sha256:'a'.repeat(64),cellId:'cell',linkId:'link'},draft={assignmentMode:'cells',cells:[{cellId:'cell',ports:[{equipmentSource:ref}]}]};
+const old={revision:1,sha256:ref.sha256,sourceFingerprint:'old',currentSourceFingerprint:'new',data:{}},latest={...old,revision:2,sha256:'b'.repeat(64),sourceFingerprint:'new'};
+let resolve,calls=[];const vm=createCellSourceViewModel({load:(project,revision)=>{calls.push([project,revision]);return new Promise(done=>resolve=done);}});
+const pending=vm.setContext('one',draft,latest);assert.equal(vm.getState().loading,true);
+await vm.setContext('two',{assignmentMode:'cells',cells:[]},latest);resolve(old);await pending;
+assert.equal(vm.getState().projectId,'two');assert.equal(vm.getState().inventory,latest);assert.equal(vm.getState().error,'');
+const load=vm.setContext('one',draft,latest);resolve(old);await load;assert.equal(vm.getState().inventory,old);assert.equal(vm.getState().stale,true);
+await vm.setContext('one',structuredClone(draft),latest);assert.equal(calls.length,2,'editing a port does not reload the same immutable source');
+await vm.setContext('one',draft,old);assert.equal(vm.getState().stale,true,'matching revision does not turn an old regional fingerprint into current data');
+await vm.setContext('one',draft,{...old,sourceFingerprint:'new'});assert.equal(vm.getState().stale,false);
+let attempts=0;const failure=createCellSourceViewModel({load:async()=>{if(++attempts===1)throw Error('source unavailable');return old;}});await failure.setContext('one',draft,latest);assert.match(failure.getState().error,/source unavailable/);
+await failure.retry();assert.equal(failure.getState().error,'');assert.equal(failure.getState().inventory,old);assert.equal(attempts,2);
+await failure.setContext(null,null,null);assert.equal(failure.getState().error,'');assert.equal(failure.getState().inventory,null);
+const mismatch=createCellSourceViewModel({load:async()=>latest});await mismatch.setContext('one',draft,latest);assert.match(mismatch.getState().error,/revision|hash/i);
+let rejectLate;const late=createCellSourceViewModel({load:()=>new Promise((_,reject)=>rejectLate=reject)});const delayed=late.setContext('one',draft,latest);await late.setContext('two',null,latest);rejectLate(Error('old project failed'));await delayed;assert.equal(late.getState().projectId,'two');assert.equal(late.getState().error,'');
+console.log('Historical source loading, project isolation, source fingerprint freshness and retry state passed.');

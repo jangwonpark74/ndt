@@ -98,7 +98,7 @@
       </details>
       <div id="network-detail" hidden></div>
       <section id="sector-selection" aria-label="Selected sector" hidden><strong id="sector-site"></strong><p id="sector-info" role="status" aria-live="polite"></p><div id="sector-choices" aria-label="Select a reported bearing"></div></section>
-      <details class="inspector-section"><summary>Radio and antenna study</summary>
+      <details id="radio-study" class="inspector-section"><summary>Radio and antenna study</summary>
         <p class="network-note">Review an independent single-link probe or save a project scenario. Applied qualified revisions can be selected in virtual drives. Map fans retain separate assumptions.</p>
         <div class="scenario-library">
           <label for="scenario-picker">Saved scenarios</label><select id="scenario-picker"><option value="">New scenario</option></select>
@@ -109,7 +109,9 @@
           <div class="study-actions"><button id="scenario-baseline" type="button">Set baseline</button><button id="scenario-apply" type="button">Apply saved revision</button></div>
           <details><summary>Revision history</summary><ol id="scenario-history"></ol></details>
         </div>
-        <details class="scenario-overrides"><summary>Site overrides</summary><label for="scenario-target">Template target</label><select id="scenario-target"><option value="">Default template</option></select>
+        <label for="scenario-assignment-mode">Execution assignment model</label><select id="scenario-assignment-mode"><option value="sites">Site templates (legacy planning assumptions)</option><option value="cells">Imported LTE / NR cell and port assignments</option></select>
+        <div id="cell-study-controls" hidden><p id="cell-study-summary" class="network-note"></p><button id="cell-study-open" type="button">Review cell assignments</button></div>
+        <details class="scenario-overrides"><summary id="scenario-target-heading">Site overrides</summary><label for="scenario-target">Template target</label><select id="scenario-target"><option value="">Default template</option></select>
         <div class="study-actions"><button id="scenario-override-add" type="button">Add selected site override</button><button id="scenario-override-remove" type="button">Remove site override</button></div>
         <p id="scenario-override-note" class="network-note">Site overrides are planning assumptions, not verified equipment assignments.</p></details>
         <label for="template-preset">Radio preset</label><select id="template-preset"><option value="lte">4G LTE macro study</option><option value="nr">5G NR macro study</option></select>
@@ -146,7 +148,7 @@
               <label>Electrical azimuth offset (degrees)<input name="steerAzimuthDeg" type="number" min="-90" max="90" step="any"></label>
               <label>Electrical downtilt offset (degrees)<input name="steerDowntiltDeg" type="number" min="-90" max="90" step="any"></label>
             </div>
-            <details><summary>Array assumptions and limits</summary><p class="network-note">Uniform coherent weights share total beam power. EIRP upper bound adds 10 log10(rows × columns) to element peak gain once; scanning also loses element gain. Positive electrical azimuth turns clockwise from panel boresight; positive electrical downtilt points down in the panel frame. Spacing above half a wavelength can produce grating lobes. Ideal array null attenuation is capped at 120 dB for numerical output. Slant distance must meet 2D²/λ for the array diagonal D. Route values below -300 dBm are unavailable. Far-field narrowband scalar model; no coupling, polarization mismatch, MIMO, measured vendor pattern or multi-port allocation. Geometry bounds are application limits, not hardware qualification.</p></details>
+            <details><summary>Array assumptions and limits</summary><p class="network-note">Uniform coherent weights share total beam power. EIRP upper bound adds 10 log10(rows × columns) to element peak gain once; scanning also loses element gain. Positive electrical azimuth turns clockwise from panel boresight; positive electrical downtilt points down in the panel frame. Spacing above half a wavelength can produce grating lobes. Ideal array null attenuation is capped at 120 dB for numerical output. Slant distance must meet 2D²/λ for the array diagonal D. Route values below -300 dBm are unavailable. Far-field narrowband scalar model; no coupling, polarization mismatch, MIMO, measured vendor pattern or coherent inter-port allocation. Geometry bounds are application limits, not hardware qualification.</p></details>
           </fieldset>
           <h3>Receiver probe</h3>
           <div class="planning-input-grid"><label>Distance (m)<input name="distanceM" type="number" min="10" max="5000" value="500" step="any" required></label><label>Bearing (degrees north)<input name="probeBearing" type="number" min="0" max="359.999" value="0" step="any" required></label></div>

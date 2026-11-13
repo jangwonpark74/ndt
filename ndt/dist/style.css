@@ -270,3 +270,24 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 .equipment-study summary{font-size:12px;cursor:pointer;padding:8px 0}.equipment-study[data-invalid=true]{border-color:#a75a42;background:#fff4ef}
 
 #array-controls{min-width:0;margin:14px 0;padding:12px;border:1px solid #b9cbbf;border-radius:5px}#array-controls legend{font-size:13px;font-weight:650}#array-controls .planning-input-grid>label{min-width:0;overflow-wrap:anywhere}
+
+/* Source assignments use a bounded review workspace rather than expanding the map inspector. */
+.cell-study-dialog{box-sizing:border-box;width:min(920px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:24px;border:1px solid var(--border,#c8d4cf);border-radius:12px;color:#183c30;background:#fff;overflow:auto;overflow-wrap:anywhere}
+.cell-study-dialog::backdrop{background:#102b2299}
+.cell-study-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cell-study-heading h2{margin:0}
+.cell-study-dialog label{display:block;margin-top:12px;font-weight:600}
+.cell-study-dialog input,.cell-study-dialog select{box-sizing:border-box;max-width:100%;width:100%;padding:9px;border:1px solid #879e93;border-radius:5px;font:inherit;color:inherit;background:#fff}
+.cell-study-dialog button{font:inherit;padding:9px 12px;min-height:40px;border:1px solid #879e93;border-radius:5px;background:#f3f8f5;color:#183c30;cursor:pointer;white-space:normal}
+.cell-study-dialog button:disabled{opacity:.55;cursor:default}
+.cell-study-dialog :focus-visible{outline:3px solid #1b795b;outline-offset:3px}
+.cell-study-card,.cell-budget-row{border:1px solid #c8d4cf;border-radius:8px;margin:14px 0;padding:16px;min-width:0}
+.cell-study-card h4{margin:0 0 8px;font-size:16px}
+.cell-study-card p,.cell-budget-row p{font-size:14px;line-height:1.5}
+.cell-study-card details{margin-top:12px}
+.cell-study-dialog [data-invalid=true]{color:#8c2929}
+@media(max-width:480px){.cell-study-dialog{padding:16px}.cell-study-card,.cell-budget-row{padding:12px}.cell-study-dialog .study-actions{flex-wrap:wrap}}
+
+.cell-study-heading{position:sticky;top:-24px;z-index:2;background:#fff;padding:16px 24px;margin:-24px -24px 16px;border-bottom:1px solid #c8d4cf}
+.cell-study-heading h2{font-size:22px}
+@media(max-width:480px){.cell-study-heading{top:-16px;padding:12px 16px;margin:-16px -16px 12px}.cell-study-heading h2{font-size:19px}}

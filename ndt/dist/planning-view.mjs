@@ -2,7 +2,9 @@ import {RADIO_TEMPLATES, ARRAY_DEFAULTS, PLANNING_REFERENCE, validateTemplate, p
 import {createScenarioModel} from './scenario-model.mjs';
 import {createScenarioViewModel} from './scenario-view-model.mjs';
 import {CARRIER_PLAN,carrierBand,carrierFrequency,validateCarrier} from './carrier-plan.mjs';
-import {equipmentStudyTemplate,equipmentStudyValues} from './equipment-study.mjs';
+import {equipmentStudyTemplate,equipmentStudyValues,equipmentStudyPath} from './equipment-study.mjs';
+import {asCellStudy,updateCellPort,cellStudyPaths,addSourceCell} from './cell-study.mjs';
+import {bindCellStudyView} from './cell-study-view.mjs';
 
 export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,getEquipmentInventory=()=>null,getSiteLabel=id=>id,getRunParticipation=()=>null}) {
   const $=id=>document.getElementById(id), form=$('radio-template-form');
@@ -10,21 +12,25 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
   const arrayFields=Object.keys(ARRAY_DEFAULTS);
   let rat='LTE',carrierVersion=CARRIER_PLAN.version,equipmentSource=null,pendingLoad=Promise.resolve(),contextVersion=0;
   const scenarios=createScenarioViewModel(createScenarioModel(regionId));
-  let previousDraft,overrideSite='';
+  let previousDraft,overrideSite='',modeDrafts={},targetSignature='';
+  const isCells=()=>scenarios.getState().draft?.assignmentMode==='cells';
+  const targetTemplate=d=>isCells() && overrideSite ? d.cells?.find(c=>c.cellId===overrideSite.split('/')[0])?.ports.find(p=>p.equipmentSource.linkId===overrideSite.split('/')[1]) : d?.overrides?.[overrideSite];
+  const cellView=bindCellStudyView({regionId,getProject,getDraft:()=>scenarios.getState().draft,getCurrentInventory:getEquipmentInventory,isBusy:()=>{const s=scenarios.getState();return s.loading || s.saving;},onEdit:d=>scenarios.edit(d),onPort:target=>{overrideSite=target;fill(targetTemplate(scenarios.getState().draft));document.querySelector('.scenario-overrides').open=true;$('scenario-target').value=target;$('scenario-target').focus();},onSourceChange:()=>{if(isCells()){syncTargets();render();}}});
+  $('cell-study-open').onclick=event=>cellView.open(event.currentTarget);
   const evidence=document.createElement('div');evidence.className='equipment-study';evidence.hidden=true;
   evidence.innerHTML='<p id="template-equipment-status" class="network-note" role="status"></p><details><summary>Compare reported inputs</summary><p class="network-note">Source records are user-supplied. Modeled power, feeder loss, environment and antenna model are study assumptions; vendor cuts are reviewed separately.</p><table><thead><tr><th scope="col">Input</th><th scope="col">Reported</th><th scope="col">Study</th></tr></thead><tbody id="template-equipment-values"></tbody></table><p id="template-equipment-hash" class="network-note"></p></details><div class="study-actions"><button id="template-equipment-clear" type="button">Keep as assumptions</button></div>';
   form.before(evidence);
-  function draft(){const base=scenarios.getState().draft;return {name:$('scenario-name').value,template:overrideSite ? base.template : read(),overrides:overrideSite ? {...base.overrides,[overrideSite]:read()} : base?.overrides || {}};}
+  function draft(){const base=scenarios.getState().draft;const next={...base,name:$('scenario-name').value};if(isCells())return overrideSite?updateCellPort(next,...overrideSite.split('/'),read()):{...next,template:read()};return {...next,template:overrideSite ? base.template : read(),overrides:overrideSite ? {...base.overrides,[overrideSite]:read()} : base?.overrides || {}};}
   const key=()=>`ndt-radio-template:${regionId}:${getProject()?.id || 'region'}`;
   function read() {return {rat,...Object.fromEntries(fields.map(f=>[f,['pattern','mode'].includes(f) ? form.elements[f].value : form.elements[f].value.trim() === '' ? NaN : Number(form.elements[f].value)])),...(form.elements.pattern.value==='array'?{array:Object.fromEntries(arrayFields.map(f=>[f,form.elements[f].value.trim()===''?NaN:Number(form.elements[f].value)]))}:{}),...($('carrier-enabled').checked ? {carrier:{standard:carrierVersion,band:form.elements.carrierBand.value,channel:form.elements.channel.value==='' ? NaN : Number(form.elements.channel.value),scsKHz:Number(form.elements.carrierScs.value)}} : {}),...(equipmentSource?{equipmentSource}: {})};}
   function renderEvidence(template){
-    evidence.hidden=!equipmentSource;if(!equipmentSource)return;
+    evidence.hidden=!equipmentSource;$('template-equipment-clear').hidden=isCells();if(!equipmentSource)return;
     const status=$('template-equipment-status'),rows=$('template-equipment-values');rows.replaceChildren();evidence.dataset.invalid='false';
     $('template-equipment-clear').disabled=scenarios.getState().loading || scenarios.getState().saving;
     $('template-equipment-hash').textContent=`Original source SHA-256 ${equipmentSource.sha256}`;
     try{
-      const inventory=getEquipmentInventory(),cellLabel=inventory?.data.cells.find(cell=>cell.id===equipmentSource.cellId)?.cellIdentity || equipmentSource.cellId,reported=equipmentStudyValues(inventory,equipmentSource,overrideSite),missing=Object.values(reported).filter(v=>v===null).length,changed=Object.entries(reported).filter(([key,v])=>v!==null && v!==template[key]).length;
-      status.textContent=`${getProject()?.name || ''} / ${getSiteLabel(overrideSite)} · Source revision ${equipmentSource.revision} · ${cellLabel}${missing?` · ${missing} ${missing===1?'input':'inputs'} not reported`:''}${changed?` · ${changed} modeled ${changed===1?'edit':'edits'}`:''}${getRunParticipation(overrideSite)===false?' · Outside current Bell run membership':''}`;
+      const inventory=isCells()?cellView.getInventory():getEquipmentInventory(),siteId=isCells()?equipmentStudyPath(inventory,equipmentSource,inventory?.data.sites.find(s=>s.id===inventory?.data.sectors.find(s=>s.id===inventory?.data.cells.find(c=>c.id===equipmentSource.cellId)?.sectorId)?.siteId)?.inventorySiteId,{allowHistorical:true}).site.inventorySiteId:overrideSite,cellLabel=inventory?.data.cells.find(cell=>cell.id===equipmentSource.cellId)?.cellIdentity || equipmentSource.cellId,reported=equipmentStudyValues(inventory,equipmentSource,siteId,{allowHistorical:isCells()}),missing=Object.values(reported).filter(v=>v===null).length,changed=Object.entries(reported).filter(([key,v])=>v!==null && v!==template[key]).length;
+      status.textContent=`${getProject()?.name || ''} / ${getSiteLabel(siteId)} · Source revision ${equipmentSource.revision} · ${cellLabel}${missing?` · ${missing} ${missing===1?'input':'inputs'} not reported`:''}${changed?` · ${changed} modeled ${changed===1?'edit':'edits'}`:''}${!isCells() && getRunParticipation(overrideSite)===false?' · Outside current Bell run membership':''}`;
       for(const [key,label]of Object.entries({rat:'RAT',frequencyMHz:'Carrier MHz',bandwidthMHz:'Bandwidth MHz',azimuthDeg:'Azimuth deg',gainDbi:'Peak gain dBi',tiltDeg:'Downtilt deg'})){
         const row=document.createElement('tr');for(const [i,value]of [label,reported[key]??'Not reported',typeof template[key]==='number' && !Number.isFinite(template[key])?'Enter value':template[key]].entries()){const cell=document.createElement(i?'td':'th');if(!i)cell.scope='row';cell.textContent=value;row.append(cell);}rows.append(row);
       }
@@ -49,11 +55,18 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     form.elements.carrierBand.value=c?.band || b.id;form.elements.channel.value=c?.channel ?? b.defaultChannel;form.elements.carrierScs.value=c?.scsKHz ?? b.scsKHz;
     syncCarrier();render();
   }
+  function syncTargets(state=scenarios.getState()){const cells=state.draft?.assignmentMode==='cells';
+    if(overrideSite && !targetTemplate(state.draft))overrideSite='';
+    let targets=[];if(cells){try{targets=cellStudyPaths(state.draft,cellView.getInventory()).flatMap(c=>c.ports.map(p=>new Option(`${c.cell.cellIdentity || c.cellId} · ${c.site.inventorySiteId} / ${p.radioPort.name || p.radioPort.id} → ${p.antennaPort.name || p.antennaPort.id}`,`${c.cellId}/${p.link.id}`)));}catch{targets=(state.draft.cells || []).flatMap(c=>c.ports.map(p=>new Option(`${c.cellId} / ${p.equipmentSource.linkId}`,`${c.cellId}/${p.equipmentSource.linkId}`)));}}else targets=Object.keys(state.draft?.overrides || {}).map(id=>new Option(getSiteLabel(id),id));
+    const signature=JSON.stringify([state.projectId,cells,targets.map(t=>[t.value,t.text])]);if(signature!==targetSignature){targetSignature=signature;$('scenario-target').replaceChildren(new Option(cells?'New port defaults':'Default template',''),...targets);}
+    $('scenario-target').value=overrideSite;
+  }
   function render() {
     const t=read(), result=predictProbe(t,Number(form.elements.distanceM.value || NaN),Number(form.elements.probeBearing.value === '' ? NaN : form.elements.probeBearing.value));
     const carrierError=validateCarrier(t),b=carrierBand(t.carrier?.band);
     $('template-result').replaceChildren();
-    $('template-error').textContent=result.error || ''; $('template-error').hidden=!result.error || !!carrierError;
+    const assignmentError=isCells()?cellView.validationError():'';
+    $('template-error').textContent=assignmentError || result.error || '';$('template-error').hidden=!(assignmentError || result.error) || (!assignmentError && !!carrierError);
     const state=scenarios.getState();
     $('array-controls').hidden=t.pattern!=='array';
     $('template-gain-label').textContent=t.pattern==='array'?'Element peak gain (dBi)':'Peak gain (dBi)';
@@ -63,14 +76,14 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('carrier-check-status').dataset.invalid=String(!!carrierError);
     $('scenario-override-add').disabled=!getProject() || !getSelectedSite() || state.loading || state.saving || !!validateTemplate(t);
     $('scenario-override-remove').disabled=!overrideSite || state.loading || state.saving;
-    $('template-save').disabled=!!validateTemplate(t) || state.loading || state.saving || (state.projectId && !!state.error && !state.items.length); $('template-export').disabled=!!result.error;
+    $('template-save').disabled=!!validateTemplate(t) || !!assignmentError || state.loading || state.saving || (state.projectId && !!state.error && !state.items.length); $('template-export').disabled=!!result.error;
     if (result.error) return;
     for (const [label,value] of [['Study RAT',rat],['Carrier check',t.carrier?'Supported channel checks passed':'Generic · not checked'],[t.pattern==='array'?'EIRP upper bound':'Peak EIRP',`${result.eirpDbm.toFixed(1)} dBm`],['Path loss',`${result.pathLoss.toFixed(1)} dB`],['Pattern attenuation',`${result.attenuation.toFixed(1)} dB`],['Predicted received power',`${result.rxDbm.toFixed(1)} dBm`]]) {
       const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;$('template-result').append(dt,dd);
     }
   }
   function edited(){if(getProject())scenarios.edit(draft());render();$('template-save-status').textContent='Unsaved study edits.';}
-  $('template-preset').onchange=()=>{fill(RADIO_TEMPLATES[$('template-preset').value]);edited();};
+  $('template-preset').onchange=()=>{const source=equipmentSource;fill({...RADIO_TEMPLATES[$('template-preset').value],...(isCells() && source?{equipmentSource:source}:{})});edited();};
   form.oninput=event=>{
     if(event.target.name==='pattern' && event.target.value==='array' && equipmentSource)form.elements.gainDbi.value='';
     if(['carrierEnabled','carrierBand','channel','carrierScs'].includes(event.target.name)){
@@ -93,7 +106,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
   function load() {
     ++contextVersion;
     const project=getProject();
-    overrideSite='';
+    overrideSite='';modeDrafts={};
     if(project){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}
     pendingLoad=scenarios.load(project?.id || null).then(()=>{
       const state=scenarios.getState();
@@ -110,7 +123,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     const template=read(),distanceM=Number(form.elements.distanceM.value),bearingDeg=Number(form.elements.probeBearing.value),result=predictProbe(template,distanceM,bearingDeg);
     if(result.error)return;
     const state=scenarios.getState(),scenario=state.selected;
-    const blob=new Blob([JSON.stringify({version:4,arrayAssumptions:template.pattern==='array'?{nullFloorDb:120,farField:'Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm:-300,panelCount:1,polarizations:1,weights:'Uniform unit-norm coherent weights',geometry:template.array}:null,regionId,projectId:getProject()?.id || null,template,templateTarget:overrideSite || null,probe:{distanceM,bearingDeg},result,scenario:scenario ? {...scenario,unsavedEdits:state.dirty} : null,reference:PLANNING_REFERENCE,carrierQualification:qualification(template),carrierReference:template.carrier ? CARRIER_PLAN.references[rat] : null,powerConvention:'Total average conducted power per modeled carrier/port; array beam power is shared across elements. EIRP upper bound = TX power + element peak gain + 10log10(rows*columns) - loss for arrays; without an array, peak EIRP = TX power + peak gain - loss. No reference-signal allocation.',model:'UMa mean path loss, 25 m BS / 1.5 m UE; reference element, isotropic or uniform single-panel scalar array; 120 dB numerical array-null cap. Bandwidth and RAT do not change the path-loss formula. The probe is independent of map fans and virtual drives. Saved applied templates can be selected for directional virtual drives.'},null,2)],{type:'application/json'});
+    const blob=new Blob([JSON.stringify({version:isCells()?5:4,...(isCells()?{sourceEquipment:cellView.getInventory(),cellAssumptions:'Uncorrelated mean port powers sum within a cell; ideal polarization-insensitive power collection. All assigned LTE/NR ports share explicit modeled radio budgets. No coherent inter-port phases, MIMO or reference-signal allocation.'}:{}),arrayAssumptions:template.pattern==='array'?{nullFloorDb:120,farField:'Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm:-300,panelCount:1,polarizations:1,weights:'Uniform unit-norm coherent weights',geometry:template.array}:null,regionId,projectId:getProject()?.id || null,template,templateTarget:overrideSite || null,probe:{distanceM,bearingDeg},result,scenario:scenario ? {...scenario,unsavedEdits:state.dirty,...(isCells()?{draft:draft()}: {})} : isCells()?{draft:draft(),unsavedEdits:true}:null,reference:PLANNING_REFERENCE,carrierQualification:qualification(template),carrierReference:template.carrier ? CARRIER_PLAN.references[rat] : null,powerConvention:'Total average conducted power per modeled carrier/port; array beam power is shared across elements. EIRP upper bound = TX power + element peak gain + 10log10(rows*columns) - loss for arrays; without an array, peak EIRP = TX power + peak gain - loss. No reference-signal allocation.',model:'UMa mean path loss, 25 m BS / 1.5 m UE; reference element, isotropic or uniform single-panel scalar array; 120 dB numerical array-null cap. Bandwidth and RAT do not change the path-loss formula. The probe is independent of map fans and virtual drives. Saved applied templates can be selected for directional virtual drives.'},null,2)],{type:'application/json'});
     const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='radio-planning-study.json';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
   };
   scenarios.subscribe(state=>{
@@ -131,23 +144,30 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('scenario-error').textContent=state.error;$('scenario-error').hidden=!state.error;
     $('scenario-state').textContent=!project ? 'Select a project for database saving.' : state.loading ? 'Loading saved scenarios...' : `${state.dirty ? 'Unsaved edits. ' : ''}Draft revision ${state.selected?.revision || 0} | Baseline ${state.selected?.baselineRevision || 'none'} | Applied ${state.selected?.appliedRevision || 'none'}`;
     $('scenario-history').replaceChildren();
-    if(overrideSite && !state.draft?.overrides[overrideSite])overrideSite='';
-    $('scenario-target').replaceChildren(new Option('Default template',''),...Object.keys(state.draft?.overrides || {}).map(id=>new Option(getSiteLabel(id),id)));
+    const cells=state.draft?.assignmentMode==='cells';
+    syncTargets(state);
+    $('scenario-assignment-mode').value=cells?'cells':'sites';$('scenario-assignment-mode').disabled=!project || busy;
+    $('cell-study-controls').hidden=!cells;$('cell-study-open').disabled=busy;
+    $('scenario-target-heading').textContent=cells?'Cell port templates':'Site overrides';
+    $('scenario-override-note').textContent=cells?'Radio settings propagate to every port of this cell. Antenna settings and conducted power apply to the selected path. New port defaults do not participate in execution.':'Site overrides are planning assumptions, not verified equipment assignments.';
+    for(const id of ['scenario-override-add','scenario-override-remove'])$(id).hidden=cells;
+    for(const option of $('template-preset').options)option.disabled=cells && !!overrideSite && (option.value==='nr'?'NR':'LTE')!==targetTemplate(state.draft)?.rat;
     $('scenario-target').value=overrideSite;
     for(const version of state.selected?.versions || []){const li=document.createElement('li');li.textContent=`Revision ${version.revision}: ${version.name} (${new Date(version.createdAt).toLocaleString()})`;li.title=`Source ${version.sourceFingerprint}; model ${version.modelVersion}`;$('scenario-history').append(li);}
-    if(state.draft && state.draft!==previousDraft){previousDraft=state.draft;$('scenario-name').value=state.draft.name;fill(state.draft.overrides[overrideSite] || state.draft.template);}
-    render();
+    if(state.draft && state.draft!==previousDraft){previousDraft=state.draft;$('scenario-name').value=state.draft.name;fill(targetTemplate(state.draft) || state.draft.template);}
+    cellView.sync();render();
   });
-  $('scenario-picker').onchange=()=>{overrideSite='';scenarios.select($('scenario-picker').value);};
-  $('scenario-new').onclick=()=>{overrideSite='';fill(RADIO_TEMPLATES[$('template-preset').value]);scenarios.newDraft({name:'New radio study',template:read(),overrides:{}});$('scenario-name').focus();};
-  $('scenario-discard').onclick=()=>{const id=scenarios.getState().selected?.id;scenarios.select(id);if(!id){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}};
+  $('scenario-assignment-mode').onchange=()=>{const current=draft(),mode=$('scenario-assignment-mode').value;modeDrafts[isCells()?'cells':'sites']=structuredClone(current);overrideSite='';const next=modeDrafts[mode] || (mode==='cells'?asCellStudy(current):{name:current.name,template:structuredClone(current.template),overrides:{}});scenarios.edit({...next,name:current.name});};
+  $('scenario-picker').onchange=()=>{overrideSite='';modeDrafts={};scenarios.select($('scenario-picker').value);};
+  $('scenario-new').onclick=()=>{overrideSite='';modeDrafts={};fill(RADIO_TEMPLATES[$('template-preset').value]);scenarios.newDraft({name:'New radio study',template:read(),overrides:{}});$('scenario-name').focus();};
+  $('scenario-discard').onclick=()=>{overrideSite='';modeDrafts={};const id=scenarios.getState().selected?.id;scenarios.select(id);if(!id){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}};
   $('scenario-reload').onclick=()=>{++contextVersion;pendingLoad=scenarios.load(getProject()?.id || null).catch(()=>{});};
   $('scenario-copy').onclick=()=>{const copy={...draft(),name:`${$('scenario-name').value.slice(0,110)} copy`};scenarios.newDraft(copy);scenarios.save({...copy,id:crypto.randomUUID()}).catch(()=>{});};
-  $('scenario-target').onchange=()=>{overrideSite=$('scenario-target').value;const d=scenarios.getState().draft;if(d)fill(d.overrides[overrideSite] || d.template);};
+  $('scenario-target').onchange=()=>{overrideSite=$('scenario-target').value;const d=scenarios.getState().draft;if(d)fill(targetTemplate(d) || d.template);};
   $('scenario-override-add').onclick=()=>{const site=getSelectedSite();if(!site)return;const d=draft();overrideSite=site.properties.site_id;scenarios.edit({...d,overrides:{...d.overrides,[overrideSite]:structuredClone(d.template)}});};
   $('scenario-override-remove').onclick=()=>{const d=draft(),overrides={...d.overrides};delete overrides[overrideSite];overrideSite='';scenarios.edit({...d,overrides});};
   document.addEventListener('networksitechange',render);
-  document.addEventListener('equipmentinventorychange',render);
+  document.addEventListener('equipmentinventorychange',()=>{cellView.sync();render();});
   $('template-equipment-clear').onclick=()=>{equipmentSource=null;edited();};
   document.addEventListener('equipmentstudyrequested',async event=>{
     const {projectId,siteId,reference}=event.detail,token=contextVersion;
@@ -156,9 +176,9 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     try{
       const inventory=getEquipmentInventory();equipmentStudyValues(inventory,reference,siteId);
       const state=scenarios.getState(),base=state.draft || draft(),template=equipmentStudyTemplate(base.template,inventory,reference.cellId,reference.linkId,siteId);
-      overrideSite=siteId;scenarios.edit({...base,overrides:{...base.overrides,[siteId]:template}});
+      if(isCells()){const existing=base.cells.find(c=>c.cellId===reference.cellId)?.ports.find(p=>p.equipmentSource.linkId===reference.linkId);overrideSite=`${reference.cellId}/${reference.linkId}`;if(existing){fill(existing);$('scenario-target').value=overrideSite;}else scenarios.edit(addSourceCell(base,inventory,reference.cellId,[reference.linkId]));}else{overrideSite=siteId;scenarios.edit({...base,overrides:{...base.overrides,[siteId]:template}});}
       document.querySelector('.scenario-overrides').open=true;$('scenario-target').focus();evidence.scrollIntoView({block:'nearest'});
-      $('template-save-status').textContent='Source-linked site draft. Review reported inputs, assumptions and exact carrier channel before saving.';
+      $('template-save-status').textContent=isCells()?'Source-cell path selected. Review the modeled port inputs, shared radio budget and exact carrier.':'Source-linked site draft. Review reported inputs, assumptions and exact carrier channel before saving.';
     }catch(error){$('template-save-status').textContent=error.message;}
   });
   for(const [id,action]of [['scenario-baseline','baseline'],['scenario-apply','apply']])$(id).onclick=()=>scenarios.save(draft(),action).catch(()=>{});

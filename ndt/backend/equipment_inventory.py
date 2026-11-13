@@ -116,8 +116,8 @@ def validate_inventory(data,known_sites):
     return data
 
 
-def trace_cell(data,identity):
-    tables={kind:{r['id']:r for r in data[kind]} for kind in COLLECTIONS}
+def trace_cell(data,identity,*,tables=None):
+    tables=tables if tables is not None else {kind:{r['id']:r for r in data[kind]} for kind in COLLECTIONS}
     cell=tables['cells'][identity];sector=tables['sectors'][cell['sectorId']]
     connections=[]
     for link in data['links']:

@@ -26,3 +26,10 @@ acceptSave({...saved,revision:2,versions:[version,{...version,revision:2}]});awa
 assert.equal(duringSave.getState().dirty,true,'edits made during a save remain unsaved');
 assert.equal(duringSave.getState().draft.name,'Newer draft');
 console.log('Scenario context isolation, CAS requests and conflict draft preservation passed.');
+const sourceVersion={...version,assignmentMode:'cells',cells:[{cellId:'cell-1',ports:[{powerDbm:30}]}],radioBudgets:{'radio-1':35}};
+const sourceSaved={...saved,versions:[sourceVersion]};
+const source=createScenarioViewModel({load:async()=>[sourceSaved],save:async(project,body)=>({...sourceSaved,revision:2,versions:[sourceVersion,{...body,revision:2}]})});
+await source.load('one');assert.equal(source.getState().draft.assignmentMode,'cells');assert.deepEqual(source.getState().draft.radioBudgets,{'radio-1':35});
+source.getState().draft.cells[0].ports[0].powerDbm=31;assert.equal(sourceVersion.cells[0].ports[0].powerDbm,30,'port edits must not mutate saved source revisions');
+source.edit(source.getState().draft);await source.load('two');await source.load('one');assert.equal(source.getState().draft.cells[0].ports[0].powerDbm,31);
+await source.save(source.getState().draft);assert.equal(source.getState().draft.cells[0].ports[0].powerDbm,31);assert.deepEqual(source.getState().draft.radioBudgets,{'radio-1':35});
