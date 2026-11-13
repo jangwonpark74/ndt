@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {predictProbe,validateTemplate,receiverAntennaAttenuation} from '../../dist/planning-model.mjs';
+import {RECEIVER_MODEL} from '../../dist/polarization-model.mjs';
+const base={rat:'NR',frequencyMHz:3600,bandwidthMHz:100,powerDbm:30,gainDbi:0,lossDb:0,azimuthDeg:0,tiltDeg:0,pattern:'isotropic',mode:'LOS'};
+const template={...base,polarization:{model:'3gpp-38.901-model2',slantDeg:0,rollDeg:0}};
+const receiver={model:RECEIVER_MODEL,collection:'single-linear',orientation:{azimuthDeg:0,tiltDeg:0,rollDeg:0,slantDeg:90}};
+assert.equal(validateTemplate(template),'');
+assert.match(predictProbe(template,100,0).error,/receiver/i);
+const zero=predictProbe(template,100,0,null,receiver);
+assert.equal(zero.error,undefined);assert.equal(zero.rxDbm,null);assert.equal(zero.receiver.powerFraction,0);assert.equal(zero.zeroCollectedPower,true);
+const original=predictProbe(base,100,0),dual=predictProbe(template,100,0,null,{...receiver,collection:'dual-orthogonal'});
+assert.ok(Math.abs(original.rxDbm-dual.rxDbm)<1e-10);assert.equal(dual.receiver.powerFraction,1);
+assert.match(validateTemplate({...template,mode:'NLOS'}),/LOS/);
+assert.match(predictProbe(base,100,0,null,receiver).error,/polarization/i);
+assert.match(validateTemplate({...template,polarization:{...template.polarization,phaseDeg:0}}),/polarization|Model-2/i);
+// Four half-wavelength horizontal elements have their first null at sin(angle)=1/2.
+const array={...template,pattern:'array',array:{rows:1,columns:4,verticalSpacing:.5,horizontalSpacing:.5,steerAzimuthDeg:0,steerDowntiltDeg:0}};
+assert.ok(receiverAntennaAttenuation(array,30,0)>120);
+assert.ok(receiverAntennaAttenuation(array,0,30)<10);
+const rolled={...array,polarization:{...array.polarization,rollDeg:90}};
+assert.ok(receiverAntennaAttenuation(rolled,0,30)>120);
+assert.ok(receiverAntennaAttenuation(rolled,30,0)<10);
+console.log('Receiver probe: explicit LOS contract, zero-power null, dual-power identity and legacy default passed.');

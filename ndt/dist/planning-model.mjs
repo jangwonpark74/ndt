@@ -4,6 +4,7 @@ import {validateCarrier} from './carrier-plan.mjs';
 import {validateEquipmentReference} from './equipment-study.mjs';
 import {validateSampledReference} from './pattern-study.mjs';
 import {localDirection} from './pattern-model.mjs';
+import {validateTemplatePolarization,validateReceiverTemplates,preparePolarization,templateOrientation} from './polarization-model.mjs';
 
 export const PLANNING_REFERENCE = 'https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf';
 export const ARRAY_DEFAULTS=Object.freeze({rows:4,columns:4,verticalSpacing:.5,horizontalSpacing:.5,steerAzimuthDeg:0,steerDowntiltDeg:0});
@@ -26,6 +27,7 @@ export function validateTemplate(t) {
   }else if(Object.hasOwn(t,'array'))return 'Array geometry requires the uniform panel array pattern.';
   if (t.bandwidthMHz >= t.frequencyMHz) return 'Bandwidth must be smaller than carrier frequency.';
   if (t.pattern === 'isotropic' && t.gainDbi !== 0) return 'An isotropic antenna requires 0 dBi gain.';
+  try{validateTemplatePolarization(t);}catch(error){return error.message;}
   return validateSampledReference(t) || validateCarrier(t) || (Object.hasOwn(t,'equipmentSource') ? validateEquipmentReference(t.equipmentSource) : '');
 }
 
@@ -49,6 +51,12 @@ export function antennaAttenuation(t,azimuthOffsetDeg,elevationDeg,patternAssets
 }
 export function farFieldDistance(t,patternAssets){if(t.pattern==='array')return arrayFarFieldDistance(t);if(t.pattern==='sampled'){const grid=patternAssets?.get(t.sampled.patternId);if(!grid)throw Error('Missing qualified source grid for far-field evaluation.');return grid.farFieldM(t.frequencyMHz);}return 0;}
 
+export function receiverAntennaAttenuation(t,azimuthOffsetDeg,elevationDeg,patternAssets){
+ if(t.pattern==='sampled')return antennaAttenuation(t,azimuthOffsetDeg,elevationDeg,patternAssets);
+ const [a,e]=localDirection(azimuthOffsetDeg,elevationDeg,t.tiltDeg,t.polarization.rollDeg);
+ return antennaAttenuation({...t,tiltDeg:0},a,e,patternAssets);
+}
+
 // TR 38.901 v18.0.0 table 7.3-1. Rotate the direction into the downtilted element frame.
 export function elementAttenuation(azimuthOffsetDeg, elevationDeg, tiltDeg = 0) {
   const rad = Math.PI/180, a=azimuthOffsetDeg*rad, e=elevationDeg*rad, t=tiltDeg*rad;
@@ -58,7 +66,7 @@ export function elementAttenuation(azimuthOffsetDeg, elevationDeg, tiltDeg = 0) 
   return Math.min(30,Math.min(30,12*(phi/65)**2)+Math.min(30,12*((theta-90)/65)**2));
 }
 
-export function predictProbe(template, distanceM, bearingDeg,patternAssets) {
+export function predictProbe(template, distanceM, bearingDeg,patternAssets,receiver=null) {
   const error=validateTemplate(template);
   if (error) return {error};
   const pathLoss=umaPathLoss(distanceM,template.frequencyMHz,template.mode);
@@ -68,9 +76,14 @@ export function predictProbe(template, distanceM, bearingDeg,patternAssets) {
     const boundary=farFieldDistance(template,patternAssets);if(Math.hypot(distanceM,23.5)<boundary)return {error:`Probe is inside the ${template.pattern==='sampled'?'source grid':'array'} far-field boundary (${boundary.toFixed(1)} m slant distance). Increase distance or review antenna dimensions.`};
   }catch(error){return {error:error.message};}
   const elevation=Math.atan2(1.5-25,distanceM)*180/Math.PI;
-  const attenuation=antennaAttenuation(template,bearingDeg-template.azimuthDeg,elevation,patternAssets);
-  const eirpDbm=peakEirp(template);
-  return {eirpDbm,pathLoss,attenuation,rxDbm:eirpDbm-attenuation-pathLoss};
+  try{
+    const collection=validateReceiverTemplates(receiver,[template]);
+    const attenuation=collection?receiverAntennaAttenuation(template,bearingDeg-template.azimuthDeg,elevation,patternAssets):antennaAttenuation(template,bearingDeg-template.azimuthDeg,elevation,patternAssets);
+    const eirpDbm=peakEirp(template),scalarRxDbm=eirpDbm-attenuation-pathLoss;
+    if(!collection)return {eirpDbm,pathLoss,attenuation,rxDbm:scalarRxDbm};
+    const collected=collection.coupling(preparePolarization(templateOrientation(template)),bearingDeg,elevation);
+    return {eirpDbm,pathLoss,attenuation,scalarRxDbm,receiver:collected,zeroCollectedPower:collected.powerFraction===0,rxDbm:collected.powerFraction?scalarRxDbm+10*Math.log10(collected.powerFraction):null};
+  }catch(error){return {error:error.message};}
 }
 
 export function siteLabel(site) {

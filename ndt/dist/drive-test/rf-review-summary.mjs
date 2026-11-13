@@ -1,5 +1,5 @@
-export const RF_MODELS=['uma-mean-power-fixed-heights-v1','uma-element-fixed-heights-v2','uma-uniform-panel-fixed-heights-v3','uma-source-cells-fixed-heights-v4','uma-source-patterns-fixed-heights-v5'];
-export const RF_REASONS={supported:'Supported model result','model-domain':'Outside the model distance or frequency domain','near-field':'Inside the antenna far-field boundary','below-output':'Complete-cell power is below the model output range','cell-incomplete':'Another assigned port blocks the complete cell','not-assigned':'Not assigned in this frozen run'};
+export const RF_MODELS=['uma-mean-power-fixed-heights-v1','uma-element-fixed-heights-v2','uma-uniform-panel-fixed-heights-v3','uma-source-cells-fixed-heights-v4','uma-source-patterns-fixed-heights-v5','uma-los-receiver-fixed-heights-v6'];
+export const RF_REASONS={supported:'Supported model result','model-domain':'Outside the model distance or frequency domain','near-field':'Inside the antenna far-field boundary','below-output':'Complete-cell power is below the model output range','cell-incomplete':'Another assigned port blocks the complete cell','not-assigned':'Not assigned in this frozen run','polarization-null':'Ideal reference polarization null (zero collected power)'};
 const finite=(n,low,high,label)=>{if(!Number.isFinite(n)||n<low||n>high)throw Error(`Invalid frozen ${label}.`);return n;};
 
 export function summarizeReview(result,threshold,margin=null){

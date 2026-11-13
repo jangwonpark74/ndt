@@ -26,6 +26,8 @@ acceptSave({...saved,revision:2,versions:[version,{...version,revision:2}]});awa
 assert.equal(duringSave.getState().dirty,true,'edits made during a save remain unsaved');
 assert.equal(duringSave.getState().draft.name,'Newer draft');
 console.log('Scenario context isolation, CAS requests and conflict draft preservation passed.');
+const receiver={model:'ndt.receiver.los-model2.v1',collection:'single-linear',orientation:{azimuthDeg:0,tiltDeg:0,rollDeg:0,slantDeg:45}},receiverSaved={...saved,versions:[{...version,receiver}]};
+const receiverVM=createScenarioViewModel({load:async()=>[receiverSaved]});await receiverVM.load('one');assert.deepEqual(receiverVM.getState().draft.receiver,receiver);receiverVM.getState().draft.receiver.orientation.slantDeg=0;assert.equal(receiver.orientation.slantDeg,45,'receiver draft edits cannot rewrite a saved revision');
 const sourceVersion={...version,assignmentMode:'cells',cells:[{cellId:'cell-1',ports:[{powerDbm:30}]}],radioBudgets:{'radio-1':35}};
 const sourceSaved={...saved,versions:[sourceVersion]};
 const source=createScenarioViewModel({load:async()=>[sourceSaved],save:async(project,body)=>({...sourceSaved,revision:2,versions:[sourceVersion,{...body,revision:2}]})});

@@ -107,6 +107,10 @@ $javascriptTests = @(
     'tests/unit/test-drive-model-parity.mjs'
     'tests/unit/test-rf-review-model.mjs'
     'tests/unit/test-rf-review-view-model.mjs'
+    'tests/unit/test-polarization-model.mjs'
+    'tests/unit/test-receiver-probe.mjs'
+    'tests/unit/test-receiver-study.mjs'
+    'tests/unit/test-receiver-review.mjs'
     'tests/unit/test-scenario-run-view-model.mjs'
     'tests/unit/test-scenario-comparison-view-model.mjs'
     'tests/unit/test-scenario-comparison-format.mjs'
@@ -132,6 +136,9 @@ $pythonTests = @(
     'tests/python/test-drive-integration.py'
     'tests/python/test-scenario-comparison.py'
     'tests/python/test-directional-radio.py'
+    'tests/python/test-polarization.py'
+    'tests/python/test-receiver-studies.py'
+    'tests/python/test-receiver-execution.py'
     'tests/python/test-inventory-clusters.py'
     'tests/python/test-drive-http.py'
 )
@@ -181,6 +188,9 @@ $syntaxFiles = @(
     'dist/project-view.mjs'
     'dist/radio-model.mjs'
     'dist/planning-model.mjs'
+    'dist/polarization-model.mjs'
+    'dist/receiver-study.mjs'
+    'dist/receiver-view.mjs'
     'dist/carrier-plan.mjs'
     'dist/planning-view.mjs'
     'dist/pattern-model.mjs'
@@ -198,7 +208,7 @@ $syntaxFiles = @(
     'dist/scenario-view-model.mjs'
     'dist/street-detail.mjs'
 )
-$pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py', 'tests/fixtures/rf-review-vectors.py')]"
+$pythonSyntaxCheck = "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py', 'tests/fixtures/rf-review-vectors.py', 'tests/fixtures/polarization-vectors.py', 'tests/fixtures/receiver-review-vectors.py')]"
 
 $originalPython = $env:PYTHON
 Push-Location $root

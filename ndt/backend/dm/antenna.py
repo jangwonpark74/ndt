@@ -71,3 +71,10 @@ def far_field_distance(template,pattern_assets=None):
         if not pattern_assets or template['sampled']['patternId'] not in pattern_assets:raise ValueError('Missing qualified source grid for far-field evaluation')
         return pattern_assets[template['sampled']['patternId']].far_field_m(template['frequencyMHz'])
     return 0
+
+
+def receiver_antenna_attenuation(template,azimuth_offset_deg,elevation_deg,pattern_assets=None):
+    if template['pattern']=='sampled':
+        return antenna_attenuation(template,azimuth_offset_deg,elevation_deg,pattern_assets)
+    az,el=local_direction(azimuth_offset_deg,elevation_deg,template['tiltDeg'],template['polarization']['rollDeg'])
+    return antenna_attenuation({**template,'tiltDeg':0},az,el,pattern_assets)

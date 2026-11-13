@@ -3,7 +3,7 @@ export function createScenarioViewModel(model) {
   let state={...initial},generation=0;
   const listeners=new Set(),drafts=new Map();
   function update(changes){state={...state,...changes};for(const listener of listeners)listener(state);}
-  function selectedDraft(selected){const version=selected?.versions.at(-1);return version ? {name:selected.name,template:structuredClone(version.template),overrides:structuredClone(version.overrides),...Object.fromEntries(['assignmentMode','cells','radioBudgets'].filter(key=>Object.hasOwn(version,key)).map(key=>[key,structuredClone(version[key])]))} : null;}
+  function selectedDraft(selected){const version=selected?.versions.at(-1);return version ? {name:selected.name,template:structuredClone(version.template),overrides:structuredClone(version.overrides),...Object.fromEntries(['assignmentMode','cells','radioBudgets','receiver'].filter(key=>Object.hasOwn(version,key)).map(key=>[key,structuredClone(version[key])]))} : null;}
   async function load(projectId) {
     if(state.projectId)drafts.set(state.projectId,state);
     const token=++generation;

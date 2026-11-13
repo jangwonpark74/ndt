@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict';
+import {receiverDescription} from '../../dist/drive-test/scenario-comparison-model.mjs';
+const receiver={model:'ndt.receiver.los-model2.v1',collection:'single-linear',orientation:{azimuthDeg:20,tiltDeg:0,rollDeg:3,slantDeg:45}};
+assert.match(receiverDescription(receiver),/Model-2.*45.*slant/);
+assert.match(receiverDescription({...receiver,collection:'dual-orthogonal'}),/dual.*no extra gain/i);
 import {scenarioChangeRows} from '../../dist/drive-test/scenario-comparison-model.mjs';
 import {antennaDescription} from '../../dist/drive-test/scenario-comparison-model.mjs';
 const arrayText=antennaDescription({pattern:'array',array:{rows:4,columns:8,verticalSpacing:.5,horizontalSpacing:.5,steerAzimuthDeg:20,steerDowntiltDeg:6}});

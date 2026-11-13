@@ -1,7 +1,8 @@
-import {antennaAttenuation,farFieldDistance,peakEirp,validateTemplate} from '../planning-model.mjs';
+import {antennaAttenuation,receiverAntennaAttenuation,farFieldDistance,peakEirp,validateTemplate} from '../planning-model.mjs';
 import {umaPathLoss} from '../radio-model.mjs';
 import {prepareGrid} from '../pattern-model.mjs';
 import {qualifyGrid,sourceGrid} from '../pattern-study.mjs';
+import {RECEIVER_MODEL,validateReceiverTemplates,preparePolarization,templateOrientation} from '../polarization-model.mjs';
 
 import {RF_MODELS} from './rf-review-summary.mjs';
 export {RF_MODELS,RF_REASONS,summarizeReview} from './rf-review-summary.mjs';
@@ -20,7 +21,8 @@ const sha=async raw=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new
 async function patternAssets(c){
  const assets=new Map(),equipment=c.inventorySnapshot?.operatorEquipment,models=c.patternModels;let inventory=null;
  if(equipment){if(typeof equipment.raw!=='string'||new TextEncoder().encode(equipment.raw).length>2000000||await sha(equipment.raw)!==equipment.sha256)throw Error('Frozen source hash does not match the original equipment bytes.');inventory={...equipment,data:JSON.parse(equipment.raw.replace(/^\uFEFF/,''))};}
- if(c.model!==RF_MODELS[4]&&c.predictionModel!==RF_MODELS[4])return {assets,inventory};
+ const model=c.predictionModel||c.model;
+ if(model!==RF_MODELS[4]&&!(model===RF_MODELS[5]&&(c.patternModels?.length||c.transmitters.some(t=>portRows(t).some(p=>p.template?.pattern==='sampled')))))return {assets,inventory};
  if(!inventory||!Array.isArray(models)||!models.length||!c.patternAssumptions)throw Error('Missing frozen source pattern qualification.');
  if(inventory.data.schemaVersion!==2)throw Error('Frozen source grids require equipment schema version 2.');
  const active=c.transmitters.flatMap(t=>portRows(t)).filter(p=>p.template?.pattern==='sampled');
@@ -40,6 +42,9 @@ export async function prepareReview(test){
  const c=test?.context,model=c?.predictionModel || c?.model;
  if(test?.kind!=='simulated'||!c||!RF_MODELS.includes(model)||c.model&&c.model!==model)throw Error('RF review needs an available frozen planning model; measured and synthetic captures have no executable RF context.');
  const version=RF_MODELS.indexOf(model),cellMode=version>=3,legacy=version===0;
+ const allTemplates=c.transmitters?.flatMap(t=>portRows(t).map(p=>p.template).filter(Boolean))||[];
+ if(version!==5&&(c.radioScenario?.payload?.receiver||c.receiverAssumptions||allTemplates.some(t=>Object.hasOwn(t,'polarization'))))throw Error('Receiver and polarization inputs require their matching frozen model identity.');
+ if(version===5&&c.receiverAssumptions?.model!==RECEIVER_MODEL)throw Error('Frozen receiver assumptions are missing or unavailable.');
  if(Boolean(c.radioScenario)===legacy)throw Error('Frozen model and scenario identity do not match.');
  if(!Array.isArray(test.rows)||!test.rows.length||test.rows.length>100000||!Array.isArray(c.transmitters)||!c.transmitters.length||c.transmitters.length>1000||!['LTE','NR'].includes(c.rat))throw Error('Frozen RF inputs exceed the supported run bounds.');
  if(legacy&&!['LOS','NLOS'].includes(c.mode))throw Error('Invalid frozen propagation mode.');
@@ -51,7 +56,7 @@ export async function prepareReview(test){
   const links=new Set();let common=null;const delta=cellMode?c.powers[t.id]-bound(t):0;
   for(const p of paths){
    const template=p.template;if(!template)throw Error('Missing frozen port template.');const {carrier,...numeric}=template,error=validateTemplate(numeric);if(error)throw Error(error);
-   if(version===1&&template.pattern==='array'||version!==4&&template.pattern==='sampled')throw Error('Antenna inputs require their matching frozen model identity.');
+   if(version===1&&template.pattern==='array'||![4,5].includes(version)&&template.pattern==='sampled')throw Error('Antenna inputs require their matching frozen model identity.');
    if(t.ports){
     const ref=template.equipmentSource;if(!ref||ref.cellId!==t.cellId||ref.linkId!==p.linkId||template.rat!==t.rat||links.has(p.linkId))throw Error('Frozen cell/port identity does not match.');links.add(p.linkId);
     const values=[template.rat,template.frequencyMHz,template.bandwidthMHz,template.mode,template.carrier];if(common&&!same(common,values))throw Error('Frozen cell ports have inconsistent radio inputs.');common=values;
@@ -68,7 +73,14 @@ export async function prepareReview(test){
  if(totals.size){const budgets=c.radioScenario.payload.radioBudgets;if(!budgets||Object.keys(budgets).length!==totals.size)throw Error('Frozen radio budgets are incomplete.');for(const [radio,mw]of totals)if(10*Math.log10(mw)>finite(budgets[radio],-30,80,'radio budget')+1e-8)throw Error('Frozen allocations exceed their radio budget.');}
  let previous=-Infinity;for(const row of test.rows){coordinates([row.longitude,row.latitude]);if(!Number.isSafeInteger(row.t)||row.t<=previous||row.rat!==c.rat)throw Error('Frozen observations have an inconsistent time/coordinate/RAT grid.');previous=row.t;if(row.predicted_rx_dbm!==undefined)finite(row.predicted_rx_dbm,-300,90,'recorded received power');}
  const transmitters=c.transmitters.filter(t=>legacy||rat(t)===c.rat);if(!transmitters.length)throw Error('The frozen run has no transmitter for its RAT.');
- return {test,context:c,model,version,cellMode,legacy,assets,inventory,transmitters,evaluations:test.rows.length*transmitters.reduce((n,t)=>n+(t.ports?.length||1),0)};
+ let receiver=null;const polarizations=new Map();
+ if(version===5){
+  const payload=c.radioScenario.payload;
+  if(Object.hasOwn(payload,'receiver')&&payload.receiver===null)throw Error('A declared frozen receiver must be explicit.');
+  receiver=validateReceiverTemplates(payload.receiver,allTemplates);
+  if(receiver)for(const t of allTemplates)polarizations.set(t,preparePolarization(templateOrientation(t)));
+ }
+ return {test,context:c,model,version,cellMode,legacy,assets,inventory,transmitters,receiver,polarizations,evaluations:test.rows.length*transmitters.reduce((n,t)=>n+(t.ports?.length||1),0)};
 }
 
 function cellAt(prepared,t,row){
@@ -79,12 +91,15 @@ function cellAt(prepared,t,row){
   let status='supported';
   // v3 historically checked far field before the path-loss domain; retain that order.
   if(version===2&&slantM<boundary)status='near-field';else if(loss===null)status='model-domain';else if(cellMode&&slantM<boundary)status='near-field';
-  const attenuation=status==='supported'&&!legacy?antennaAttenuation(template,az-template.azimuthDeg,elevation,assets):null,eirp=cellMode?peakEirp(template)+delta:c.powers[t.id],rx=status==='supported'?eirp-loss-(attenuation||0):null;
-  paths.push({linkId:p.linkId??null,radioId:p.radioId??null,radioPortId:p.radioPortId??null,antennaPortId:p.antennaPortId??null,pattern:template?.pattern||'isotropic',status,rxDbm:rx,pathLossDb:loss,attenuationDb:attenuation,eirpDbm:eirp,farFieldM:boundary});
+  const attenuation=status==='supported'&&!legacy?(prepared.receiver?receiverAntennaAttenuation(template,az-template.azimuthDeg,elevation,assets):antennaAttenuation(template,az-template.azimuthDeg,elevation,assets)):null,eirp=cellMode?peakEirp(template)+delta:c.powers[t.id],scalarRx=status==='supported'?eirp-loss-(attenuation||0):null;
+  let rx=scalarRx,collected=null;
+  if(status==='supported'&&prepared.receiver){collected=prepared.receiver.coupling(prepared.polarizations.get(template),az,elevation);if(collected.powerFraction)rx+=10*Math.log10(collected.powerFraction);else{status='polarization-null';rx=null;}}
+  paths.push({linkId:p.linkId??null,radioId:p.radioId??null,radioPortId:p.radioPortId??null,antennaPortId:p.antennaPortId??null,pattern:template?.pattern||'isotropic',status,rxDbm:rx,pathLossDb:loss,attenuationDb:attenuation,eirpDbm:eirp,farFieldM:boundary,...(collected?{scalarRxDbm:scalarRx,receiver:collected}:{})});
  }
- const failed=paths.find(p=>p.status!=='supported');let status=failed?.status||'supported',rxDbm=failed?null:cellMode?sum(paths.map(p=>p.rxDbm)):paths[0].rxDbm;
+ const failed=paths.find(p=>!['supported','polarization-null'].includes(p.status)),values=paths.map(p=>p.rxDbm).filter(v=>v!==null);let status=failed?.status||'supported',rxDbm=failed?null:cellMode?(values.length?sum(values):null):paths[0].rxDbm;
+ if(!failed&&!values.length)status='below-output';
  if((cellMode||version===2)&&rxDbm!==null&&rxDbm < -300){status='below-output';rxDbm=null;}
- return {id:t.id,label:t.label||t.id,coordinates:t.coordinates,siteId:t.site_id||t.id,cellId:t.cellId??null,status,rxDbm,distanceM,slantM,bearingDeg:az,elevationDeg:elevation,blockedPathId:failed?.linkId??null,paths};
+ return {id:t.id,label:t.label||t.id,coordinates:t.coordinates,siteId:t.site_id||t.id,cellId:t.cellId??null,status,rxDbm,distanceM,slantM,bearingDeg:az,elevationDeg:elevation,blockedPathId:failed?.linkId??null,paths,...(prepared.receiver?{zeroCollectedPower:!failed&&!values.length}:{})};
 }
 function position(prepared,row){
  const cells=prepared.transmitters.map(t=>cellAt(prepared,t,row)),available=cells.filter(c=>c.status==='supported'),best=available.reduce((a,b)=>!a||b.rxDbm>a.rxDbm?b:a,null),recorded=row.cell_id?.startsWith('PLAN:')?row.cell_id.slice(5):null;
@@ -98,8 +113,12 @@ function position(prepared,row){
 function select(at,target){
  const cell=target?.cellId?at.cells.find(c=>c.id===target.cellId):at.serving;
  if(!cell)return {status:target?.cellId?'not-assigned':at.status,rxDbm:null,cellId:null,linkId:target?.linkId??null};
- const result={status:cell.status,rxDbm:cell.rxDbm,cellId:cell.id,linkId:target?.linkId??null,distanceM:cell.distanceM,blockedPathId:cell.blockedPathId};
- if(target?.linkId){const path=cell.paths.find(p=>p.linkId===target.linkId);if(!path)return {...result,status:'not-assigned',rxDbm:null};return {...result,status:path.status!=='supported'?path.status:cell.status==='below-output'?'below-output':cell.status!=='supported'?'cell-incomplete':'supported',componentRxDbm:path.rxDbm,rxDbm:cell.status==='supported'&&path.status==='supported'?path.rxDbm:null};}
+ const result={status:cell.status,rxDbm:cell.rxDbm,cellId:cell.id,linkId:target?.linkId??null,distanceM:cell.distanceM,blockedPathId:cell.blockedPathId,...(cell.zeroCollectedPower!==undefined?{zeroCollectedPower:cell.zeroCollectedPower}:{})};
+ if(target?.linkId){
+  const path=cell.paths.find(p=>p.linkId===target.linkId);if(!path)return {...result,status:'not-assigned',rxDbm:null};
+  const complete=cell.status==='supported'||cell.zeroCollectedPower,knownPath=['supported','polarization-null'].includes(path.status),zero=path.receiver?.powerFraction===0;
+  return {...result,status:knownPath&&!complete?(cell.status==='below-output'?'below-output':'cell-incomplete'):path.status,componentRxDbm:path.rxDbm,rxDbm:cell.status==='supported'&&path.status==='supported'?path.rxDbm:null,...(path.receiver?{scalarRxDbm:path.scalarRxDbm,receiverPowerFraction:path.receiver.powerFraction,zeroCollectedPower:!!complete&&zero,componentZeroCollectedPower:zero}:{})};
+ }
  return result;
 }
 function paired(a,b){

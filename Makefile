@@ -57,6 +57,10 @@ test:
 	cd ndt && $(NODE) tests/unit/test-drive-model-parity.mjs
 	cd ndt && $(NODE) tests/unit/test-rf-review-model.mjs
 	cd ndt && $(NODE) tests/unit/test-rf-review-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-polarization-model.mjs
+	cd ndt && $(NODE) tests/unit/test-receiver-probe.mjs
+	cd ndt && $(NODE) tests/unit/test-receiver-study.mjs
+	cd ndt && $(NODE) tests/unit/test-receiver-review.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-run-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-comparison-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-comparison-format.mjs
@@ -80,6 +84,9 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-integration.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-scenario-comparison.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-directional-radio.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-polarization.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-receiver-studies.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-receiver-execution.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-inventory-clusters.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-http.py
 
@@ -133,6 +140,9 @@ check: test
 	cd ndt && $(NODE) --check dist/project-view.mjs
 	cd ndt && $(NODE) --check dist/radio-model.mjs
 	cd ndt && $(NODE) --check dist/planning-model.mjs
+	cd ndt && $(NODE) --check dist/polarization-model.mjs
+	cd ndt && $(NODE) --check dist/receiver-study.mjs
+	cd ndt && $(NODE) --check dist/receiver-view.mjs
 	cd ndt && $(NODE) --check dist/carrier-plan.mjs
 	cd ndt && $(NODE) --check dist/planning-view.mjs
 	cd ndt && $(NODE) --check dist/pattern-model.mjs
@@ -149,4 +159,4 @@ check: test
 	cd ndt && $(NODE) --check dist/equipment-view.mjs
 	cd ndt && $(NODE) --check dist/scenario-view-model.mjs
 	cd ndt && $(NODE) --check dist/street-detail.mjs
-	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py', 'tests/fixtures/rf-review-vectors.py')]"
+	cd ndt && $(UV) run --locked python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ('scripts/convert_osm.py', 'scripts/extract_roofs.py', 'scripts/extract_trees.py', 'scripts/extract_street_detail.py', 'scripts/extract_network.py', 'scripts/match_telus.py', 'scripts/extract_telus_sites.py', 'scripts/extract_bell_outdoor.py', 'scripts/tree_sampling.py', 'tests/fixtures/rf-review-vectors.py', 'tests/fixtures/polarization-vectors.py', 'tests/fixtures/receiver-review-vectors.py')]"

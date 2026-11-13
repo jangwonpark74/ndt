@@ -94,7 +94,7 @@ class ExperimentStore:
         variants = 1 if spec['experiment_type'] == 'virtual-drive' else 2
         if max(counts) > MAX_ROWS or sum(counts)*variants > 200000:
             raise ValueError('Experiment exceeds 100,000 observations per run or 200,000 total. Increase the sampling interval or select fewer cases.')
-        if snapshot.get('cellAssumptions'):
+        if snapshot.get('cellAssumptions') or snapshot.get('receiverAssumptions'):
             def port_count(rows):return sum(len(t.get('ports',[])) or 1 for t in rows if transmitter_rat(t)==spec['rat'])
             evaluations=sum(counts)*(port_count(snapshot['transmitters'])+(port_count(snapshot['baselineTransmitters']) if spec['experiment_type']=='scenario-ab' else port_count(snapshot['transmitters']) if variants==2 else 0))
             if evaluations>MAX_PORT_EVALUATIONS:raise ValueError('Source-cell experiment exceeds the modeled port-work limit. Increase sampling interval, select fewer cases or assign fewer cells.')
@@ -154,6 +154,7 @@ class ExperimentStore:
             spec, snapshot = experiment['spec'], experiment['snapshot']
             if spec['experiment_type'] not in EXPERIMENT_TYPES:raise ValueError('The frozen experiment type is unavailable; it cannot be reinterpreted.')
             if (spec['experiment_type']=='scenario-ab')!=(snapshot.get('comparisonKind')=='scenario-revisions'):raise ValueError('Frozen scenario comparison inputs do not match the experiment type.')
+            model_for(snapshot)
             if spec['experiment_type']=='parameter-ab' and any('ports' in t for t in snapshot['transmitters']):validate_cell_power_change(snapshot['transmitters'],snapshot['radioScenario']['payload']['radioBudgets'],spec['transmitter_id'],spec['power_b_dbm'])
             if snapshot.get('radioScenario'):
                 validate_frozen_cell_inputs(snapshot)

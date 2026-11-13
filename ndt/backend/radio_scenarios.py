@@ -5,6 +5,9 @@ from datetime import datetime, timezone
 from .equipment_studies import validate_equipment_templates
 from .radio_templates import validate_radio_template
 from .cell_assignments import resolve_cell_assignments
+from .dm.polarization import validate_receiver_templates
+
+RECEIVER_LIBRARY='uma-los-receiver-v5'
 
 
 class ScenarioConflict(ValueError):
@@ -14,11 +17,16 @@ class ScenarioConflict(ValueError):
 def validate_scenario_assignments(db,region,project,payload,*,current=False,qualified=False,cache=None):
     mode=payload.get('assignmentMode','sites')
     if mode not in ('sites','cells'):raise ValueError('Choose assumed site templates or imported cell/port assignments')
+    if 'receiver' in payload and payload['receiver'] is None:raise ValueError('Provide an explicit receiver, or omit it for legacy ideal collection')
+    if 'modelVersion' in payload and (payload['modelVersion']==RECEIVER_LIBRARY)!=('receiver' in payload):raise ValueError('Receiver inputs require their matching saved model version')
     if mode=='cells':
         if payload['overrides'] or 'equipmentSource' in payload['template']:raise ValueError('Cell assignment mode cannot mix assumed site overrides or source-linked defaults')
-        return resolve_cell_assignments(db,region,project,payload.get('cells'),payload.get('radioBudgets'),current=current,qualified=qualified,cache=cache)
+        resolved=resolve_cell_assignments(db,region,project,payload.get('cells'),payload.get('radioBudgets'),current=current,qualified=qualified,cache=cache)
+        validate_receiver_templates(payload.get('receiver'),[payload['template'],*[p for c in payload['cells'] for p in c['ports']]])
+        return resolved
     if any(t['pattern']=='sampled' for t in [payload['template'],*payload['overrides'].values()]):raise ValueError('Imported scalar grids require explicit cell assignment mode')
     if 'cells' in payload or 'radioBudgets' in payload:raise ValueError('Cell assignments and radio budgets require imported cell assignment mode')
+    validate_receiver_templates(payload.get('receiver'),[payload['template'],*payload['overrides'].values()])
     validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=current,cache=cache)
 
 
@@ -86,6 +94,7 @@ def save_scenario(db, region, project, body):
                        createdAt=datetime.now(timezone.utc).isoformat())
         if body.get('assignmentMode')=='cells':
             version.update(assignmentMode='cells',cells=body['cells'],radioBudgets=body['radioBudgets'],modelVersion='uma-source-patterns-v4' if any(p['pattern']=='sampled' for c in body['cells'] for p in c['ports']) else 'uma-source-cells-v3')
+        if 'receiver' in body:version.update(receiver=body['receiver'],modelVersion=RECEIVER_LIBRARY)
         db.execute('''INSERT INTO radio_scenarios VALUES (?,?,?,?,?,NULL,NULL)
                       ON CONFLICT(region_id,project_id,scenario_id) DO UPDATE SET name=excluded.name,revision=excluded.revision''',
                    (region, project, identity, name.strip(), expected + 1))

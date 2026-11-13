@@ -7,12 +7,15 @@ import {asCellStudy,updateCellPort,cellStudyPaths,addSourceCell} from './cell-st
 import {bindCellStudyView} from './cell-study-view.mjs';
 import {bindPatternView} from './pattern-view.mjs';
 import {sourceGrid,inspectGrid,refreshGridGain,templateGridAssets} from './pattern-study.mjs';
+import {POLARIZATION_MODEL} from './polarization-model.mjs';
+import {receiverStudyError} from './receiver-study.mjs';
+import {bindReceiverView} from './receiver-view.mjs';
 
 export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,getEquipmentInventory=()=>null,getSiteLabel=id=>id,getRunParticipation=()=>null}) {
   const $=id=>document.getElementById(id), form=$('radio-template-form');
   const fields=['frequencyMHz','bandwidthMHz','powerDbm','gainDbi','lossDb','tiltDeg','azimuthDeg','pattern','mode'];
   const arrayFields=Object.keys(ARRAY_DEFAULTS);
-  let rat='LTE',carrierVersion=CARRIER_PLAN.version,equipmentSource=null,pendingLoad=Promise.resolve(),contextVersion=0,sampled=null;
+  let rat='LTE',carrierVersion=CARRIER_PLAN.version,equipmentSource=null,pendingLoad=Promise.resolve(),contextVersion=0,sampled=null,polarizationVersion=POLARIZATION_MODEL;
   const scenarios=createScenarioViewModel(createScenarioModel(regionId));
   let previousDraft,overrideSite='',modeDrafts={},targetSignature='';
   const isCells=()=>scenarios.getState().draft?.assignmentMode==='cells';
@@ -27,8 +30,12 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
   const sourceInventory=()=>isCells()?cellView.getInventory():getEquipmentInventory();
   const patternView=bindPatternView({getContext:()=>({project:getProject(),target:overrideSite,inventory:sourceInventory(),template:read(),allowUse:isCells() && !!overrideSite,busy:scenarios.getState().loading || scenarios.getState().saving || cellView.isSourceBusy(),stale:cellView.isStale()}),onUse:t=>{fill(t);edited();(Number.isFinite(t.tiltDeg)?form.elements.patternRoll:form.elements.tiltDeg).focus();}});
   $('pattern-source-review').onclick=event=>patternView.open(event.currentTarget);
+  let receiverDraftSnapshot=null;
+  const receiverView=bindReceiverView({getContext:()=>{const state=scenarios.getState();return {project:getProject(),draft:state.draft||receiverDraftSnapshot,busy:state.loading||state.saving||cellView.isSourceBusy()};},onApply:next=>{scenarios.edit(next);$('template-save-status').textContent='Receiver assumptions staged. Save and apply a revision to execute them.';}});
+  $('receiver-study-open').onclick=event=>{receiverDraftSnapshot=scenarios.getState().draft||draft();receiverView.open(event.currentTarget);};
   function read() {
     const t={rat,...Object.fromEntries(fields.map(f=>[f,['pattern','mode'].includes(f)?form.elements[f].value:form.elements[f].value.trim()===''?NaN:Number(form.elements[f].value)])),...(form.elements.pattern.value==='array'?{array:Object.fromEntries(arrayFields.map(f=>[f,form.elements[f].value.trim()===''?NaN:Number(form.elements[f].value)]))}:{}),...($('carrier-enabled').checked?{carrier:{standard:carrierVersion,band:form.elements.carrierBand.value,channel:form.elements.channel.value===''?NaN:Number(form.elements.channel.value),scsKHz:Number(form.elements.carrierScs.value)}}:{}),...(equipmentSource?{equipmentSource}:{})};
+    if(form.elements.txPolarizationEnabled.checked)t.polarization={model:polarizationVersion,slantDeg:form.elements.txSlant.valueAsNumber,...(t.pattern==='sampled'?{}:{rollDeg:form.elements.txRoll.valueAsNumber})};
     if(t.pattern==='sampled'){t.sampled={...sampled,rollDeg:form.elements.patternRoll.value===''?NaN:Number(form.elements.patternRoll.value)};return refreshGridGain(t,sourceInventory());}return t;
   }
   function renderEvidence(template){
@@ -57,6 +64,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
   function qualification(t){const b=carrierBand(t.carrier?.band);return b ? `${b.rat==='NR'?'TS 38.104':'TS 36.104'} v18.5.0 Release 18; ${b.id} / ${b.duplex}; ${t.carrier.scsKHz} kHz SCS; ${CARRIER_PLAN.version}. Supported subset only.` : 'Generic study: no band/channel checks.';}
   function fill(t) {
     equipmentSource=t.equipmentSource || null;sampled=t.sampled || null;form.elements.patternRoll.value=t.sampled?.rollDeg ?? '';
+    polarizationVersion=t.polarization?.model||POLARIZATION_MODEL;form.elements.txPolarizationEnabled.checked=!!t.polarization;form.elements.txSlant.value=t.polarization?.slantDeg??'';form.elements.txRoll.value=t.polarization?.rollDeg??t.sampled?.rollDeg??'';
     rat=t.rat;$('template-preset').value=rat === 'NR' ? 'nr' : 'lte';fields.forEach(f=>form.elements[f].value=t[f]);
     arrayFields.forEach(f=>form.elements[f].value=(t.array || ARRAY_DEFAULTS)[f]);
     form.elements.carrierBand.replaceChildren(...CARRIER_PLAN.bands.filter(b=>b.rat===rat).map(b=>new Option(`${b.id} · ${b.duplex}`,b.id)));
@@ -72,14 +80,18 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('scenario-target').value=overrideSite;
   }
   function render() {
+    const state=scenarios.getState(),receiver=state.draft?.receiver;
     const t=read();let assets=null,assetError='';try{assets=templateGridAssets(t,sourceInventory());}catch(error){assetError=error.message;}
-    const result=assetError?{error:assetError}:predictProbe(t,Number(form.elements.distanceM.value || NaN),Number(form.elements.probeBearing.value === ''?NaN:form.elements.probeBearing.value),assets);
+    const result=assetError?{error:assetError}:predictProbe(t,Number(form.elements.distanceM.value || NaN),Number(form.elements.probeBearing.value === ''?NaN:form.elements.probeBearing.value),assets,receiver);
     const carrierError=validateCarrier(t),b=carrierBand(t.carrier?.band);
     $('template-result').replaceChildren();
-    const assignmentError=isCells()?cellView.validationError():'';
+    const assignmentError=(isCells()?cellView.validationError():'')||(state.draft?receiverStudyError(state.draft):'');
     $('template-error').textContent=assignmentError || result.error || '';$('template-error').hidden=!(assignmentError || result.error) || (!assignmentError && !!carrierError);
-    const state=scenarios.getState();
     const sampledPattern=t.pattern==='sampled',busy=state.loading || state.saving || cellView.isSourceBusy();
+    $('receiver-study-open').disabled=!getProject()||busy;$('tx-polarization-controls').hidden=!receiver&&!t.polarization;$('tx-roll-field').hidden=sampledPattern;
+    for(const name of ['txPolarizationEnabled','txSlant','txRoll'])form.elements[name].disabled=busy||!receiver;
+    $('receiver-study-state').textContent=receiver?`LOS reference receiver · ${receiver.collection==='dual-orthogonal'?'ideal dual-orthogonal collection':'one linear polarization'} · transmitter assumptions are separate from source evidence.`:getProject()?'Scalar ideal receiver collection. Open Receiver study to define explicit LOS assumptions.':'Scalar ideal receiver collection. Choose a project to define a versioned LOS receiver study.';
+    receiverView.sync();
     for(const field of [...fields,...arrayFields,'patternRoll','carrierEnabled','carrierBand','channel'])form.elements[field].disabled=busy;
     $('template-preset').disabled=busy;$('scenario-target').disabled=busy;$('scenario-copy').disabled=!state.projectId || busy || !!validateTemplate(t) || !!assignmentError;
     $('sampled-controls').hidden=!sampledPattern;$('template-tilt-label').textContent=sampledPattern?'Mechanical downtilt (degrees)':'Downtilt (degrees)';form.elements.gainDbi.readOnly=sampledPattern;form.elements.gainDbi.min=sampledPattern?'-120':'0';form.elements.gainDbi.max=sampledPattern?'50':'40';if(sampledPattern)form.elements.gainDbi.value=Number.isFinite(t.gainDbi)?t.gainDbi.toFixed(2):'';
@@ -98,19 +110,20 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('scenario-override-remove').disabled=!overrideSite || state.loading || state.saving;
     $('template-save').disabled=!!validateTemplate(t) || !!assignmentError || state.loading || state.saving || (state.projectId && !!state.error && !state.items.length); $('template-export').disabled=!!result.error;
     if (result.error) return;
-    for (const [label,value] of [['Study RAT',rat],['Carrier check',t.carrier?'Supported channel checks passed':'Generic · not checked'],[['array','sampled'].includes(t.pattern)?'EIRP upper bound':'Peak EIRP',`${result.eirpDbm.toFixed(1)} dBm`],['Path loss',`${result.pathLoss.toFixed(1)} dB`],['Pattern attenuation',`${result.attenuation.toFixed(1)} dB`],['Predicted received power',`${result.rxDbm.toFixed(1)} dBm`]]) {
+    for (const [label,value] of [['Study RAT',rat],['Carrier check',t.carrier?'Supported channel checks passed':'Generic · not checked'],[['array','sampled'].includes(t.pattern)?'EIRP upper bound':'Peak EIRP',`${result.eirpDbm.toFixed(1)} dBm`],['Path loss',`${result.pathLoss.toFixed(1)} dB`],['Pattern attenuation',`${result.attenuation.toFixed(1)} dB`],...(result.receiver?[['Receiver mismatch',result.zeroCollectedPower?'Ideal polarization null':`${result.receiver.mismatchLossDb.toFixed(1)} dB`]]:[]),['Predicted received power',result.zeroCollectedPower?'Zero collected power (ideal null)':`${result.rxDbm.toFixed(1)} dBm`]]) {
       const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;$('template-result').append(dt,dd);
     }
   }
   function edited(){if(getProject())scenarios.edit(draft());render();$('template-save-status').textContent='Unsaved study edits.';}
   $('template-preset').onchange=()=>{const source=equipmentSource;fill({...RADIO_TEMPLATES[$('template-preset').value],...(isCells() && source?{equipmentSource:source}:{})});edited();};
   form.oninput=event=>{
+    if(event.target.name==='txPolarizationEnabled'&&event.target.checked)polarizationVersion=POLARIZATION_MODEL;
     if(event.target.name==='pattern' && event.target.value==='sampled'){form.elements.pattern.value=(targetTemplate(scenarios.getState().draft) || scenarios.getState().draft?.template)?.pattern || 'element';patternView.open(event.target);return;}
     if(event.target.name==='pattern' && event.target.value==='array' && equipmentSource)form.elements.gainDbi.value='';
     if(['carrierEnabled','carrierBand','channel','carrierScs'].includes(event.target.name)){
       if(event.target.name==='carrierBand'){const b=carrierBand(event.target.value);form.elements.channel.value=b.defaultChannel;form.elements.carrierScs.value=b.scsKHz;carrierVersion=CARRIER_PLAN.version;}
       syncCarrier(true);edited();
-    }else if(fields.includes(event.target.name) || arrayFields.includes(event.target.name) || event.target.name==='patternRoll')edited();else render();
+    }else if(fields.includes(event.target.name) || arrayFields.includes(event.target.name) || ['patternRoll','txPolarizationEnabled','txSlant','txRoll'].includes(event.target.name))edited();else render();
   };
   $('scenario-name').oninput=edited;
   form.onsubmit=event=>event.preventDefault();
@@ -126,6 +139,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
   };
   function load() {
     ++contextVersion;
+    receiverDraftSnapshot=null;
     const project=getProject();
     overrideSite='';modeDrafts={};
     if(project){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}
@@ -141,10 +155,10 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     catch {$('template-save-status').textContent='Saved study unavailable. Preset loaded.';}
   }
   $('template-export').onclick=()=>{
-    const template=read(),distanceM=Number(form.elements.distanceM.value),bearingDeg=Number(form.elements.probeBearing.value),result=predictProbe(template,distanceM,bearingDeg,templateGridAssets(template,sourceInventory()));
+    const template=read(),distanceM=Number(form.elements.distanceM.value),bearingDeg=Number(form.elements.probeBearing.value),receiver=scenarios.getState().draft?.receiver,result=predictProbe(template,distanceM,bearingDeg,templateGridAssets(template,sourceInventory()),receiver);
     if(result.error)return;
     const state=scenarios.getState(),scenario=state.selected;
-    const blob=new Blob([JSON.stringify({version:isCells() && (scenarios.getState().draft?.cells || []).some(c=>c.ports.some(p=>p.pattern==='sampled'))?6:isCells()?5:4,...(template.pattern==='sampled'?{patternModel:sourceInventory()?.patternModels?.find(p=>p.patternId===template.sampled.patternId),patternAssumptions:'Source total realized gain at a real reference, other ports matched. Linear power interpolation; center-frequency response, occupied-band coverage enforced. Electrical state embedded; mechanical azimuth, downtilt and roll separate. Slant distance >= 2D^2/wavelength. No additional antenna/array gain or independently verified field accuracy.'}:{}),...(isCells()?{sourceEquipment:cellView.getInventory(),cellAssumptions:'Uncorrelated mean port powers sum within a cell; ideal polarization-insensitive power collection. All assigned LTE/NR ports share explicit modeled radio budgets. No coherent inter-port phases, MIMO or reference-signal allocation.'}:{}),arrayAssumptions:template.pattern==='array'?{nullFloorDb:120,farField:'Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm:-300,panelCount:1,polarizations:1,weights:'Uniform unit-norm coherent weights',geometry:template.array}:null,regionId,projectId:getProject()?.id || null,template,templateTarget:overrideSite || null,probe:{distanceM,bearingDeg},result,scenario:scenario ? {...scenario,unsavedEdits:state.dirty,...(isCells()?{draft:draft()}: {})} : isCells()?{draft:draft(),unsavedEdits:true}:null,reference:PLANNING_REFERENCE,carrierQualification:qualification(template),carrierReference:template.carrier ? CARRIER_PLAN.references[rat] : null,powerConvention:'Total average conducted power per modeled carrier/port; array beam power is shared across elements. EIRP upper bound = TX power + element peak gain + 10log10(rows*columns) - loss for arrays; without an array, peak EIRP = TX power + peak gain - loss. No reference-signal allocation.',model:'UMa mean path loss, 25 m BS / 1.5 m UE; reference element, isotropic, uniform single-panel scalar array or explicitly linked source total realized-gain grid; 120 dB numerical array-null cap. Bandwidth and RAT do not change the path-loss formula. The probe is independent of map fans and virtual drives. Saved applied templates can be selected for directional virtual drives.'},null,2)],{type:'application/json'});
+    const blob=new Blob([JSON.stringify({...(receiver?{receiver,receiverAssumptions:'TR 38.901 Model-2 local linear fields and reciprocal LOS reference collection; explicit study assumptions, no NLOS depolarization, coherent inter-port phases, MIMO or field calibration.'}:{}),version:receiver?7:isCells() && (scenarios.getState().draft?.cells || []).some(c=>c.ports.some(p=>p.pattern==='sampled'))?6:isCells()?5:4,...(template.pattern==='sampled'?{patternModel:sourceInventory()?.patternModels?.find(p=>p.patternId===template.sampled.patternId),patternAssumptions:'Source total realized gain at a real reference, other ports matched. Linear power interpolation; center-frequency response, occupied-band coverage enforced. Electrical state embedded; mechanical azimuth, downtilt and roll separate. Slant distance >= 2D^2/wavelength. No additional antenna/array gain or independently verified field accuracy.'}:{}),...(isCells()?{sourceEquipment:cellView.getInventory(),cellAssumptions:receiver?'Uncorrelated port powers sum after the explicitly assumed LOS receiver projection; no coherent inter-port phases or MIMO.':'Uncorrelated mean port powers sum within a cell; ideal polarization-insensitive power collection. All assigned LTE/NR ports share explicit modeled radio budgets. No coherent inter-port phases, MIMO or reference-signal allocation.'}:{}),arrayAssumptions:template.pattern==='array'?{nullFloorDb:120,farField:'Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm:-300,panelCount:1,polarizations:1,weights:'Uniform unit-norm coherent weights',geometry:template.array}:null,regionId,projectId:getProject()?.id || null,template,templateTarget:overrideSite || null,probe:{distanceM,bearingDeg},result,scenario:scenario ? {...scenario,unsavedEdits:state.dirty,...(isCells()||receiver?{draft:draft()}: {})} : isCells()||receiver?{draft:draft(),unsavedEdits:true}:null,reference:PLANNING_REFERENCE,carrierQualification:qualification(template),carrierReference:template.carrier ? CARRIER_PLAN.references[rat] : null,powerConvention:'Total average conducted power per modeled carrier/port; array beam power is shared across elements. EIRP upper bound = TX power + element peak gain + 10log10(rows*columns) - loss for arrays; without an array, peak EIRP = TX power + peak gain - loss. No reference-signal allocation.',model:'UMa mean path loss, 25 m BS / 1.5 m UE; reference element, isotropic, uniform single-panel scalar array or explicitly linked source total realized-gain grid; 120 dB numerical array-null cap. Bandwidth and RAT do not change the path-loss formula. The probe is independent of map fans and virtual drives. Saved applied templates can be selected for directional virtual drives.'},null,2)],{type:'application/json'});
     const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='radio-planning-study.json';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
   };
   scenarios.subscribe(state=>{
@@ -178,7 +192,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     if(state.draft && state.draft!==previousDraft){previousDraft=state.draft;$('scenario-name').value=state.draft.name;fill(targetTemplate(state.draft) || state.draft.template);}
     cellView.sync();render();
   });
-  $('scenario-assignment-mode').onchange=()=>{const current=draft(),mode=$('scenario-assignment-mode').value;modeDrafts[isCells()?'cells':'sites']=structuredClone(current);overrideSite='';const next=modeDrafts[mode] || (mode==='cells'?asCellStudy(current):{name:current.name,template:structuredClone(current.template),overrides:{}});scenarios.edit({...next,name:current.name});};
+  $('scenario-assignment-mode').onchange=()=>{const current=draft(),mode=$('scenario-assignment-mode').value;modeDrafts[isCells()?'cells':'sites']=structuredClone(current);overrideSite='';const next=modeDrafts[mode] || (mode==='cells'?asCellStudy(current):{name:current.name,template:structuredClone(current.template),overrides:{},...(current.receiver?{receiver:structuredClone(current.receiver)}:{})});scenarios.edit({...next,name:current.name});};
   $('scenario-picker').onchange=()=>{overrideSite='';modeDrafts={};scenarios.select($('scenario-picker').value);};
   $('scenario-new').onclick=()=>{overrideSite='';modeDrafts={};fill(RADIO_TEMPLATES[$('template-preset').value]);scenarios.newDraft({name:'New radio study',template:read(),overrides:{}});$('scenario-name').focus();};
   $('scenario-discard').onclick=()=>{overrideSite='';modeDrafts={};const id=scenarios.getState().selected?.id;scenarios.select(id);if(!id){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}};

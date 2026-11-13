@@ -7,12 +7,13 @@ import math
 import sqlite3
 
 from ..task_store import read_tasks
-from ..radio_scenarios import validate_radio_template,validate_scenario_assignments
+from ..radio_scenarios import validate_radio_template,validate_scenario_assignments,RECEIVER_LIBRARY
 from ..carrier_plan import validate_carrier,PLAN
 from ..equipment_inventory import read_inventory
 from ..equipment_studies import validate_equipment_templates
 from .dm_model import Conflict
-from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,CELL_UMA,PATTERN_UMA,UMA_REFERENCE
+from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,CELL_UMA,PATTERN_UMA,RECEIVER_UMA,UMA_REFERENCE
+from .polarization import RECEIVER_MODEL,NULL_POWER_FRACTION
 from .antenna import peak_eirp
 from .pattern_context import pattern_rows
 from ..cell_assignments import build_cell_transmitters,cell_eirp,transmitter_rat
@@ -70,7 +71,7 @@ def transmitters(sites, saved_ids, center):
 
 
 def scenario_transmitters(payload,network):
-    if payload.get('modelVersion') not in ('uma-element-v1','uma-array-v2'):raise ValueError('Unsupported saved scenario model version.')
+    if payload.get('modelVersion') not in ('uma-element-v1','uma-array-v2',RECEIVER_LIBRARY):raise ValueError('Unsupported saved scenario model version.')
     if payload['modelVersion']=='uma-element-v1' and any(t.get('pattern')=='array' for t in [payload['template'],*payload['overrides'].values()]):raise ValueError('Array inputs require the array scenario model version.')
     result=[]
     for transmitter in network:
@@ -86,9 +87,9 @@ def scenario_transmitters(payload,network):
 def qualified_scenario(db,region,project,payload,network,cache=None):
     resolved=validate_scenario_assignments(db,region,project,payload,current=True,qualified=True,cache=cache)
     if payload.get('assignmentMode')!='cells':return scenario_transmitters(payload,network)
-    if payload.get('modelVersion') not in ('uma-source-cells-v3','uma-source-patterns-v4'):raise ValueError('Source-cell assignments require their saved model version')
+    if payload.get('modelVersion') not in ('uma-source-cells-v3','uma-source-patterns-v4',RECEIVER_LIBRARY):raise ValueError('Source-cell assignments require their saved model version')
     has_patterns=any(p['pattern']=='sampled' for c in payload['cells'] for p in c['ports'])
-    if (payload['modelVersion']=='uma-source-patterns-v4')!=has_patterns:raise ValueError('Source-pattern inputs require their matching saved pattern model version')
+    if payload['modelVersion']!=RECEIVER_LIBRARY and (payload['modelVersion']=='uma-source-patterns-v4')!=has_patterns:raise ValueError('Source-pattern inputs require their matching saved pattern model version')
     ids=sorted({item['site']['inventorySiteId'] for item in resolved['cells']})
     features=[json.loads(row[0]) for row in db.execute(f"SELECT feature FROM network_sites WHERE region_id=? AND site_id IN ({','.join('?' for _ in ids)}) ORDER BY dataset_path,ordinal",(region,*ids))]
     return build_cell_transmitters(resolved,features)
@@ -106,10 +107,10 @@ def scenario_baseline(db,region,project,identity,revision,network,fingerprint,eq
     return dict(id=identity,name=payload['name'],revision=revision,baselineRevision=revision,payload=payload),derived
 
 
-def scenario_changes(baseline,applied,rat,baseline_budgets=None,applied_budgets=None):
+def scenario_changes(baseline,applied,rat,baseline_budgets=None,applied_budgets=None,baseline_receiver=None,applied_receiver=None):
     sides=[{t['id']:t for t in rows if transmitter_rat(t)==rat} for rows in (baseline,applied)]
     result=[]
-    fields=('frequencyMHz','mode','pattern','array','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource','sampled')
+    fields=('frequencyMHz','mode','pattern','array','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource','sampled','polarization')
     for identity in sorted(sides[0].keys() | sides[1].keys()):
         a,b=[side.get(identity) for side in sides];transmitter=b or a
         if 'ports' in transmitter:
@@ -120,19 +121,20 @@ def scenario_changes(baseline,applied,rat,baseline_budgets=None,applied_budgets=
                     before=ap['template'].get(field) if ap and field!='portAssignment' else rat if ap else None
                     after=bp['template'].get(field) if bp and field!='portAssignment' else rat if bp else None
                     if before==after:continue
-                    affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and ap and bp and ap['template']['pattern']==bp['template']['pattern']=='isotropic')
+                    affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and ap and bp and ap['template']['pattern']==bp['template']['pattern']=='isotropic' and not any('polarization' in p['template'] for p in (ap,bp)))
                     result.append(dict(siteId=transmitter['site_id'],cellId=transmitter['cellId'],linkId=link,label=f"{transmitter['label']} / {port['radioPortName']} → {port['antennaPortName']}",parameter=field,baseline=before,applied=after,affectsPrediction=affects))
             continue
         for field in (fields if a and b else ('assignment',)):
             before=a['template'].get(field) if a and field!='assignment' else rat if a else None
             after=b['template'].get(field) if b and field!='assignment' else rat if b else None
             if before==after:continue
-            affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and a and b and a['template']['pattern']==b['template']['pattern']=='isotropic')
+            affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and a and b and a['template']['pattern']==b['template']['pattern']=='isotropic' and not any('polarization' in t['template'] for t in (a,b)))
             result.append(dict(siteId=transmitter['site_id'],label=transmitter.get('label',transmitter['site_id']),parameter=field,baseline=before,applied=after,affectsPrediction=affects))
     radios={p['radioId'] for side in sides for t in side.values() for p in t.get('ports',[])}
     for radio in sorted(radios):
         before=(baseline_budgets or {}).get(radio);after=(applied_budgets or {}).get(radio)
         if before!=after:result.append(dict(siteId='',label=f'Radio {radio}',parameter='radioBudgetDbm',baseline=before,applied=after,affectsPrediction=False))
+    if baseline_receiver!=applied_receiver:result.append(dict(siteId='',label='LOS receiver collection',parameter='receiver',baseline=deepcopy(baseline_receiver),applied=deepcopy(applied_receiver),affectsPrediction=True))
     return result
 
 
@@ -150,11 +152,15 @@ def project_radio_context(db,region,project,network,fingerprint):
                 derived=qualified_scenario(db,region,project,payload,network,equipment_cache)
             except ValueError as error:
                 if not issue:issue=str(error)
-        baseline_issue='';baseline_derived=[]
-        try:_,baseline_derived=scenario_baseline(db,region,project,identity,baseline,network,fingerprint,equipment_cache)
+        baseline_issue='';baseline_derived=[];baseline_receiver=None
+        try:
+            baseline_scenario,baseline_derived=scenario_baseline(db,region,project,identity,baseline,network,fingerprint,equipment_cache)
+            baseline_receiver=baseline_scenario['payload'].get('receiver')
         except ValueError as error:baseline_issue=str(error)
         scenarios.append(dict(id=identity,name=payload.get('name',name) if payload else name,revision=revision,draftRevision=draft_revision,baselineRevision=baseline,qualified=not bool(issue),issue=issue,
                               assignmentMode=payload.get('assignmentMode','sites') if payload else 'sites',
+                              **({'receiver':deepcopy(payload['receiver'])} if payload and 'receiver' in payload else {}),
+                              **({'baselineReceiver':deepcopy(baseline_receiver)} if baseline_receiver is not None else {}),
                               baselineQualified=not bool(baseline_issue),baselineIssue=baseline_issue,baselineRats=sorted({transmitter_rat(t) for t in baseline_derived}),
                               transmitters=[dict(id=t['id'],site_id=t['site_id'],label=t.get('label',t['site_id']),rat=transmitter_rat(t),frequency_mhz=t['frequency_mhz'],
                                                  portCount=len(t.get('ports',[])) or 1,eirp_dbm=cell_eirp(t)) for t in derived]))
@@ -236,7 +242,7 @@ def _freeze_context(db,selection):
             value['radioBaseline'],value['baselineTransmitters']=scenario_baseline(db,region,project,identity,scenario['baselineRevision'],entry['transmitters'],context['sourceFingerprint'])
             value['comparisonKind']='scenario-revisions'
             value['scenarioComparison']=dict(baselineRevision=scenario['baselineRevision'],appliedRevision=scenario['revision'],baselineName=value['radioBaseline']['name'],appliedName=payload['name'])
-            value['scenarioChanges']=scenario_changes(value['baselineTransmitters'],value['transmitters'],selection.get('rat'),value['radioBaseline']['payload'].get('radioBudgets'),payload.get('radioBudgets'))
+            value['scenarioChanges']=scenario_changes(value['baselineTransmitters'],value['transmitters'],selection.get('rat'),value['radioBaseline']['payload'].get('radioBudgets'),payload.get('radioBudgets'),value['radioBaseline']['payload'].get('receiver'),payload.get('receiver'))
         all_transmitters=value['transmitters']+value.get('baselineTransmitters',[])
         if any('ports' in t for t in all_transmitters):
             value['schema']='ndt.execution.v4';value['predictionModel']=CELL_UMA
@@ -255,6 +261,19 @@ def _freeze_context(db,selection):
             value['schema']='ndt.execution.v5';value['predictionModel']=PATTERN_UMA
             value['patternModels']=pattern_rows(equipment,all_transmitters)
             value['patternAssumptions']=dict(format='ndt.scalar-gain-grid.v1',gain='Total realized gain at a real antenna-input reference; mismatch and radiation loss already included. External feeder loss only; no added antenna/array gain.',interpolation='Piecewise linear power in frequency, azimuth and elevation; no extrapolation',frequency='Center-frequency narrowband response; full occupied carrier must be inside source frequency coverage',orientation='Mechanical compass azimuth, downtilt and roll; declared electrical state is already embedded in the source grid',qualification='Full-sphere seam/pole, shape, passive-power and declared hardware/port checks; source claims are not independently verified',farField='Slant distance >= 2D^2/wavelength using declared maximum antenna dimension D',limitations='Scalar total-power field, other ports matched to the declared real reference. No inter-port phases, receiver polarization implementation, MIMO or field calibration.')
+        receiver=payload.get('receiver');baseline_receiver=value.get('radioBaseline',{}).get('payload',{}).get('receiver')
+        if receiver is not None or baseline_receiver is not None:
+            value['schema']='ndt.execution.v6';value['predictionModel']=RECEIVER_UMA
+            value['receiverAssumptions']=dict(model=RECEIVER_MODEL,applied=deepcopy(receiver),baseline=deepcopy(baseline_receiver),
+                polarization='TR 38.901 clause 7.3.2 Model-2 linear field; transmitter slant is a study assumption, not derived vendor polarization data',
+                channel='Reciprocal deterministic LOS reference projection in a shared local East/North/Up link frame; fixed heights and geodesic ground range; no NLOS depolarization or Earth-curvature transport',
+                collection='Single linear projection or ideal sum of two orthogonal receive powers, without adding receive gain',
+                ports='Uncorrelated mean powers; port phases unspecified and unused; site-coincident antenna phase centers',
+                nullPowerFraction=NULL_POWER_FRACTION,minimumRouteOutputDbm=-300,
+                limitations='No coherent multi-panel/port combining, MIMO receiver, reference-signal allocation, interference, multipath polarization transfer or field calibration')
+            if value.get('cellAssumptions'):value['cellAssumptions']['receiver']='Frozen role-specific receiver when declared; scalar baseline retains ideal polarization-insensitive collection'
+            if value.get('arrayAssumptions'):value['arrayAssumptions']['limitations']='Scalar per-port array power with separate assumed Model-2 receiver projection; no coupling, coherent inter-port phases or MIMO'
+            if value.get('patternAssumptions'):value['patternAssumptions']['limitations']='Source is total scalar gain with matched other ports; Model-2 polarization is a separate study assumption, not inferred source field data. No coherent inter-port phases, MIMO or field calibration.'
         value['modelReferences'] += [dict(title=f"3GPP TS {'36.104' if rat=='LTE' else '38.104'} v{PLAN['edition']} Release {PLAN['release']}",url=PLAN['references'][rat],rat=rat)
                                     for rat in sorted({transmitter_rat(t) for t in all_transmitters})]
     value['id'] = 'SNAP-'+digest(value)[:24]

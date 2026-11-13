@@ -3,19 +3,24 @@ from bisect import bisect_right
 import math
 
 from .integration import distance, route_lengths
-from .antenna import antenna_attenuation,initial_bearing,array_far_field_distance,peak_eirp,far_field_distance
+from .antenna import antenna_attenuation,initial_bearing,array_far_field_distance,peak_eirp,far_field_distance,receiver_antenna_attenuation
+from .polarization import RECEIVER_MODEL,prepare_polarization,template_orientation,validate_receiver_templates
 from ..cell_assignments import cell_eirp,transmitter_rat,power_sum,CELL_RADIO_FIELDS,validate_cell_power_change
 from ..radio_scenarios import validate_radio_template
-from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA
+from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA,RECEIVER_UMA
 
 def model_for(snapshot):
     model=snapshot.get('predictionModel',MODEL)
-    if model not in (MODEL,DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
-    if bool(snapshot.get('radioScenario'))!=(model in (DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA)):raise ValueError('The frozen model and scenario inputs do not match.')
+    if model not in (MODEL,DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA,RECEIVER_UMA):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
+    if bool(snapshot.get('radioScenario'))!=(model in (DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA,RECEIVER_UMA)):raise ValueError('The frozen model and scenario inputs do not match.')
     templates=[p['template'] for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[]) for p in t.get('ports',[{'template':t.get('template',{})}])]
-    if model!=PATTERN_UMA and any(t.get('pattern')=='sampled' for t in templates):raise ValueError('Imported sampled grids require the source-pattern prediction model')
-    if model==PATTERN_UMA and not snapshot.get('patternModels'):raise ValueError('Frozen source-pattern qualification is missing')
-    if model not in (CELL_UMA,PATTERN_UMA) and any('ports' in t for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Source-cell port inputs require the source-cell prediction model')
+    has_patterns=any(t.get('pattern')=='sampled' for t in templates)
+    if model not in (PATTERN_UMA,RECEIVER_UMA) and has_patterns:raise ValueError('Imported sampled grids require the source-pattern prediction model')
+    if (model==PATTERN_UMA or model==RECEIVER_UMA and has_patterns) and (not snapshot.get('patternModels') or not snapshot.get('patternAssumptions')):raise ValueError('Frozen source-pattern qualification or assumptions are missing')
+    if model not in (CELL_UMA,PATTERN_UMA,RECEIVER_UMA) and any('ports' in t for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Source-cell port inputs require the source-cell prediction model')
+    has_receiver=any(snapshot.get(k,{}).get('payload',{}).get('receiver') is not None for k in ('radioScenario','radioBaseline'))
+    if model!=RECEIVER_UMA and (has_receiver or snapshot.get('receiverAssumptions') or any('polarization' in t for t in templates)):raise ValueError('Receiver and polarization inputs require their matching prediction model')
+    if model==RECEIVER_UMA and snapshot.get('receiverAssumptions',{}).get('model')!=RECEIVER_MODEL:raise ValueError('Frozen receiver assumptions are missing or unavailable')
     if model==DIRECTIONAL_MODEL and any(t.get('template',{}).get('pattern')=='array' for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Array inputs require the uniform-panel prediction model.')
     return model
 
@@ -57,11 +62,16 @@ def trajectory(route, speed_kmh, interval_s, time_origin):
 def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, cancelled,pattern_assets=None):
     rows = []
     model=model_for(snapshot);directional=model in (DIRECTIONAL_MODEL,ARRAY_UMA)
-    if model in (CELL_UMA,PATTERN_UMA):
-        if model==PATTERN_UMA and pattern_assets is None:
+    if model in (CELL_UMA,PATTERN_UMA,RECEIVER_UMA):
+        if (model==PATTERN_UMA or snapshot.get('patternAssumptions')) and pattern_assets is None:
             from .pattern_context import prepare_snapshot_patterns
             pattern_assets=prepare_snapshot_patterns(snapshot)
-        return simulate_cells(snapshot,case,powers,interval_s=interval_s,rat=rat,time_origin=time_origin,cancelled=cancelled,pattern_assets=pattern_assets)
+        receiver=None;polarizations=None
+        if model==RECEIVER_UMA:
+            templates=[p['template'] for t in snapshot['transmitters'] for p in t.get('ports',[{'template':t.get('template')}])]
+            receiver=validate_receiver_templates(snapshot['radioScenario'].get('payload',{}).get('receiver'),templates)
+            if receiver:polarizations={id(t):prepare_polarization(template_orientation(t)) for t in templates}
+        return simulate_cells(snapshot,case,powers,interval_s=interval_s,rat=rat,time_origin=time_origin,cancelled=cancelled,pattern_assets=pattern_assets,receiver_model=receiver,polarizations=polarizations)
     transmitters=snapshot['transmitters']
     if directional:
         for transmitter in transmitters:
@@ -117,9 +127,14 @@ def validate_frozen_cell_inputs(snapshot):
                 values=[template.get(key) for key in CELL_RADIO_FIELDS]
                 if common is not None and common!=values:raise ValueError('Frozen cell ports must share their radio inputs')
                 common=values
+    if snapshot.get('predictionModel')==RECEIVER_UMA:
+        templates=[p['template'] for t in transmitters for p in t.get('ports',[{'template':t.get('template')}])]
+        payload=snapshot['radioScenario'].get('payload',{})
+        if 'receiver' in payload and payload['receiver'] is None:raise ValueError('A declared frozen receiver must be explicit')
+        validate_receiver_templates(payload.get('receiver'),templates)
 
 
-def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled,pattern_assets=None):
+def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled,pattern_assets=None,receiver_model=None,polarizations=None):
     transmitters=snapshot['transmitters'];rows=[]
     validate_frozen_cell_inputs(snapshot)
     transmitters=[t for t in transmitters if transmitter_rat(t)==rat]
@@ -134,8 +149,13 @@ def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled,p
                 template=port['template'];loss=path_loss(separation,template['frequencyMHz'],template['mode'])
                 if loss is None:supported=False;break
                 if math.hypot(separation,23.5)<far_field_distance(template,pattern_assets):supported=False;near_field=True;break
-                port_values.append(peak_eirp(template)+delta-loss-antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets))
+                if receiver_model:
+                    fraction=receiver_model.coupling(polarizations[id(template)],bearing,elevation)['powerFraction']
+                    if fraction:
+                        port_values.append(peak_eirp(template)+delta-loss-receiver_antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets)+10*math.log10(fraction))
+                else:port_values.append(peak_eirp(template)+delta-loss-antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets))
             if not supported:continue
+            if receiver_model and not port_values:below_output=True;continue
             received=power_sum(port_values)
             if received < -300:below_output=True;continue
             candidates.append((received,transmitter['id']))

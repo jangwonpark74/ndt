@@ -151,6 +151,7 @@ dialog::backdrop { background: #10233683; }
 .report-sheet .overline { color: #156a61; text-transform: uppercase; font-weight: 750; letter-spacing: .1em; font-size: 10px; }
 .report-sheet h2 { font-size: 27px; letter-spacing: -.03em; margin: 5px 0; }
 .report-sheet h3 { font-size: 15px; margin: 15px 0 6px; }
+.report-source-ports th:last-child, .report-source-ports td:last-child { min-width: 75px; white-space: nowrap; }
 .report-sheet .identity { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 .report-sheet .report-foot { display: flex; justify-content: space-between; align-items: start; gap: 10px; border-top: 1px solid var(--line); margin-top: 15px; padding-top: 7px; color: var(--muted); font-size: 10px; }
 .report-sheet p { line-height: 1.45; overflow-wrap: anywhere; }
@@ -284,6 +285,7 @@ legend { font-weight: 700; font-size: 12px; padding: 0 5px; }
   .report-sheet:last-child { break-after: auto; }
   .report-sheet .report-split { grid-template-columns: 1fr 1fr; }
   .report-foot .section-number { display: none; }
+  .report-sheet h3 { break-after: avoid; }
   tr, .report-graphic, .report-comparison { break-inside: avoid; }
   .report-sheet td, .report-sheet th { padding: 6px; }
 }
