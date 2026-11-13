@@ -4,9 +4,11 @@ export function createTaskViewModel(model) {
   const projects = new Map(), listeners = new Set();
   let projectId = null;
   let fitting = null;
+  let roadFitting = true;
   const empty = () => ({tasks:[],draft:null,originalId:null,dirty:false,loading:false,saving:false,error:'',loaded:false,drawing:null,routing:null,speedText:'',speedError:''});
   const current = () => projects.get(projectId) || empty();
-  const emit = () => { for (const listener of listeners) listener({...current(),projectId}); };
+  const state = () => ({...current(),projectId,roadFitting});
+  const emit = () => { for (const listener of listeners) listener(state()); };
   const update = changes => { Object.assign(current(),changes); emit(); };
   function changeDraft(draft) { update({draft,dirty:true,error:''}); }
   function cancelFit() {
@@ -14,6 +16,7 @@ export function createTaskViewModel(model) {
     update({routing:null});
   }
   async function fitRoutes(routes) {
+    if (!roadFitting) return;
     const target = current(), controller = new AbortController(); fitting = controller;
     for (let index=0;index<routes.length;index++) {
       const route = routes[index]; update({routing:{index:index+1,total:routes.length,name:route.name}});
@@ -31,13 +34,17 @@ export function createTaskViewModel(model) {
     if (fitting === controller) {fitting=null;update({routing:null});}
   }
   return {
-    getState: () => ({...current(),projectId}),
+    getState: state,
+    setRoadFitting(enabled) {
+      roadFitting = enabled;
+      if (!enabled) cancelFit(); else emit();
+    },
     driveMetrics(task) {
       if (task) return task.driveMetrics?.speedCases ? task.driveMetrics : taskDriveMetrics(task);
       const {draft,speedError}=current();
       return taskDriveMetrics(speedError ? {...draft,speedCases:[],driveSpeedKmh:null} : draft);
     },
-    subscribe(listener) { listeners.add(listener); listener({...current(),projectId}); return () => listeners.delete(listener); },
+    subscribe(listener) { listeners.add(listener); listener(state()); return () => listeners.delete(listener); },
     async selectProject(id) {
       cancelFit();
       projectId = id;

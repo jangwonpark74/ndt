@@ -48,6 +48,30 @@ await offline.selectProject('a');offline.selectTask(task.id);await offline.fitRo
 assert.equal(await offline.save(),true);
 console.log('Automatic road fitting, dense guide selection, unmatched preservation and stale-request cancellation passed.');
 
+let fitCalls=0, toggleRelease, fitSignal;
+const toggle=createTaskViewModel({load:async()=>[task],fit:async(input,signal)=>{
+  fitCalls++;fitSignal=signal;
+  return new Promise(resolve=>toggleRelease=()=>resolve({...input,roadFit:'fitted',coordinates:[[1,2],[3,4]]}));
+},save:async()=>{}});
+let toggleState;toggle.subscribe(state=>toggleState=state);
+assert.equal(toggleState.roadFitting,true);
+await toggle.selectProject('a');toggle.selectTask(task.id);toggle.setRoadFitting(false);
+assert.equal(toggleState.roadFitting,false);assert.equal(toggleState.dirty,false);
+await toggle.import({type:'LineString',coordinates:[[5,6],[7,8]]});
+toggle.beginDraw('Unfitted');toggle.addPoint([9,10]);toggle.addPoint([11,12]);await toggle.finishDraw();
+await toggle.fitRoute(route.id);assert.equal(fitCalls,0);
+assert.deepEqual(toggle.getState().draft.routes.map(item=>item.coordinates),[route.coordinates,[[5,6],[7,8]],[[9,10],[11,12]]]);
+toggle.setRoadFitting(true);assert.equal(fitCalls,0,'enabling does not refit existing routes');
+const toggleFlight=toggle.fitRoute(route.id);assert.ok(toggleState.routing);
+toggle.setRoadFitting(false);assert.equal(fitSignal.aborted,true);assert.equal(toggleState.routing,null);
+toggle.setRoadFitting(true);toggleRelease();await toggleFlight;
+assert.deepEqual(toggle.getState().draft.routes[0].coordinates,route.coordinates,'late response stays cancelled after re-enabling');
+const retryFlight=toggle.fitRoute(route.id);toggleRelease();await retryFlight;
+assert.equal(toggle.getState().draft.routes[0].roadFit,'fitted');
+toggle.setRoadFitting(false);assert.deepEqual(toggle.getState().draft.routes[0].coordinates,[[1,2],[3,4]],'switching off preserves completed fits');
+await toggle.selectProject('b');assert.equal(toggle.getState().roadFitting,false,'setting applies across projects');
+console.log('Road fitting switch gates drawing, imports and refits, preserves paths, and cancels late responses.');
+
 const transport=createTaskModel('toronto',async(url,options)=>{
  assert.equal(url,'/api/road-route');assert.equal(options.method,'POST');assert.ok(JSON.parse(options.body).length<=100);
  return {ok:true,json:async()=>({coordinates:route.coordinates})};

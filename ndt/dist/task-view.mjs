@@ -62,7 +62,8 @@ export function createTaskView({map,viewModel,regionId}) {
       link.onclick=event=>{if(disabled)event.preventDefault();};
       link.title=disabled?'Save or discard Task changes before opening drive tests.':'Open drive tests for this project';
     }
-    const {tasks,draft,originalId,dirty,loading,saving,error,drawing,loaded,routing} = state;
+    const {tasks,draft,originalId,dirty,loading,saving,error,drawing,loaded,routing,roadFitting} = state;
+    $('road-fitting-toggle').checked = roadFitting;
     const busy = saving || Boolean(routing);
     $('road-fit-progress').hidden = !routing;
     $('road-fit-status').textContent = routing ? `Fitting route ${routing.index} of ${routing.total}: ${routing.name}…` : '';
@@ -102,7 +103,8 @@ export function createTaskView({map,viewModel,regionId}) {
         if (routeMetrics.speedCases.length>1) details.append(caseResults(routeMetrics.speedCases));
         const show = button('View route',()=>fit(route.coordinates));
         const remove = button('Remove route',()=>viewModel.removeRoute(route.id)); remove.disabled = busy || Boolean(drawing);
-        const fitRoads = button('Fit to roads',()=>viewModel.fitRoute(route.id)); fitRoads.disabled = busy || Boolean(drawing);
+        const fitRoads = button('Fit to roads',()=>viewModel.fitRoute(route.id)); fitRoads.disabled = !roadFitting || busy || Boolean(drawing);
+        fitRoads.title = roadFitting ? '' : 'Enable Road fitting in Map Settings to fit this route.';
         const drive=button('Open drive tests',()=>{location.href=driveTestUrl(regionId,state.projectId,state.originalId,route.id);});
         drive.disabled=dirty||busy||!state.originalId||Boolean(drawing);drive.title=drive.disabled?'Save the Task first':'Use this saved route in the drive-test workspace';
         item.append(title,status,details,show,fitRoads,remove,drive); $('task-routes').append(item);
@@ -114,7 +116,7 @@ export function createTaskView({map,viewModel,regionId}) {
     $('route-draw').disabled = busy || Boolean(drawing); $('route-import').disabled = busy || Boolean(drawing); $('route-name').disabled = busy || Boolean(drawing);
     $('route-drawing').hidden = !drawing;
     if (drawing) {
-      $('route-draw-status').textContent = `${drawing.coordinates.length} waypoints · Click the map to add a point. Finish to follow roads from Start → End. Escape cancels.`;
+      $('route-draw-status').textContent = `${drawing.coordinates.length} waypoints · Click the map to add a point. ${roadFitting ? 'Finish to follow roads from Start → End.' : 'Road fitting is off; Finish keeps your waypoint path.'} Escape cancels.`;
       $('route-finish').disabled = drawing.coordinates.length < 2; $('route-undo').disabled = !drawing.coordinates.length;
     }
     drawMap();
@@ -125,6 +127,7 @@ export function createTaskView({map,viewModel,regionId}) {
     fit(task.routes.flatMap(route=>route.coordinates));
   }});
   viewModel.subscribe(render);
+  $('road-fitting-toggle').onchange = event => viewModel.setRoadFitting(event.target.checked);
   $('task-new').onclick = () => {viewModel.newTask(); $('task-name').focus();};
   for (const field of ['id','name']) $(`task-${field}`).oninput = event => viewModel.edit({[field]:event.target.value});
   $('task-speed').oninput = event => viewModel.editSpeeds(event.target.value);
