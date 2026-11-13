@@ -134,7 +134,8 @@ def read_inventory(db,region,project,revision=None):
     if row is None:return None
     content=row[4].decode('utf-8') if isinstance(row[4],bytes) else row[4]
     history=[dict(revision=r[0],sha256=r[1],importedAt=r[2]) for r in db.execute('SELECT revision,sha256,imported_at FROM equipment_inventory_versions WHERE region_id=? AND project_id=? ORDER BY revision DESC',(region,project))]
-    return dict(revision=row[0],sha256=row[1],sourceFingerprint=row[2],importedAt=row[3],raw=content,data=json.loads(content.removeprefix('\ufeff')),history=history)
+    fingerprint=db.execute('SELECT fingerprint FROM regions WHERE id=?',(region,)).fetchone()
+    return dict(revision=row[0],sha256=row[1],sourceFingerprint=row[2],currentSourceFingerprint=fingerprint[0] if fingerprint else None,importedAt=row[3],raw=content,data=json.loads(content.removeprefix('\ufeff')),history=history)
 
 
 def preview_inventory(db,region,project,raw):

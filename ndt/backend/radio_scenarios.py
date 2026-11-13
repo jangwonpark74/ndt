@@ -4,6 +4,7 @@ import math
 import re
 from datetime import datetime, timezone
 from .carrier_plan import validate_carrier
+from .equipment_studies import validate_equipment_reference,validate_equipment_templates
 
 
 class ScenarioConflict(ValueError):
@@ -28,7 +29,7 @@ def initialize_scenarios(db):
 def validate_radio_template(template):
     bounds = dict(frequencyMHz=(500, 100000), bandwidthMHz=(.1, 400), powerDbm=(-30, 80),
                   gainDbi=(0, 40), lossDb=(0, 40), tiltDeg=(-20, 90), azimuthDeg=(0, 359.999))
-    if not isinstance(template, dict) or set(template)-{'carrier'} != set(bounds) | {'rat', 'pattern', 'mode'}:
+    if not isinstance(template, dict) or set(template)-{'carrier','equipmentSource'} != set(bounds) | {'rat', 'pattern', 'mode'}:
         raise ValueError('A complete radio template is required')
     for field, (low, high) in bounds.items():
         value = template[field]
@@ -41,6 +42,7 @@ def validate_radio_template(template):
     if template['pattern'] == 'isotropic' and template['gainDbi'] != 0:
         raise ValueError('An isotropic antenna requires 0 dBi gain')
     validate_carrier(template)
+    if 'equipmentSource' in template:validate_equipment_reference(template['equipmentSource'])
     return template
 
 
@@ -83,6 +85,7 @@ def save_scenario(db, region, project, body):
             raise ValueError('Unknown override site ID')
         for override in overrides.values():
             validate_radio_template(override)
+        validate_equipment_templates(db,region,project,template,overrides)
         if expected >= 50:
             raise ValueError('Scenario limit reached: 50 retained revisions. Create a new scenario.')
         if not current and db.execute('SELECT COUNT(*) FROM radio_scenarios WHERE region_id=? AND project_id=?', (region, project)).fetchone()[0] >= 20:
@@ -99,6 +102,7 @@ def save_scenario(db, region, project, body):
         version = json.loads(db.execute('SELECT payload FROM radio_scenario_versions WHERE region_id=? AND project_id=? AND scenario_id=? AND revision=?', (region, project, identity, expected)).fetchone()[0])
         if action == 'apply' and version['sourceFingerprint'] != region_row[1]:
             raise ValueError('Source inventory changed. Save a new revision before applying this scenario.')
+        validate_equipment_templates(db,region,project,version['template'],version['overrides'],current=True)
         field = 'applied_revision' if action == 'apply' else 'baseline_revision'
         db.execute(f'UPDATE radio_scenarios SET {field}=? WHERE region_id=? AND project_id=? AND scenario_id=?',
                    (expected, region, project, identity))

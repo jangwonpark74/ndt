@@ -17,8 +17,8 @@ const labels=createPlanningLabels({map,onSelect:site=>selectNetwork(site),getSit
   getProjectData:()=>projectViewModel.getState().data,getActiveProject:()=>projectViewModel.getState().selected,
   getInventoryGroups:()=>inventoryReview.groups(),getInventorySites:()=>networkViewModel.getState().features || []});
 document.addEventListener('inventorygroupschange',()=>{labels.refresh();const selected=networkViewModel.getState().selected;if(selected)renderSiteDetail(selected);});
-bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected,getSelectedSite:()=>networkViewModel.getState().selected});
 const equipment=bindEquipmentView({regionId:region.id,getProject:()=>projectViewModel.getState().selected});
+bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected,getSelectedSite:()=>networkViewModel.getState().selected,getEquipmentInventory:equipment.getInventory,getRunParticipation:id=>{const s=projectViewModel.getState();return !s.data || !s.selected ? null : s.data.eligible.has(id) && (s.data.clusters.get(s.selected.id) || []).some(site=>site.properties.site_id===id);},getSiteLabel:id=>{const site=networkViewModel.getState().features?.find(s=>s.properties.site_id===id);return site?siteLabel(site):id;}});
 document.addEventListener('equipmentinventorychange',()=>{const site=networkViewModel.getState().selected;if(site)renderSiteDetail(site);});
 let previousProject,previousData;
 projectViewModel.subscribe(state=>{
@@ -29,7 +29,7 @@ projectViewModel.subscribe(state=>{
   if(changedProject)document.dispatchEvent(new CustomEvent('projectcontextchange'));
   labels.refresh();
   const selected=networkViewModel.getState().selected;
-  if(selected)renderSiteDetail(selected);
+  if(selected){renderSiteDetail(selected);document.dispatchEvent(new CustomEvent('networksitechange'));}
 });
 document.addEventListener('reviewnetworksite',event=>selectNetwork(event.detail,true));
 function syncNetworkOptions() {

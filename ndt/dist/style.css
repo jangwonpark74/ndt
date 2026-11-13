@@ -265,3 +265,6 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 .inventory-scroll-note{display:none}.inventory-table td:first-child{position:sticky;left:0;background:#fff;z-index:1;min-width:120px}.inventory-table th:first-child{left:0;z-index:2}.inventory-table tr[aria-current=true] td:first-child{background:#e6f1e5}@media(max-width:700px){.inventory-scroll-note{display:block}}
 
 .inventory-controls .inventory-field{display:grid;gap:4px;font-size:12px;min-width:0;flex:1 1 130px}
+.equipment-study{border:1px solid #c7d7cd;border-radius:6px;padding:8px;margin:10px 0}.equipment-study table{table-layout:fixed;width:100%;border-collapse:collapse;font-size:11px}.equipment-study th,.equipment-study td{border-bottom:1px solid #dce5dc;padding:5px;text-align:left;overflow-wrap:anywhere}.equipment-study .network-note{overflow-wrap:anywhere}.equipment-study button{margin-top:8px}
+
+.equipment-study summary{font-size:12px;cursor:pointer;padding:8px 0}.equipment-study[data-invalid=true]{border-color:#a75a42;background:#fff4ef}

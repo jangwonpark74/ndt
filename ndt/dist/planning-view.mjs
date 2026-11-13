@@ -2,16 +2,33 @@ import {RADIO_TEMPLATES, PLANNING_REFERENCE, validateTemplate, predictProbe} fro
 import {createScenarioModel} from './scenario-model.mjs';
 import {createScenarioViewModel} from './scenario-view-model.mjs';
 import {CARRIER_PLAN,carrierBand,carrierFrequency,validateCarrier} from './carrier-plan.mjs';
+import {equipmentStudyTemplate,equipmentStudyValues} from './equipment-study.mjs';
 
-export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null}) {
+export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,getEquipmentInventory=()=>null,getSiteLabel=id=>id,getRunParticipation=()=>null}) {
   const $=id=>document.getElementById(id), form=$('radio-template-form');
   const fields=['frequencyMHz','bandwidthMHz','powerDbm','gainDbi','lossDb','tiltDeg','azimuthDeg','pattern','mode'];
-  let rat='LTE',carrierVersion=CARRIER_PLAN.version;
+  let rat='LTE',carrierVersion=CARRIER_PLAN.version,equipmentSource=null,pendingLoad=Promise.resolve(),contextVersion=0;
   const scenarios=createScenarioViewModel(createScenarioModel(regionId));
   let previousDraft,overrideSite='';
+  const evidence=document.createElement('div');evidence.className='equipment-study';evidence.hidden=true;
+  evidence.innerHTML='<p id="template-equipment-status" class="network-note" role="status"></p><details><summary>Compare reported inputs</summary><p class="network-note">Source records are user-supplied. Modeled power, feeder loss, environment and reference-element pattern are study assumptions; vendor cuts are reviewed separately.</p><table><thead><tr><th scope="col">Input</th><th scope="col">Reported</th><th scope="col">Study</th></tr></thead><tbody id="template-equipment-values"></tbody></table><p id="template-equipment-hash" class="network-note"></p></details><div class="study-actions"><button id="template-equipment-clear" type="button">Keep as assumptions</button></div>';
+  form.before(evidence);
   function draft(){const base=scenarios.getState().draft;return {name:$('scenario-name').value,template:overrideSite ? base.template : read(),overrides:overrideSite ? {...base.overrides,[overrideSite]:read()} : base?.overrides || {}};}
   const key=()=>`ndt-radio-template:${regionId}:${getProject()?.id || 'region'}`;
-  function read() {return {rat,...Object.fromEntries(fields.map(f=>[f,['pattern','mode'].includes(f) ? form.elements[f].value : form.elements[f].value.trim() === '' ? NaN : Number(form.elements[f].value)])),...($('carrier-enabled').checked ? {carrier:{standard:carrierVersion,band:form.elements.carrierBand.value,channel:form.elements.channel.value==='' ? NaN : Number(form.elements.channel.value),scsKHz:Number(form.elements.carrierScs.value)}} : {})};}
+  function read() {return {rat,...Object.fromEntries(fields.map(f=>[f,['pattern','mode'].includes(f) ? form.elements[f].value : form.elements[f].value.trim() === '' ? NaN : Number(form.elements[f].value)])),...($('carrier-enabled').checked ? {carrier:{standard:carrierVersion,band:form.elements.carrierBand.value,channel:form.elements.channel.value==='' ? NaN : Number(form.elements.channel.value),scsKHz:Number(form.elements.carrierScs.value)}} : {}),...(equipmentSource?{equipmentSource}: {})};}
+  function renderEvidence(template){
+    evidence.hidden=!equipmentSource;if(!equipmentSource)return;
+    const status=$('template-equipment-status'),rows=$('template-equipment-values');rows.replaceChildren();evidence.dataset.invalid='false';
+    $('template-equipment-clear').disabled=scenarios.getState().loading || scenarios.getState().saving;
+    $('template-equipment-hash').textContent=`Original source SHA-256 ${equipmentSource.sha256}`;
+    try{
+      const inventory=getEquipmentInventory(),cellLabel=inventory?.data.cells.find(cell=>cell.id===equipmentSource.cellId)?.cellIdentity || equipmentSource.cellId,reported=equipmentStudyValues(inventory,equipmentSource,overrideSite),missing=Object.values(reported).filter(v=>v===null).length,changed=Object.entries(reported).filter(([key,v])=>v!==null && v!==template[key]).length;
+      status.textContent=`${getProject()?.name || ''} / ${getSiteLabel(overrideSite)} · Source revision ${equipmentSource.revision} · ${cellLabel}${missing?` · ${missing} ${missing===1?'input':'inputs'} not reported`:''}${changed?` · ${changed} modeled ${changed===1?'edit':'edits'}`:''}${getRunParticipation(overrideSite)===false?' · Outside current Bell run membership':''}`;
+      for(const [key,label]of Object.entries({rat:'RAT',frequencyMHz:'Carrier MHz',bandwidthMHz:'Bandwidth MHz',azimuthDeg:'Azimuth deg',gainDbi:'Peak gain dBi',tiltDeg:'Downtilt deg'})){
+        const row=document.createElement('tr');for(const [i,value]of [label,reported[key]??'Not reported',typeof template[key]==='number' && !Number.isFinite(template[key])?'Enter value':template[key]].entries()){const cell=document.createElement(i?'td':'th');if(!i)cell.scope='row';cell.textContent=value;row.append(cell);}rows.append(row);
+      }
+    }catch(error){evidence.dataset.invalid='true';status.textContent=`Source revision ${equipmentSource.revision} · ${error.message}`;}
+  }
   function syncCarrier(derive=false){
     const enabled=$('carrier-enabled').checked,b=carrierBand(form.elements.carrierBand.value);
     $('carrier-controls').hidden=!enabled;form.elements.frequencyMHz.readOnly=enabled;
@@ -22,6 +39,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null})
   }
   function qualification(t){const b=carrierBand(t.carrier?.band);return b ? `${b.rat==='NR'?'TS 38.104':'TS 36.104'} v18.5.0 Release 18; ${b.id} / ${b.duplex}; ${t.carrier.scsKHz} kHz SCS; ${CARRIER_PLAN.version}. Supported subset only.` : 'Generic study: no band/channel checks.';}
   function fill(t) {
+    equipmentSource=t.equipmentSource || null;
     rat=t.rat;$('template-preset').value=rat === 'NR' ? 'nr' : 'lte';fields.forEach(f=>form.elements[f].value=t[f]);
     form.elements.carrierBand.replaceChildren(...CARRIER_PLAN.bands.filter(b=>b.rat===rat).map(b=>new Option(`${b.id} · ${b.duplex}`,b.id)));
     const c=t.carrier,b=carrierBand(c?.band || (rat==='NR'?'n78':'B4'));
@@ -35,6 +53,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null})
     $('template-result').replaceChildren();
     $('template-error').textContent=result.error || ''; $('template-error').hidden=!result.error || !!carrierError;
     const state=scenarios.getState();
+    renderEvidence(t);
     $('carrier-check-status').textContent=carrierError || (t.carrier ? `Channel checks passed · ${b.id} · ${b.duplex} · ${t.carrier.scsKHz} kHz SCS` : qualification(t));
     $('carrier-check-status').dataset.invalid=String(!!carrierError);
     $('scenario-override-add').disabled=!getProject() || !getSelectedSite() || state.loading || state.saving || !!validateTemplate(t);
@@ -66,10 +85,11 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null})
     catch {$('template-save-status').textContent='Browser storage unavailable. Export the study to retain it.';}
   };
   function load() {
+    ++contextVersion;
     const project=getProject();
     overrideSite='';
     if(project){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}
-    scenarios.load(project?.id || null).then(()=>{
+    pendingLoad=scenarios.load(project?.id || null).then(()=>{
       const state=scenarios.getState();
       if(!project || state.projectId!==project.id || state.items.length || state.draft)return;
       try {const saved=JSON.parse(localStorage.getItem(key()));if(saved && !validateTemplate(saved)){scenarios.newDraft({name:'Recovered browser study',template:saved,overrides:{}});$('template-save-status').textContent='Browser study recovered. Save study to retain it in the database.';}}
@@ -106,7 +126,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null})
     $('scenario-state').textContent=!project ? 'Select a project for database saving.' : state.loading ? 'Loading saved scenarios...' : `${state.dirty ? 'Unsaved edits. ' : ''}Draft revision ${state.selected?.revision || 0} | Baseline ${state.selected?.baselineRevision || 'none'} | Applied ${state.selected?.appliedRevision || 'none'}`;
     $('scenario-history').replaceChildren();
     if(overrideSite && !state.draft?.overrides[overrideSite])overrideSite='';
-    $('scenario-target').replaceChildren(new Option('Default template',''),...Object.keys(state.draft?.overrides || {}).map(id=>new Option(id,id)));
+    $('scenario-target').replaceChildren(new Option('Default template',''),...Object.keys(state.draft?.overrides || {}).map(id=>new Option(getSiteLabel(id),id)));
     $('scenario-target').value=overrideSite;
     for(const version of state.selected?.versions || []){const li=document.createElement('li');li.textContent=`Revision ${version.revision}: ${version.name} (${new Date(version.createdAt).toLocaleString()})`;li.title=`Source ${version.sourceFingerprint}; model ${version.modelVersion}`;$('scenario-history').append(li);}
     if(state.draft && state.draft!==previousDraft){previousDraft=state.draft;$('scenario-name').value=state.draft.name;fill(state.draft.overrides[overrideSite] || state.draft.template);}
@@ -115,12 +135,26 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null})
   $('scenario-picker').onchange=()=>{overrideSite='';scenarios.select($('scenario-picker').value);};
   $('scenario-new').onclick=()=>{overrideSite='';fill(RADIO_TEMPLATES[$('template-preset').value]);scenarios.newDraft({name:'New radio study',template:read(),overrides:{}});$('scenario-name').focus();};
   $('scenario-discard').onclick=()=>{const id=scenarios.getState().selected?.id;scenarios.select(id);if(!id){fill(RADIO_TEMPLATES[$('template-preset').value]);$('scenario-name').value='Radio study';}};
-  $('scenario-reload').onclick=()=>scenarios.load(getProject()?.id || null).catch(()=>{});
+  $('scenario-reload').onclick=()=>{++contextVersion;pendingLoad=scenarios.load(getProject()?.id || null).catch(()=>{});};
   $('scenario-copy').onclick=()=>{const copy={...draft(),name:`${$('scenario-name').value.slice(0,110)} copy`};scenarios.newDraft(copy);scenarios.save({...copy,id:crypto.randomUUID()}).catch(()=>{});};
   $('scenario-target').onchange=()=>{overrideSite=$('scenario-target').value;const d=scenarios.getState().draft;if(d)fill(d.overrides[overrideSite] || d.template);};
   $('scenario-override-add').onclick=()=>{const site=getSelectedSite();if(!site)return;const d=draft();overrideSite=site.properties.site_id;scenarios.edit({...d,overrides:{...d.overrides,[overrideSite]:structuredClone(d.template)}});};
   $('scenario-override-remove').onclick=()=>{const d=draft(),overrides={...d.overrides};delete overrides[overrideSite];overrideSite='';scenarios.edit({...d,overrides});};
   document.addEventListener('networksitechange',render);
+  document.addEventListener('equipmentinventorychange',render);
+  $('template-equipment-clear').onclick=()=>{equipmentSource=null;edited();};
+  document.addEventListener('equipmentstudyrequested',async event=>{
+    const {projectId,siteId,reference}=event.detail,token=contextVersion;
+    form.closest('details').open=true;await pendingLoad;
+    if(token!==contextVersion || getProject()?.id!==projectId || getSelectedSite()?.properties.site_id!==siteId)return;
+    try{
+      const inventory=getEquipmentInventory();equipmentStudyValues(inventory,reference,siteId);
+      const state=scenarios.getState(),base=state.draft || draft(),template=equipmentStudyTemplate(base.template,inventory,reference.cellId,reference.linkId,siteId);
+      overrideSite=siteId;scenarios.edit({...base,overrides:{...base.overrides,[siteId]:template}});
+      document.querySelector('.scenario-overrides').open=true;$('scenario-target').focus();evidence.scrollIntoView({block:'nearest'});
+      $('template-save-status').textContent='Source-linked site draft. Review reported inputs, assumptions and exact carrier channel before saving.';
+    }catch(error){$('template-save-status').textContent=error.message;}
+  });
   for(const [id,action]of [['scenario-baseline','baseline'],['scenario-apply','apply']])$(id).onclick=()=>scenarios.save(draft(),action).catch(()=>{});
   document.addEventListener('projectcontextchange',load);
   load();

@@ -10,6 +10,7 @@ from ..task_store import read_tasks
 from ..radio_scenarios import validate_radio_template
 from ..carrier_plan import validate_carrier,PLAN
 from ..equipment_inventory import read_inventory
+from ..equipment_studies import validate_equipment_templates
 from .dm_model import Conflict
 from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,UMA_REFERENCE
 
@@ -78,13 +79,15 @@ def scenario_transmitters(payload,network):
     return result
 
 
-def scenario_baseline(db,region,project,identity,revision,network,fingerprint):
+def scenario_baseline(db,region,project,identity,revision,network,fingerprint,equipment_cache=None):
     if revision is None:raise ValueError('Set a saved baseline revision in the radio study library.')
     row=db.execute('SELECT payload FROM radio_scenario_versions WHERE region_id=? AND project_id=? AND scenario_id=? AND revision=?',(region,project,identity,revision)).fetchone()
     if not row:raise ValueError('Baseline revision is unavailable. Set a current saved baseline.')
     payload=json.loads(row[0])
     if payload['sourceFingerprint']!=fingerprint:raise ValueError('Baseline source inventory changed. Save and set a current baseline revision.')
-    try:derived=scenario_transmitters(payload,network)
+    try:
+        validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=True,cache=equipment_cache)
+        derived=scenario_transmitters(payload,network)
     except ValueError as error:raise ValueError(f'Baseline: {error}') from error
     return dict(id=identity,name=payload['name'],revision=revision,baselineRevision=revision,payload=payload),derived
 
@@ -92,14 +95,14 @@ def scenario_baseline(db,region,project,identity,revision,network,fingerprint):
 def scenario_changes(baseline,applied,rat):
     sides=[{t['id']:t for t in rows if t['template']['rat']==rat} for rows in (baseline,applied)]
     result=[]
-    fields=('frequencyMHz','mode','pattern','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier')
+    fields=('frequencyMHz','mode','pattern','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource')
     for identity in sorted(sides[0].keys() | sides[1].keys()):
         a,b=[side.get(identity) for side in sides];transmitter=b or a
         for field in (fields if a and b else ('assignment',)):
             before=a['template'].get(field) if a and field!='assignment' else rat if a else None
             after=b['template'].get(field) if b and field!='assignment' else rat if b else None
             if before==after:continue
-            affects=field not in ('bandwidthMHz','carrier') and not (field in ('azimuthDeg','tiltDeg') and a and b and a['template']['pattern']==b['template']['pattern']=='isotropic')
+            affects=field not in ('bandwidthMHz','carrier','equipmentSource') and not (field in ('azimuthDeg','tiltDeg') and a and b and a['template']['pattern']==b['template']['pattern']=='isotropic')
             result.append(dict(siteId=transmitter['site_id'],label=transmitter.get('label',transmitter['site_id']),parameter=field,baseline=before,applied=after,affectsPrediction=affects))
     return result
 
@@ -107,18 +110,20 @@ def scenario_changes(baseline,applied,rat):
 def project_radio_context(db,region,project,network,fingerprint):
     key=(region,project)
     equipment=db.execute('SELECT revision,sha256,source_fingerprint,imported_at FROM equipment_inventory_versions WHERE region_id=? AND project_id=? ORDER BY revision DESC LIMIT 1',key).fetchone()
-    scenarios=[]
+    scenarios=[];equipment_cache={}
     for identity,name,revision,baseline,draft_revision in db.execute('SELECT scenario_id,name,applied_revision,baseline_revision,revision FROM radio_scenarios WHERE region_id=? AND project_id=? AND applied_revision IS NOT NULL ORDER BY name,scenario_id',key):
         row=db.execute('SELECT payload FROM radio_scenario_versions WHERE region_id=? AND project_id=? AND scenario_id=? AND revision=?',(*key,identity,revision)).fetchone()
         payload=json.loads(row[0]) if row else None;issue='';derived=[]
         if not payload:issue='Applied revision is missing. Restore a saved scenario.'
         else:
             if payload['sourceFingerprint']!=fingerprint:issue='Source inventory changed. Save and apply a new scenario revision.'
-            try:derived=scenario_transmitters(payload,network)
+            try:
+                validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=True,cache=equipment_cache)
+                derived=scenario_transmitters(payload,network)
             except ValueError as error:
                 if not issue:issue=str(error)
         baseline_issue='';baseline_derived=[]
-        try:_,baseline_derived=scenario_baseline(db,region,project,identity,baseline,network,fingerprint)
+        try:_,baseline_derived=scenario_baseline(db,region,project,identity,baseline,network,fingerprint,equipment_cache)
         except ValueError as error:baseline_issue=str(error)
         scenarios.append(dict(id=identity,name=payload.get('name',name) if payload else name,revision=revision,draftRevision=draft_revision,baselineRevision=baseline,qualified=not bool(issue),issue=issue,
                               baselineQualified=not bool(baseline_issue),baselineIssue=baseline_issue,baselineRats=sorted({t['template']['rat'] for t in baseline_derived}),

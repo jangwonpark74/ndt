@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {equipmentStudyTemplate,equipmentStudyValues,validateEquipmentReference} from '../../dist/equipment-study.mjs';
+import {RADIO_TEMPLATES,validateTemplate} from '../../dist/planning-model.mjs';
+const inventory={revision:1,sha256:'a'.repeat(64),data:JSON.parse(fs.readFileSync(new URL('../fixtures/equipment-example.json',import.meta.url),'utf8'))};
+const base={...RADIO_TEMPLATES.nr,powerDbm:37,lossDb:5,carrier:{standard:'3gpp-rel18-carrier-subset-v1',band:'n78',channel:640000,scsKHz:30}};
+const template=equipmentStudyTemplate(base,inventory,'cell-1','link-1','TEST-SITE');
+assert.equal(template.frequencyMHz,3500);assert.equal(template.rat,'NR');assert.equal(template.gainDbi,8);assert.equal(template.azimuthDeg,0);assert.equal(template.tiltDeg,6);assert.equal(template.pattern,'element');
+assert.equal(template.powerDbm,37,'radio total power is not an assumed per-carrier/port allocation');assert.equal(template.lossDb,5);assert.equal(template.carrier,undefined,'coarse reported frequency does not establish an exact qualified carrier');
+assert.deepEqual(template.equipmentSource,{revision:1,sha256:inventory.sha256,cellId:'cell-1',linkId:'link-1'});assert.equal(validateEquipmentReference(template.equipmentSource),'');
+assert.throws(()=>equipmentStudyValues(inventory,template.equipmentSource,'OTHER-SITE'),/site/i);assert.throws(()=>equipmentStudyValues({...inventory,revision:2},template.equipmentSource,'TEST-SITE'),/changed/i);
+assert.match(validateEquipmentReference({...template.equipmentSource,revision:true}),/revision/i);assert.match(validateEquipmentReference({...template.equipmentSource,sha256:'wrong'}),/hash/i);
+assert.match(validateTemplate({...RADIO_TEMPLATES.nr,equipmentSource:null}),/Equipment source/);
+inventory.data.antennas[0].gainDbi=null;const missing=equipmentStudyTemplate(base,inventory,'cell-1','link-1','TEST-SITE');assert.equal(missing.gainDbi,null,'missing source gain must not become an invented deployment value');
+console.log('Equipment-to-study source paths, explicit assumptions, missing values and exact-carrier review passed.');

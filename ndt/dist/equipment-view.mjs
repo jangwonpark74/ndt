@@ -45,6 +45,11 @@ export function bindEquipmentView({regionId,getProject}){
           const path=element('ol',undefined,'equipment-path');for(const text of [`Cell ${cell.id}`,`Radio ${radio.id} / TX port ${rp.id}`,`Antenna ${antenna.id} / port ${ap.id}`])path.append(element('li',text));card.append(path);
           facts(card,[['Antenna model',antenna.model || 'Not reported'],['Peak gain',value(antenna.gainDbi,' dBi')],['Downtilt',value(antenna.tiltDeg,' degrees')]]);
           evidence.push(link,rp,ap,antenna);if(pattern){evidence.push(pattern);cuts(card,pattern);}else card.append(element('p','Vendor radiation pattern not reported.','network-note'));
+          if(regionId==='toronto'){
+            const use=element('button',`Use ${rp.name || rp.id} → ${ap.name || ap.id} in study`);use.type='button';
+            use.onclick=()=>{if(vm.getState().inventory!==inventory)return;document.dispatchEvent(new CustomEvent('equipmentstudyrequested',{detail:{projectId:vm.getState().projectId,siteId:identity,reference:{revision:inventory.revision,sha256:inventory.sha256,cellId:cell.id,linkId:link.id}}}));group.open=false;};
+            const actions=element('div',undefined,'study-actions');actions.append(use);card.append(actions,element('p','Creates a reference-element site study. Carrier/port power, loss and environment remain editable assumptions.','network-note'));
+          }
         }
         const sources=element('details');sources.append(element('summary','Source records'));
         for(const node of new Map(evidence.map(e=>[`${e.sourceId}:${e.id}`,e])).values()){
@@ -82,5 +87,5 @@ export function bindEquipmentView({regionId,getProject}){
   document.addEventListener('projectcontextchange',()=>vm.load(getProject()?.id || null).catch(()=>{}));
   document.addEventListener('reservationselected',event=>{reservation=event.detail;renderSite($('nyc-detail'),reservation);});
   vm.load(getProject()?.id || null).catch(()=>{});
-  return {renderSite};
+  return {renderSite,getInventory:()=>vm.getState().inventory};
 }
