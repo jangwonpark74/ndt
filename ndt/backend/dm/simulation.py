@@ -3,16 +3,19 @@ from bisect import bisect_right
 import math
 
 from .integration import distance, route_lengths
-from .antenna import antenna_attenuation,initial_bearing,array_far_field_distance,peak_eirp
+from .antenna import antenna_attenuation,initial_bearing,array_far_field_distance,peak_eirp,far_field_distance
 from ..cell_assignments import cell_eirp,transmitter_rat,power_sum,CELL_RADIO_FIELDS,validate_cell_power_change
 from ..radio_scenarios import validate_radio_template
-from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA
+from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA
 
 def model_for(snapshot):
     model=snapshot.get('predictionModel',MODEL)
-    if model not in (MODEL,DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
-    if bool(snapshot.get('radioScenario'))!=(model in (DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA)):raise ValueError('The frozen model and scenario inputs do not match.')
-    if model!=CELL_UMA and any('ports' in t for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Source-cell port inputs require the source-cell prediction model')
+    if model not in (MODEL,DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
+    if bool(snapshot.get('radioScenario'))!=(model in (DIRECTIONAL_MODEL,ARRAY_UMA,CELL_UMA,PATTERN_UMA)):raise ValueError('The frozen model and scenario inputs do not match.')
+    templates=[p['template'] for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[]) for p in t.get('ports',[{'template':t.get('template',{})}])]
+    if model!=PATTERN_UMA and any(t.get('pattern')=='sampled' for t in templates):raise ValueError('Imported sampled grids require the source-pattern prediction model')
+    if model==PATTERN_UMA and not snapshot.get('patternModels'):raise ValueError('Frozen source-pattern qualification is missing')
+    if model not in (CELL_UMA,PATTERN_UMA) and any('ports' in t for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Source-cell port inputs require the source-cell prediction model')
     if model==DIRECTIONAL_MODEL and any(t.get('template',{}).get('pattern')=='array' for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Array inputs require the uniform-panel prediction model.')
     return model
 
@@ -51,10 +54,14 @@ def trajectory(route, speed_kmh, interval_s, time_origin):
         yield dict(t=stamp, longitude=lon, latitude=lat, chainage_m=chainage)
 
 
-def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, cancelled):
+def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, cancelled,pattern_assets=None):
     rows = []
     model=model_for(snapshot);directional=model in (DIRECTIONAL_MODEL,ARRAY_UMA)
-    if model==CELL_UMA:return simulate_cells(snapshot,case,powers,interval_s=interval_s,rat=rat,time_origin=time_origin,cancelled=cancelled)
+    if model in (CELL_UMA,PATTERN_UMA):
+        if model==PATTERN_UMA and pattern_assets is None:
+            from .pattern_context import prepare_snapshot_patterns
+            pattern_assets=prepare_snapshot_patterns(snapshot)
+        return simulate_cells(snapshot,case,powers,interval_s=interval_s,rat=rat,time_origin=time_origin,cancelled=cancelled,pattern_assets=pattern_assets)
     transmitters=snapshot['transmitters']
     if directional:
         for transmitter in transmitters:
@@ -95,8 +102,8 @@ def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, canc
     return rows
 
 
-def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled):
-    transmitters=snapshot['transmitters'];rows=[]
+def validate_frozen_cell_inputs(snapshot):
+    transmitters=snapshot['transmitters']
     if any('ports' in t for t in transmitters):validate_cell_power_change(transmitters,snapshot['radioScenario']['payload']['radioBudgets'])
     for transmitter in transmitters:
         common=None
@@ -110,6 +117,11 @@ def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled):
                 values=[template.get(key) for key in CELL_RADIO_FIELDS]
                 if common is not None and common!=values:raise ValueError('Frozen cell ports must share their radio inputs')
                 common=values
+
+
+def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled,pattern_assets=None):
+    transmitters=snapshot['transmitters'];rows=[]
+    validate_frozen_cell_inputs(snapshot)
     transmitters=[t for t in transmitters if transmitter_rat(t)==rat]
     if not transmitters:raise ValueError(f'The frozen scenario has no {rat} transmitters.')
     for index,position in enumerate(trajectory(snapshot['route'],case['speedKmh'],interval_s,time_origin)):
@@ -121,8 +133,8 @@ def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled):
             for port in transmitter.get('ports',[{'template':transmitter.get('template')}]):
                 template=port['template'];loss=path_loss(separation,template['frequencyMHz'],template['mode'])
                 if loss is None:supported=False;break
-                if template['pattern']=='array' and math.hypot(separation,23.5)<array_far_field_distance(template):supported=False;near_field=True;break
-                port_values.append(peak_eirp(template)+delta-loss-antenna_attenuation(template,bearing-template['azimuthDeg'],elevation))
+                if math.hypot(separation,23.5)<far_field_distance(template,pattern_assets):supported=False;near_field=True;break
+                port_values.append(peak_eirp(template)+delta-loss-antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets))
             if not supported:continue
             received=power_sum(port_values)
             if received < -300:below_output=True;continue

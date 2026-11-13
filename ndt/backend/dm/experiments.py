@@ -16,7 +16,7 @@ import zlib
 
 from .dm_model import Conflict, DEFAULT_PROFILE, LIMITS, MAX_ROWS, connection, get_test, initialize
 from .integration import canonical, digest, freeze_context, match_route, route_lengths
-from .simulation import MODEL, simulate, model_for
+from .simulation import MODEL, simulate, model_for,validate_frozen_cell_inputs
 from ..cell_assignments import cell_eirp,transmitter_rat,validate_cell_power_change,MAX_PORT_EVALUATIONS
 
 EXPERIMENT_TYPES=('parameter-ab','virtual-drive','scenario-ab')
@@ -155,6 +155,11 @@ class ExperimentStore:
             if spec['experiment_type'] not in EXPERIMENT_TYPES:raise ValueError('The frozen experiment type is unavailable; it cannot be reinterpreted.')
             if (spec['experiment_type']=='scenario-ab')!=(snapshot.get('comparisonKind')=='scenario-revisions'):raise ValueError('Frozen scenario comparison inputs do not match the experiment type.')
             if spec['experiment_type']=='parameter-ab' and any('ports' in t for t in snapshot['transmitters']):validate_cell_power_change(snapshot['transmitters'],snapshot['radioScenario']['payload']['radioBudgets'],spec['transmitter_id'],spec['power_b_dbm'])
+            if snapshot.get('radioScenario'):
+                validate_frozen_cell_inputs(snapshot)
+                if spec['experiment_type']=='scenario-ab':validate_frozen_cell_inputs({**snapshot,'radioScenario':snapshot['radioBaseline'],'transmitters':snapshot['baselineTransmitters']})
+            from .pattern_context import prepare_snapshot_patterns
+            pattern_assets=prepare_snapshot_patterns(snapshot) if snapshot.get('patternAssumptions') else None
             runs, comparisons = [], []
             for case in (c for c in snapshot['speedCases'] if c['id'] in spec['case_ids']):
                 pair = []
@@ -169,7 +174,7 @@ class ExperimentStore:
                     manifest = dict(**effective, model=model_for(effective), case=case, powers=powers, mode='per-template' if snapshot.get('radioScenario') else spec['mode'], interval_s=spec['interval_s'], rat=spec['rat'],
                                     evaluation_profile=deepcopy(DEFAULT_PROFILE), experiment_id=identity, variant=variant)
                     rows = simulate(effective, case, powers, interval_s=spec['interval_s'], rat=spec['rat'], mode=spec['mode'], time_origin=snapshot['time_origin'],
-                                    cancelled=lambda: not self.is_running(identity))
+                                    cancelled=lambda: not self.is_running(identity),pattern_assets=pattern_assets)
                     test_id = 'VDT-'+uuid.uuid4().hex[:20]
                     packed = zlib.compress(canonical(rows).encode())
                     with connection(self.path) as db:

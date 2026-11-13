@@ -12,8 +12,9 @@ from ..carrier_plan import validate_carrier,PLAN
 from ..equipment_inventory import read_inventory
 from ..equipment_studies import validate_equipment_templates
 from .dm_model import Conflict
-from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,CELL_UMA,UMA_REFERENCE
+from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,CELL_UMA,PATTERN_UMA,UMA_REFERENCE
 from .antenna import peak_eirp
+from .pattern_context import pattern_rows
 from ..cell_assignments import build_cell_transmitters,cell_eirp,transmitter_rat
 
 EARTH_RADIUS_M = 6371000
@@ -85,7 +86,9 @@ def scenario_transmitters(payload,network):
 def qualified_scenario(db,region,project,payload,network,cache=None):
     resolved=validate_scenario_assignments(db,region,project,payload,current=True,qualified=True,cache=cache)
     if payload.get('assignmentMode')!='cells':return scenario_transmitters(payload,network)
-    if payload.get('modelVersion')!='uma-source-cells-v3':raise ValueError('Source-cell assignments require their saved model version')
+    if payload.get('modelVersion') not in ('uma-source-cells-v3','uma-source-patterns-v4'):raise ValueError('Source-cell assignments require their saved model version')
+    has_patterns=any(p['pattern']=='sampled' for c in payload['cells'] for p in c['ports'])
+    if (payload['modelVersion']=='uma-source-patterns-v4')!=has_patterns:raise ValueError('Source-pattern inputs require their matching saved pattern model version')
     ids=sorted({item['site']['inventorySiteId'] for item in resolved['cells']})
     features=[json.loads(row[0]) for row in db.execute(f"SELECT feature FROM network_sites WHERE region_id=? AND site_id IN ({','.join('?' for _ in ids)}) ORDER BY dataset_path,ordinal",(region,*ids))]
     return build_cell_transmitters(resolved,features)
@@ -106,7 +109,7 @@ def scenario_baseline(db,region,project,identity,revision,network,fingerprint,eq
 def scenario_changes(baseline,applied,rat,baseline_budgets=None,applied_budgets=None):
     sides=[{t['id']:t for t in rows if transmitter_rat(t)==rat} for rows in (baseline,applied)]
     result=[]
-    fields=('frequencyMHz','mode','pattern','array','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource')
+    fields=('frequencyMHz','mode','pattern','array','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource','sampled')
     for identity in sorted(sides[0].keys() | sides[1].keys()):
         a,b=[side.get(identity) for side in sides];transmitter=b or a
         if 'ports' in transmitter:
@@ -248,6 +251,10 @@ def _freeze_context(db,selection):
         if any(t['pattern']=='array' for t in templates):
             if value['predictionModel']!=CELL_UMA:value['schema']='ndt.execution.v3';value['predictionModel']=ARRAY_UMA
             value['arrayAssumptions']=dict(panelCount=1,polarizations=1,weights='Uniform unit-norm coherent weights, total conducted beam power shared across elements',eirp='TX power + element peak gain + 10log10(rows*columns) - loss; upper bound before element scan attenuation',nullFloorDb=120,farField='Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm=-300,geometry='Panel local y/z plane; mechanical downtilt and relative electrical steering are separate',limitations='Far-field narrowband scalar array; no coupling, polarization mismatch, multi-port allocation, measured vendor pattern or MIMO')
+        if any(t['pattern']=='sampled' for t in templates):
+            value['schema']='ndt.execution.v5';value['predictionModel']=PATTERN_UMA
+            value['patternModels']=pattern_rows(equipment,all_transmitters)
+            value['patternAssumptions']=dict(format='ndt.scalar-gain-grid.v1',gain='Total realized gain at a real antenna-input reference; mismatch and radiation loss already included. External feeder loss only; no added antenna/array gain.',interpolation='Piecewise linear power in frequency, azimuth and elevation; no extrapolation',frequency='Center-frequency narrowband response; full occupied carrier must be inside source frequency coverage',orientation='Mechanical compass azimuth, downtilt and roll; declared electrical state is already embedded in the source grid',qualification='Full-sphere seam/pole, shape, passive-power and declared hardware/port checks; source claims are not independently verified',farField='Slant distance >= 2D^2/wavelength using declared maximum antenna dimension D',limitations='Scalar total-power field, other ports matched to the declared real reference. No inter-port phases, receiver polarization implementation, MIMO or field calibration.')
         value['modelReferences'] += [dict(title=f"3GPP TS {'36.104' if rat=='LTE' else '38.104'} v{PLAN['edition']} Release {PLAN['release']}",url=PLAN['references'][rat],rat=rat)
                                     for rat in sorted({transmitter_rat(t) for t in all_transmitters})]
     value['id'] = 'SNAP-'+digest(value)[:24]

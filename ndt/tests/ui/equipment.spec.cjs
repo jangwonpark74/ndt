@@ -30,7 +30,7 @@ test('operator equipment import previews, persists, traces ports and rejects bro
   await expect(page.locator('#imported-equipment')).toContainText('antenna-port-1');
   await expect(page.locator('#imported-equipment')).toContainText('link-row-1');
   await expect(page.locator('#imported-equipment')).toContainText('operator');
-  await page.getByText('Pattern cuts: Synthetic reference cuts',{exact:true}).click();
+  await page.getByText('Pattern evidence: Synthetic reference cuts',{exact:true}).click();
   await expect(page.getByRole('img',{name:'horizontal relative antenna attenuation, 0 to 30 dB'})).toBeVisible();
   await page.screenshot({path:'.cache/planning-docs/equipment-topology.png'});
   await page.reload();await page.getByRole('combobox',{name:'Project',exact:true}).selectOption('harbourfront');await page.locator('#network-tab').click();

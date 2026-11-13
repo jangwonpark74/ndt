@@ -449,12 +449,13 @@ test('closing reservation details keeps markers and allows reopening',async ({pa
   });
   await page.goto('/?region=new-york');
   await expect(page.locator('#nyc-status')).toContainText('701 in the NYC snapshot',{timeout:20000});
+  await expect.poll(()=>page.evaluate(()=>window.testMap.querySourceFeatures('nyc-reservations').some(f=>f.properties.status!=='Proposed'))).toBe(true);
   await page.getByRole('button',{name:'Close Verizon reservations'}).click();
   await expect(page.locator('#nyc-panel')).toBeHidden();
   const visible=await page.evaluate(()=>window.testMap.getLayoutProperty('nyc-reservations','visibility'));
   expect(visible).not.toBe('none');
   await page.evaluate(()=>{
-    const map=window.testMap, feature=map.getSource('nyc-reservations')._data.features.find(f=>f.properties.status !== 'Proposed');
+    const map=window.testMap, feature=map.querySourceFeatures('nyc-reservations').find(f=>f.properties.status !== 'Proposed');
     const original=map.queryRenderedFeatures;
     map.queryRenderedFeatures=()=>[{properties:{id:feature.properties.id},layer:{id:'nyc-reservations'}}];
     map.fire('click',{originalEvent:new MouseEvent('click'),point:{x:100,y:100},lngLat:{lng:-74,lat:40.7}});

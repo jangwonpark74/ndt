@@ -17,6 +17,7 @@ def validate_scenario_assignments(db,region,project,payload,*,current=False,qual
     if mode=='cells':
         if payload['overrides'] or 'equipmentSource' in payload['template']:raise ValueError('Cell assignment mode cannot mix assumed site overrides or source-linked defaults')
         return resolve_cell_assignments(db,region,project,payload.get('cells'),payload.get('radioBudgets'),current=current,qualified=qualified,cache=cache)
+    if any(t['pattern']=='sampled' for t in [payload['template'],*payload['overrides'].values()]):raise ValueError('Imported scalar grids require explicit cell assignment mode')
     if 'cells' in payload or 'radioBudgets' in payload:raise ValueError('Cell assignments and radio budgets require imported cell assignment mode')
     validate_equipment_templates(db,region,project,payload['template'],payload['overrides'],current=current,cache=cache)
 
@@ -84,7 +85,7 @@ def save_scenario(db, region, project, body):
                        sourceFingerprint=region_row[1], modelVersion='uma-array-v2' if any(t['pattern']=='array' for t in [template,*overrides.values()]) else 'uma-element-v1',
                        createdAt=datetime.now(timezone.utc).isoformat())
         if body.get('assignmentMode')=='cells':
-            version.update(assignmentMode='cells',cells=body['cells'],radioBudgets=body['radioBudgets'],modelVersion='uma-source-cells-v3')
+            version.update(assignmentMode='cells',cells=body['cells'],radioBudgets=body['radioBudgets'],modelVersion='uma-source-patterns-v4' if any(p['pattern']=='sampled' for c in body['cells'] for p in c['ports']) else 'uma-source-cells-v3')
         db.execute('''INSERT INTO radio_scenarios VALUES (?,?,?,?,?,NULL,NULL)
                       ON CONFLICT(region_id,project_id,scenario_id) DO UPDATE SET name=excluded.name,revision=excluded.revision''',
                    (region, project, identity, name.strip(), expected + 1))

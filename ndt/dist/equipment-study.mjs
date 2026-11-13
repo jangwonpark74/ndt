@@ -13,7 +13,7 @@ export function equipmentStudyPath(inventory,reference,siteId,{allowHistorical=f
  const cell=find('cells',reference.cellId),link=find('links',reference.linkId),sector=find('sectors',cell?.sectorId),site=find('sites',sector?.siteId);
  const rp=find('ports',link?.radioPortId),ap=find('ports',link?.antennaPortId),radio=find('radios',rp?.equipmentId),antenna=find('antennas',ap?.equipmentId);
  if(!cell || !link || link.cellId!==cell.id || !sector || !site || site.inventorySiteId!==siteId || rp?.role!=='radio' || ap?.role!=='antenna' || !radio || !antenna || radio.id!==cell.radioId || radio.siteId!==site.id || antenna.siteId!==site.id)throw Error('Equipment source needs an explicit cell/radio/port/antenna path at this site.');
- return {cell,link,sector,site,radio,radioPort:rp,antennaPort:ap,antenna,pattern:find('patterns',antenna.patternId)};
+ return {cell,link,sector,site,radio,radioPort:rp,antennaPort:ap,antenna,pattern:find('patterns',(inventory.data.schemaVersion===2?ap.patternId:null) || antenna.patternId)};
 }
 
 export function equipmentStudyValues(inventory,reference,siteId,options){
@@ -23,7 +23,7 @@ export function equipmentStudyValues(inventory,reference,siteId,options){
 
 export function equipmentStudyTemplate(base,inventory,cellId,linkId,siteId){
  const reference={revision:inventory.revision,sha256:inventory.sha256,cellId,linkId},reported=equipmentStudyValues(inventory,reference,siteId);
- const {carrier,equipmentSource,array,...assumptions}=base;
+ const {carrier,equipmentSource,array,sampled,...assumptions}=base;
  // Reported frequencies may be rounded; require an explicit band/channel review after copying.
  return {...assumptions,...reported,pattern:'element',equipmentSource:reference};
 }

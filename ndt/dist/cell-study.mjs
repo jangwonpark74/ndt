@@ -1,5 +1,6 @@
 import {validateTemplate,peakEirp} from './planning-model.mjs';
 import {validateCarrier} from './carrier-plan.mjs';
+import {qualifyGrid,refreshGridGain} from './pattern-study.mjs';
 import {equipmentStudyPath,equipmentStudyTemplate} from './equipment-study.mjs';
 
 export const CELL_RADIO_FIELDS=Object.freeze(['rat','frequencyMHz','bandwidthMHz','carrier','mode']);
@@ -54,11 +55,11 @@ export function addSourceCell(draft,inventory,cellId,linkIds){
  result.radioBudgets=pruneBudgets(result,cellStudyPaths(result,inventory));return result;
 }
 
-export function updateCellPort(draft,cellId,linkId,template){
+export function updateCellPort(draft,cellId,linkId,template,inventory){
  const result=structuredClone(draft),cell=result.cells.find(c=>c.cellId===cellId),port=cell?.ports.find(p=>p.equipmentSource.linkId===linkId);
  if(!port || template.equipmentSource?.cellId!==cellId || template.equipmentSource?.linkId!==linkId)throw Error('Select an assigned source cell and port before editing.');
  for(const target of cell.ports)for(const key of CELL_RADIO_FIELDS){if(Object.hasOwn(template,key))target[key]=structuredClone(template[key]);else delete target[key];}
- cell.ports[cell.ports.indexOf(port)]=structuredClone(template);return result;
+ cell.ports[cell.ports.indexOf(port)]=structuredClone(template);cell.ports=cell.ports.map(p=>refreshGridGain(p,inventory));return result;
 }
 
 export function removeCellPort(draft,inventory,cellId,linkId){
@@ -98,6 +99,7 @@ export function validateCellStudy(draft,inventory,{qualified=false,currentInvent
    let common;const radioPorts=new Set(),antennaPorts=new Set();
    for(const port of cell.ports){
     const t=port.template,error=validateTemplate(t) || (qualified?validateCarrier(t,true):'');if(error)throw Error(`${cell.cell.cellIdentity || cell.cellId} / ${port.radioPort.name || port.radioPort.id} → ${port.antennaPort.name || port.antennaPort.id}: ${error}`);
+    if(t.pattern==='sampled')qualifyGrid(inventory,port,t);
     if(t.rat!==cell.cell.rat)throw Error('Assigned RAT must match the imported cell RAT.');
     const values=[t.rat,t.frequencyMHz,t.bandwidthMHz,t.mode,...['standard','band','channel','scsKHz'].map(k=>t.carrier?.[k])];
     if(common && values.some((v,i)=>v!==common[i]))throw Error('All ports of a cell must share RAT, carrier, bandwidth and environment.');common=values;

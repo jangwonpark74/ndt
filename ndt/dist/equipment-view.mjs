@@ -8,9 +8,11 @@ export function bindEquipmentView({regionId,getProject}){
   const value=(v,unit='')=>v===null || v===undefined ? 'Not reported' : `${v}${unit}`;
   function download(raw,name){const link=element('a');link.href=URL.createObjectURL(new Blob([raw],{type:'application/json'}));link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);}
   function facts(parent,fields){const list=element('dl',undefined,'site-facts');for(const [name,content]of fields)list.append(element('dt',name),element('dd',content));parent.append(list);}
-  function cuts(parent,pattern){
-    const details=element('details');details.append(element('summary',`Pattern cuts: ${pattern.name || pattern.id}`));
+  function cuts(parent,pattern,gridAllowed=false){
+    const details=element('details');details.append(element('summary',`Pattern evidence: ${pattern.name || pattern.id}`));
+    if(gridAllowed && pattern.radiation){const r=pattern.radiation;details.append(element('p',`Full-sphere scalar model · ${r.evidence} · ${r.frequencyMHz[0]}–${r.frequencyMHz.at(-1)} MHz · ${r.antennaModel} / ${r.portNames.join(', ')}`),element('p','Review the imported model from a source-cell port study before using it. Numerical checks do not independently verify source claims.','network-note'));}
     for(const [cut,extent]of [['horizontal',180],['vertical',90]]){
+      if(!Array.isArray(pattern[cut]))continue;
       const maximum=Math.max(1,...pattern[cut].map(point=>point[1]));
       const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 280 130');svg.setAttribute('role','img');svg.setAttribute('aria-label',`${cut} relative antenna attenuation, 0 to ${maximum} dB`);
       const title=document.createElementNS(svg.namespaceURI,'title');title.textContent=`${cut}: ${pattern[cut].length} source samples`;svg.append(title);
@@ -41,10 +43,10 @@ export function bindEquipmentView({regionId,getProject}){
         const evidence=[site,sector,cell,...(radio ? [radio] : [])],links=data.links.filter(l=>l.cellId===cell.id);
         if(!links.length)card.append(element('p','No port-to-antenna connection is reported.','network-note'));
         for(const link of links){
-          const rp=tables.ports.get(link.radioPortId),ap=tables.ports.get(link.antennaPortId),antenna=tables.antennas.get(ap.equipmentId),pattern=tables.patterns.get(antenna.patternId);
+          const rp=tables.ports.get(link.radioPortId),ap=tables.ports.get(link.antennaPortId),antenna=tables.antennas.get(ap.equipmentId),pattern=tables.patterns.get((inventory.data.schemaVersion===2?ap.patternId:null) || antenna.patternId);
           const path=element('ol',undefined,'equipment-path');for(const text of [`Cell ${cell.id}`,`Radio ${radio.id} / TX port ${rp.id}`,`Antenna ${antenna.id} / port ${ap.id}`])path.append(element('li',text));card.append(path);
           facts(card,[['Antenna model',antenna.model || 'Not reported'],['Peak gain',value(antenna.gainDbi,' dBi')],['Downtilt',value(antenna.tiltDeg,' degrees')]]);
-          evidence.push(link,rp,ap,antenna);if(pattern){evidence.push(pattern);cuts(card,pattern);}else card.append(element('p','Vendor radiation pattern not reported.','network-note'));
+          evidence.push(link,rp,ap,antenna);if(pattern){evidence.push(pattern);cuts(card,pattern,inventory.data.schemaVersion===2);}else card.append(element('p','Vendor radiation pattern not reported.','network-note'));
           if(regionId==='toronto'){
             const use=element('button',`Use ${rp.name || rp.id} → ${ap.name || ap.id} in study`);use.type='button';
             use.onclick=()=>{if(vm.getState().inventory!==inventory)return;document.dispatchEvent(new CustomEvent('equipmentstudyrequested',{detail:{projectId:vm.getState().projectId,siteId:identity,reference:{revision:inventory.revision,sha256:inventory.sha256,cellId:cell.id,linkId:link.id}}}));group.open=false;};

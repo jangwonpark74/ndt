@@ -7,6 +7,7 @@ from .radio_templates import validate_radio_template
 from .carrier_plan import validate_carrier
 from .equipment_studies import resolve_equipment_paths
 from .dm.antenna import peak_eirp
+from .pattern_studies import qualify_grid
 
 MAX_CELLS=1000
 MAX_PORTS=4096
@@ -42,6 +43,7 @@ def _check_budgets(powers,budgets,*,qualified=False):
 
 
 def resolve_cell_assignments(db,region,project,cells,budgets,*,current=False,qualified=False,cache=None):
+    cache={} if cache is None else cache
     if not isinstance(cells,list) or len(cells)>MAX_CELLS:raise ValueError(f'Provide at most {MAX_CELLS} source cells')
     if qualified and not cells:raise ValueError('Assign at least one imported cell and its ports')
     references=[];ids=set();count=0
@@ -68,6 +70,7 @@ def resolve_cell_assignments(db,region,project,cells,budgets,*,current=False,qua
         for template in assignment['ports']:
             path=paths[index];index+=1;trace=path['trace'];connection=path['connection']
             if template['rat']!=trace['cell']['rat']:raise ValueError('Assigned RAT must match the imported cell RAT')
+            if template['pattern']=='sampled':qualify_grid(inventory,path,template,cache=cache)
             rp=connection['radioPort']['id'];ap=connection['antennaPort']['id'];radio=trace['radio']['id']
             if rp in radio_ports or ap in antenna_ports:raise ValueError('A cell cannot count the same physical TX or antenna port twice')
             radio_ports.add(rp);antenna_ports.add(ap)

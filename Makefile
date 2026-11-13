@@ -36,6 +36,8 @@ test:
 	cd ndt && $(NODE) tests/unit/test-scenario-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-equipment-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-equipment-study.mjs
+	cd ndt && $(NODE) tests/unit/test-pattern-models.mjs
+	cd ndt && $(NODE) tests/unit/test-pattern-study.mjs
 	cd ndt && $(NODE) tests/unit/test-cell-study.mjs
 	cd ndt && $(NODE) tests/unit/test-cell-source-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-inventory-cluster-view-model.mjs
@@ -68,6 +70,9 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/python/test-carrier-plan.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-equipment-inventory.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-equipment-studies.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-pattern-models.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-pattern-inventory.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-sampled-execution.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-cell-assignments.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-dm-model.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-integration.py
@@ -128,6 +133,9 @@ check: test
 	cd ndt && $(NODE) --check dist/planning-model.mjs
 	cd ndt && $(NODE) --check dist/carrier-plan.mjs
 	cd ndt && $(NODE) --check dist/planning-view.mjs
+	cd ndt && $(NODE) --check dist/pattern-model.mjs
+	cd ndt && $(NODE) --check dist/pattern-study.mjs
+	cd ndt && $(NODE) --check dist/pattern-view.mjs
 	cd ndt && $(NODE) --check dist/cell-study.mjs
 	cd ndt && $(NODE) --check dist/cell-study-view.mjs
 	cd ndt && $(NODE) --check dist/cell-source-view-model.mjs

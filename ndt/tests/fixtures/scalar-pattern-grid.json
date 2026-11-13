@@ -1,0 +1,80 @@
+{
+  "format": "ndt.scalar-gain-grid.v1",
+  "coordinateSystem": "boresight-clockwise-azimuth-up-elevation-v1",
+  "referencePlane": "antenna-input-total-realized-gain",
+  "interpolation": "linear-power",
+  "evidence": "analytical-test",
+  "antennaModel": "Test antenna",
+  "portNames": [
+    "P1"
+  ],
+  "electricalState": "Synthetic fixed electrical state, 0 degrees",
+  "electricalTiltDeg": 0,
+  "maxDimensionM": 1,
+  "frequencyMHz": [
+    3500,
+    3700
+  ],
+  "azimuthDeg": [
+    -180,
+    -90,
+    0,
+    90,
+    180
+  ],
+  "elevationDeg": [
+    -90,
+    0,
+    90
+  ],
+  "gainDbi": [
+    [
+      [
+        -10.0,
+        -10.0,
+        -10.0,
+        -10.0,
+        -10.0
+      ],
+      [
+        -6.9897000433601875,
+        -3.979400086720376,
+        0.0,
+        -0.969100130080564,
+        -6.9897000433601875
+      ],
+      [
+        -10.0,
+        -10.0,
+        -10.0,
+        -10.0,
+        -10.0
+      ]
+    ],
+    [
+      [
+        -6.9897000433601875,
+        -6.9897000433601875,
+        -6.9897000433601875,
+        -6.9897000433601875,
+        -6.9897000433601875
+      ],
+      [
+        -3.979400086720376,
+        -0.969100130080564,
+        3.010299956639812,
+        2.041199826559248,
+        -3.979400086720376
+      ],
+      [
+        -6.9897000433601875,
+        -6.9897000433601875,
+        -6.9897000433601875,
+        -6.9897000433601875,
+        -6.9897000433601875
+      ]
+    ]
+  ],
+  "referenceImpedanceOhm": 50,
+  "portConditions": "other-ports-matched-to-reference"
+}

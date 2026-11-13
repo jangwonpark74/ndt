@@ -291,3 +291,16 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 .cell-study-heading{position:sticky;top:-24px;z-index:2;background:#fff;padding:16px 24px;margin:-24px -24px 16px;border-bottom:1px solid #c8d4cf}
 .cell-study-heading h2{font-size:22px}
 @media(max-width:480px){.cell-study-heading{top:-16px;padding:12px 16px;margin:-16px -16px 12px}.cell-study-heading h2{font-size:19px}}
+
+.pattern-model-dialog canvas{display:block;box-sizing:border-box;width:100%;height:clamp(140px,23vw,260px);border:1px solid #c8d4cf;border-radius:5px;margin:0}
+.pattern-model-dialog canvas[hidden]{display:none}
+.pattern-model-dialog table{width:100%;border-collapse:collapse;font-size:14px}
+.pattern-model-dialog th,.pattern-model-dialog td{padding:8px;text-align:left;border-bottom:1px solid #c8d4cf;overflow-wrap:anywhere}
+.pattern-model-dialog caption{text-align:left;font-weight:600;margin-top:12px}
+.pattern-model-dialog .site-facts{font-size:14px}
+
+.pattern-chart{display:grid;grid-template-columns:38px minmax(0,1fr);gap:6px}
+.pattern-elevation-ticks{display:flex;flex-direction:column;justify-content:space-between;padding-bottom:22px;font-size:12px;text-align:right}
+.pattern-azimuth-ticks{display:flex;justify-content:space-between;margin-top:4px;font-size:12px}
+.pattern-axis-title{font-size:12px;margin:12px 0 4px}.pattern-azimuth-title{text-align:center;margin:4px 0 12px}
+.pattern-color-scale{height:10px;border-radius:3px;background:linear-gradient(90deg,rgb(24 72 120),rgb(253 214 84))}

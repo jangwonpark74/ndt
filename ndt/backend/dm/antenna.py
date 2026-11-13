@@ -1,5 +1,6 @@
 """Reference element and normalized scalar panel array, matching the browser probe."""
 import math
+from ..pattern_models import local_direction
 
 ARRAY_BOUNDS=dict(rows=(1,64),columns=(1,64),verticalSpacing=(.25,1),horizontalSpacing=(.25,1),steerAzimuthDeg=(-90,90),steerDowntiltDeg=(-90,90))
 
@@ -38,7 +39,12 @@ def array_far_field_distance(template):
     return 2*(((a['rows']-1)*a['verticalSpacing'])**2+((a['columns']-1)*a['horizontalSpacing'])**2)*3e8/(template['frequencyMHz']*1e6)
 
 
-def antenna_attenuation(template,azimuth_offset_deg,elevation_deg):
+def antenna_attenuation(template,azimuth_offset_deg,elevation_deg,pattern_assets=None):
+    if template['pattern']=='sampled':
+        identity=template['sampled']['patternId']
+        if not pattern_assets or identity not in pattern_assets:raise ValueError('The imported scalar grid requires its qualified frozen source model')
+        az,el=local_direction(azimuth_offset_deg,elevation_deg,template['tiltDeg'],template['sampled']['rollDeg'])
+        return pattern_assets[identity].attenuation(template['frequencyMHz'],az,el)
     if template['pattern']=='isotropic':return 0
     return element_attenuation(azimuth_offset_deg,elevation_deg,template['tiltDeg'])+(array_attenuation(template,azimuth_offset_deg,elevation_deg) if template['pattern']=='array' else 0)
 
@@ -57,3 +63,11 @@ def initial_bearing(origin,target):
     delta=lon2-lon1
     return math.degrees(math.atan2(math.sin(delta)*math.cos(lat2),
                                   math.cos(lat1)*math.sin(lat2)-math.sin(lat1)*math.cos(lat2)*math.cos(delta)))%360
+
+
+def far_field_distance(template,pattern_assets=None):
+    if template['pattern']=='array':return array_far_field_distance(template)
+    if template['pattern']=='sampled':
+        if not pattern_assets or template['sampled']['patternId'] not in pattern_assets:raise ValueError('Missing qualified source grid for far-field evaluation')
+        return pattern_assets[template['sampled']['patternId']].far_field_m(template['frequencyMHz'])
+    return 0

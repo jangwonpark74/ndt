@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:ndt:equipment-inventory:v1",
+  "$id": "urn:ndt:equipment-inventory:v2",
   "title": "NDT equipment inventory import",
-  "description": "Operator-supplied equipment and vendor pattern evidence. IDs must be unique within each collection. The server validates references, same-site links, regional site IDs, normalized pattern cuts, a total of 20000 records and a 2 MB UTF-8 source limit. Source claims are not independent deployment verification.",
+  "description": "Operator-supplied equipment and vendor pattern evidence. IDs must be unique within each collection. The server validates references, same-site links, regional site IDs, normalized pattern cuts, a total of 20000 records and a 2 MB UTF-8 source limit. Source claims are not independent deployment verification. Schema v2 optionally adds full-sphere scalar realized-gain grids, explicit mechanical orientation and antenna-port pattern links. Numerical qualification does not independently verify vendor claims. Legacy schema v1 cuts remain inspection-only.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -19,7 +19,10 @@
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "const": 1
+      "enum": [
+        1,
+        2
+      ]
     },
     "sources": {
       "type": "array",
@@ -315,6 +318,24 @@
             ],
             "minimum": -20,
             "maximum": 90
+          },
+          "mechanicalTiltDeg": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": -20,
+            "maximum": 90,
+            "description": "Schema v2 explicit mechanical orientation, separate from embedded electrical state."
+          },
+          "mechanicalRollDeg": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Schema v2 explicit mechanical orientation, separate from embedded electrical state."
           }
         }
       }
@@ -469,8 +490,35 @@
               "radio",
               "antenna"
             ]
+          },
+          "patternId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "patternId"
+              ]
+            },
+            "then": {
+              "properties": {
+                "role": {
+                  "const": "antenna"
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "links": {
@@ -544,9 +592,7 @@
         "required": [
           "id",
           "sourceId",
-          "sourceRecordId",
-          "horizontal",
-          "vertical"
+          "sourceRecordId"
         ],
         "properties": {
           "id": {
@@ -630,9 +676,228 @@
               "items": false
             },
             "$comment": "Strictly increasing angles, full extent, normalized 0 dB peak; horizontal endpoint attenuations must match. The server enforces these constraints."
+          },
+          "radiation": {
+            "$ref": "#/$defs/scalarGainGrid"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "horizontal",
+              "vertical"
+            ]
+          },
+          {
+            "required": [
+              "radiation"
+            ]
+          }
+        ],
+        "dependentRequired": {
+          "horizontal": [
+            "vertical"
+          ],
+          "vertical": [
+            "horizontal"
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "scalarGainGrid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "coordinateSystem",
+        "referencePlane",
+        "interpolation",
+        "evidence",
+        "antennaModel",
+        "portNames",
+        "electricalState",
+        "electricalTiltDeg",
+        "maxDimensionM",
+        "frequencyMHz",
+        "azimuthDeg",
+        "elevationDeg",
+        "gainDbi",
+        "referenceImpedanceOhm",
+        "portConditions"
+      ],
+      "properties": {
+        "format": {
+          "const": "ndt.scalar-gain-grid.v1"
+        },
+        "coordinateSystem": {
+          "const": "boresight-clockwise-azimuth-up-elevation-v1"
+        },
+        "referencePlane": {
+          "const": "antenna-input-total-realized-gain"
+        },
+        "interpolation": {
+          "const": "linear-power"
+        },
+        "evidence": {
+          "enum": [
+            "measured",
+            "vendor-simulated",
+            "analytical-test"
+          ]
+        },
+        "antennaModel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "portNames": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "electricalState": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "electricalTiltDeg": {
+          "type": "number",
+          "minimum": -20,
+          "maximum": 90
+        },
+        "maxDimensionM": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 100
+        },
+        "frequencyMHz": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 16,
+          "items": {
+            "type": "number",
+            "minimum": 500,
+            "maximum": 100000
+          },
+          "description": "Strictly increasing; angular axes span their complete domain. Cross-field checks run on the server."
+        },
+        "azimuthDeg": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 721,
+          "items": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "description": "Strictly increasing; angular axes span their complete domain. Cross-field checks run on the server."
+        },
+        "elevationDeg": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 361,
+          "items": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "description": "Strictly increasing; angular axes span their complete domain. Cross-field checks run on the server."
+        },
+        "gainDbi": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 16,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 361,
+            "items": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 721,
+              "items": {
+                "type": "number",
+                "minimum": -120,
+                "maximum": 50
+              }
+            }
+          }
+        },
+        "referenceImpedanceOhm": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "portConditions": {
+          "const": "other-ports-matched-to-reference"
+        }
+      },
+      "description": "Absolute total realized gain in dBi, ordered [frequency][elevation][azimuth]. Real positive reference impedance; other ports matched. Declared model and ports must match selected hardware. Full-sphere seam/poles, dimensions, 250000 total scalar samples per import and interpolated spherical efficiency <= 1 + 1e-6 are server-checked. No automatic rescaling or frequency extrapolation. Source gain/electrical state are embedded; external feeder loss and explicit mechanical orientation are separate."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schemaVersion": {
+            "const": 1
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "patterns": {
+            "items": {
+              "required": [
+                "horizontal",
+                "vertical"
+              ],
+              "not": {
+                "required": [
+                  "radiation"
+                ]
+              }
+            }
+          },
+          "ports": {
+            "items": {
+              "not": {
+                "required": [
+                  "patternId"
+                ]
+              }
+            }
+          },
+          "antennas": {
+            "items": {
+              "allOf": [
+                {
+                  "not": {
+                    "required": [
+                      "mechanicalTiltDeg"
+                    ]
+                  }
+                },
+                {
+                  "not": {
+                    "required": [
+                      "mechanicalRollDeg"
+                    ]
+                  }
+                }
+              ]
+            }
           }
         }
       }
     }
-  }
+  ]
 }

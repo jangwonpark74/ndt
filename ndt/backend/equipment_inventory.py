@@ -5,6 +5,8 @@ import json
 import math
 import re
 from urllib.parse import urlsplit
+from .pattern_models import ScalarGainGrid,MAX_GRID_SAMPLES
+from .pattern_studies import pattern_summaries
 
 COLLECTIONS=('sources','sites','sectors','radios','antennas','cells','ports','links','patterns')
 MAX_BYTES=2000000
@@ -34,8 +36,8 @@ def number(value,label,low,high):
 
 
 def validate_inventory(data,known_sites):
-    if not isinstance(data,dict) or set(data)!={'schemaVersion',*COLLECTIONS} or type(data['schemaVersion']) is not int or data['schemaVersion']!=1:
-        raise ValueError('Expected equipment schemaVersion 1 and all nine inventory collections')
+    if not isinstance(data,dict) or set(data)!={'schemaVersion',*COLLECTIONS} or type(data['schemaVersion']) is not int or data['schemaVersion'] not in (1,2):
+        raise ValueError('Expected equipment schemaVersion 1 or 2 and all nine inventory collections')
     tables={}
     for kind in COLLECTIONS:
         rows=data[kind]
@@ -85,6 +87,9 @@ def validate_inventory(data,known_sites):
         reference(row,'patternId','patterns',nullable=True)
         number(row.get('gainDbi'),row['id']+' gain',0,50)
         number(row.get('tiltDeg'),row['id']+' downtilt',-20,90)
+        for field,bounds in [('mechanicalTiltDeg',(-20,90)),('mechanicalRollDeg',(-180,180))]:
+            if field in row and data['schemaVersion']!=2:raise ValueError('Explicit mechanical orientation requires schemaVersion 2')
+            if data['schemaVersion']==2:number(row.get(field),row['id']+' '+field,*bounds)
     for cell in data['cells']:
         sector=reference(cell,'sectorId','sectors');radio=reference(cell,'radioId','radios',nullable=True)
         if radio and radio['siteId']!=sector['siteId']:raise ValueError(f"Cell {cell['id']}: radio and sector must belong to the same site")
@@ -97,13 +102,24 @@ def validate_inventory(data,known_sites):
     for port in data['ports']:
         if port.get('role') not in ('radio','antenna'):raise ValueError(f"Port {port['id']}: role must be radio or antenna")
         reference(port,'equipmentId','radios' if port['role']=='radio' else 'antennas')
+        if 'patternId' in port:
+            if data['schemaVersion']!=2:raise ValueError('Port-specific patterns require schemaVersion 2')
+            if port['role']!='antenna':raise ValueError('A pattern can be linked only to an antenna port')
+            reference(port,'patternId','patterns',nullable=True)
     for link in data['links']:
         cell=reference(link,'cellId','cells');rp=reference(link,'radioPortId','ports');ap=reference(link,'antennaPortId','ports')
         if rp['role']!='radio' or ap['role']!='antenna' or rp['equipmentId']!=cell.get('radioId'):
             raise ValueError(f"Link {link['id']}: expected the cell's radio TX port and an antenna port")
         antenna=tables['antennas'][ap['equipmentId']];sector=tables['sectors'][cell['sectorId']]
         if antenna['siteId']!=sector['siteId']:raise ValueError(f"Link {link['id']}: antenna and cell must belong to the same site")
+    grid_samples=0
     for pattern in data['patterns']:
+        has_grid='radiation' in pattern
+        if has_grid:
+            if data['schemaVersion']!=2:raise ValueError('Scalar radiation grids require schemaVersion 2')
+            grid_samples+=ScalarGainGrid(pattern['radiation']).sample_count
+            if grid_samples>MAX_GRID_SAMPLES:raise ValueError(f'Inventory scalar-grid limit: {MAX_GRID_SAMPLES} total samples')
+        if has_grid and 'horizontal' not in pattern and 'vertical' not in pattern:continue
         for cut,extent in (('horizontal',180),('vertical',90)):
             points=pattern.get(cut)
             if not isinstance(points,list) or not 3<=len(points)<=721:raise ValueError(f"Pattern {pattern['id']}: {cut} needs 3 to 721 [angle, attenuation] samples")
@@ -123,7 +139,7 @@ def trace_cell(data,identity,*,tables=None):
     for link in data['links']:
         if link['cellId']!=identity:continue
         rp=tables['ports'][link['radioPortId']];ap=tables['ports'][link['antennaPortId']];antenna=tables['antennas'][ap['equipmentId']]
-        connections.append(dict(link=link,radioPort=rp,antennaPort=ap,antenna=antenna,pattern=tables['patterns'].get(antenna.get('patternId'))))
+        connections.append(dict(link=link,radioPort=rp,antennaPort=ap,antenna=antenna,pattern=tables['patterns'].get((ap.get('patternId') if data.get('schemaVersion')==2 else None) or antenna.get('patternId'))))
     return dict(site=tables['sites'][sector['siteId']],sector=sector,cell=cell,
                 radio=tables['radios'].get(cell.get('radioId')),connections=connections,sources=data['sources'])
 
@@ -135,7 +151,8 @@ def read_inventory(db,region,project,revision=None):
     content=row[4].decode('utf-8') if isinstance(row[4],bytes) else row[4]
     history=[dict(revision=r[0],sha256=r[1],importedAt=r[2]) for r in db.execute('SELECT revision,sha256,imported_at FROM equipment_inventory_versions WHERE region_id=? AND project_id=? ORDER BY revision DESC',(region,project))]
     fingerprint=db.execute('SELECT fingerprint FROM regions WHERE id=?',(region,)).fetchone()
-    return dict(revision=row[0],sha256=row[1],sourceFingerprint=row[2],currentSourceFingerprint=fingerprint[0] if fingerprint else None,importedAt=row[3],raw=content,data=json.loads(content.removeprefix('\ufeff')),history=history)
+    data=json.loads(content.removeprefix('\ufeff'))
+    return dict(revision=row[0],sha256=row[1],sourceFingerprint=row[2],currentSourceFingerprint=fingerprint[0] if fingerprint else None,importedAt=row[3],raw=content,data=data,history=history,patternModels=pattern_summaries(data,source_sha=row[1]))
 
 
 def preview_inventory(db,region,project,raw):
@@ -146,7 +163,7 @@ def preview_inventory(db,region,project,raw):
     known={r[0] for r in db.execute('SELECT site_id FROM network_sites WHERE region_id=?',(region,))}
     validate_inventory(data,known)
     linked={link['cellId'] for link in data['links']}
-    return dict(sha256=hashlib.sha256(raw).hexdigest(),sourceFingerprint=region_row[1],counts={k:len(data[k]) for k in COLLECTIONS},sources=data['sources'],unlinkedCells=sum(c['id'] not in linked for c in data['cells']))
+    return dict(sha256=hashlib.sha256(raw).hexdigest(),sourceFingerprint=region_row[1],counts={k:len(data[k]) for k in COLLECTIONS},sources=data['sources'],patternModels=pattern_summaries(data),unlinkedCells=sum(c['id'] not in linked for c in data['cells']))
 
 
 def import_inventory(db,region,project,raw,expected_revision,expected_source=None):
