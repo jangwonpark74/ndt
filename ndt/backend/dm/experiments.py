@@ -17,6 +17,7 @@ import zlib
 from .dm_model import Conflict, DEFAULT_PROFILE, LIMITS, MAX_ROWS, connection, get_test, initialize
 from .integration import canonical, digest, freeze_context, match_route, route_lengths
 from .simulation import MODEL, simulate, model_for
+from .antenna import peak_eirp
 
 EXPERIMENT_TYPES=('parameter-ab','virtual-drive','scenario-ab')
 
@@ -155,7 +156,7 @@ class ExperimentStore:
                 for variant in variants:
                     effective=({**snapshot,'radioScenario':snapshot['radioBaseline'],'transmitters':snapshot['baselineTransmitters']}
                                if spec['experiment_type']=='scenario-ab' and variant=='A' else snapshot)
-                    powers = ({t['id']:t['template']['powerDbm']+t['template']['gainDbi']-t['template']['lossDb'] for t in effective['transmitters']}
+                    powers = ({t['id']:peak_eirp(t['template']) for t in effective['transmitters']}
                               if snapshot.get('radioScenario') else {t['id']:spec['power_a_dbm'] for t in snapshot['transmitters']})
                     if variant == 'B' and spec['experiment_type']=='parameter-ab':
                         powers[spec['transmitter_id']] = spec['power_b_dbm']

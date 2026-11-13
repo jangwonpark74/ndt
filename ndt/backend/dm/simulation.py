@@ -3,14 +3,15 @@ from bisect import bisect_right
 import math
 
 from .integration import distance, route_lengths
-from .antenna import element_attenuation,initial_bearing
+from .antenna import antenna_attenuation,initial_bearing,array_far_field_distance
 from ..radio_scenarios import validate_radio_template
-from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL
+from .model_versions import LEGACY_UMA as MODEL,DIRECTIONAL_UMA as DIRECTIONAL_MODEL,ARRAY_UMA
 
 def model_for(snapshot):
     model=snapshot.get('predictionModel',MODEL)
-    if model not in (MODEL,DIRECTIONAL_MODEL):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
-    if bool(snapshot.get('radioScenario'))!=(model==DIRECTIONAL_MODEL):raise ValueError('The frozen model and scenario inputs do not match.')
+    if model not in (MODEL,DIRECTIONAL_MODEL,ARRAY_UMA):raise ValueError('The frozen prediction model is unavailable; it cannot be reinterpreted as a different model.')
+    if bool(snapshot.get('radioScenario'))!=(model in (DIRECTIONAL_MODEL,ARRAY_UMA)):raise ValueError('The frozen model and scenario inputs do not match.')
+    if model==DIRECTIONAL_MODEL and any(t.get('template',{}).get('pattern')=='array' for t in snapshot['transmitters']+snapshot.get('baselineTransmitters',[])):raise ValueError('Array inputs require the uniform-panel prediction model.')
     return model
 
 
@@ -50,7 +51,7 @@ def trajectory(route, speed_kmh, interval_s, time_origin):
 
 def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, cancelled):
     rows = []
-    directional=model_for(snapshot)==DIRECTIONAL_MODEL
+    model=model_for(snapshot);directional=model in (DIRECTIONAL_MODEL,ARRAY_UMA)
     transmitters=snapshot['transmitters']
     if directional:
         for transmitter in transmitters:
@@ -62,23 +63,30 @@ def simulate(snapshot, case, powers, *, interval_s, rat, mode, time_origin, canc
     for index, position in enumerate(trajectory(snapshot['route'], case['speedKmh'], interval_s, time_origin)):
         if index % 100 == 0 and cancelled():
             raise InterruptedError('Experiment cancelled.')
-        candidates = []
+        candidates = [];array_excluded=False;below_output=False
         for transmitter in transmitters:
             receiver=[position['longitude'],position['latitude']]
             separation=distance(receiver,transmitter['coordinates'])
             template=transmitter.get('template') if directional else None
+            if directional and template['pattern']=='array' and math.hypot(separation,23.5)<array_far_field_distance(template):
+                array_excluded=True;continue
             loss = path_loss(separation,template['frequencyMHz'] if directional else transmitter['frequency_mhz'],template['mode'] if directional else mode)
             if loss is not None:
-                if directional and template['pattern']=='element':
+                if directional and template['pattern']!='isotropic':
                     elevation=math.degrees(math.atan2(1.5-25,separation))
                     bearing=initial_bearing(transmitter['coordinates'],receiver)
-                    loss+=element_attenuation(bearing-template['azimuthDeg'],elevation,template['tiltDeg'])
-                candidates.append((powers[transmitter['id']]-loss, transmitter['id']))
+                    loss+=antenna_attenuation(template,bearing-template['azimuthDeg'],elevation)
+                received=powers[transmitter['id']]-loss
+                if model==ARRAY_UMA and received < -300:
+                    below_output=True;continue
+                candidates.append((received, transmitter['id']))
         row = dict(**position, rat=rat, leg_id=snapshot['route']['id'])
         if candidates:
             received, identity = max(candidates)
             row.update(predicted_rx_dbm=received, cell_id='PLAN:'+identity)
         else:
-            row['event'] = 'Outside supported model distance or frequency range'
+            row['event'] = ('Below supported planning-power output range (-300 dBm)' if below_output else
+                            'No supported transmitter outside its array far-field boundary' if array_excluded else
+                            'Outside supported model distance or frequency range')
         rows.append(row)
     return rows

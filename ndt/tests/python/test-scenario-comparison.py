@@ -11,6 +11,25 @@ from backend.dm.dm_model import connection
 from backend.dm.integration import canonical
 
 class ScenarioComparison(unittest.TestCase):
+    def test_array_revision_is_frozen_and_changes_both_model_power_and_pattern(self):
+        from backend.dm.model_versions import ARRAY_UMA
+        f=self.fixture;self.baseline()
+        with closing(contracts.connect(f.planning)) as db:
+            template=json.loads(db.execute('SELECT payload FROM radio_scenario_versions WHERE revision=1').fetchone()[0])['template']
+        template={**template,'pattern':'array','array':dict(rows=1,columns=4,verticalSpacing=.5,horizontalSpacing=.5,steerAzimuthDeg=0,steerDowntiltDeg=0)}
+        f.install_scenario(revision=1,overrides={'s':template})
+        job=f.store.submit('array-pair',self.specification())
+        self.assertEqual(job['snapshot']['predictionModel'],ARRAY_UMA)
+        self.assertEqual(job['snapshot']['radioScenario']['payload']['modelVersion'],'uma-array-v2')
+        self.assertTrue(any(c['parameter']=='array' and c['affectsPrediction'] for c in job['snapshot']['scenarioChanges']))
+        f.install_scenario(revision=2,tilt=40)
+        f.store.run_one();result=f.store.get(job['id'])
+        self.assertEqual(result['status'],'completed',result['error'])
+        a,b=[contracts.get_test(f.tests,r['test_id']) for r in result['runs'][:2]]
+        self.assertAlmostEqual(b['context']['powers']['s:3500']-a['context']['powers']['s:3500'],10*__import__('math').log10(4))
+        self.assertEqual(b['context']['transmitters'][0]['template']['array']['columns'],4)
+        self.assertNotEqual(a['rows'][0]['predicted_rx_dbm'],b['rows'][0]['predicted_rx_dbm'])
+
     def setUp(self):
         self.fixture=contracts.DriveIntegration('test_directional_experiment_uses_frozen_template_powers_and_model_version')
         self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)

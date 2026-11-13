@@ -18,7 +18,7 @@ export function equipmentStudyValues(inventory,reference,siteId){
 
 export function equipmentStudyTemplate(base,inventory,cellId,linkId,siteId){
  const reference={revision:inventory.revision,sha256:inventory.sha256,cellId,linkId},reported=equipmentStudyValues(inventory,reference,siteId);
- const {carrier,equipmentSource,...assumptions}=base;
+ const {carrier,equipmentSource,array,...assumptions}=base;
  // Reported frequencies may be rounded; require an explicit band/channel review after copying.
  return {...assumptions,...reported,pattern:'element',equipmentSource:reference};
 }

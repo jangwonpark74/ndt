@@ -1,5 +1,46 @@
-"""TR 38.901 v18.0.0 table 7.3-1 reference element, matching the browser probe."""
+"""Reference element and normalized scalar panel array, matching the browser probe."""
 import math
+
+ARRAY_BOUNDS=dict(rows=(1,64),columns=(1,64),verticalSpacing=(.25,1),horizontalSpacing=(.25,1),steerAzimuthDeg=(-90,90),steerDowntiltDeg=(-90,90))
+
+
+def validate_array(template):
+    if template['pattern']!='array':
+        if 'array' in template:raise ValueError('Array geometry requires the uniform panel array pattern')
+        return
+    array=template.get('array')
+    if not isinstance(array,dict) or set(array)!=set(ARRAY_BOUNDS):raise ValueError('Enter all six array geometry and steering inputs')
+    for key,(low,high) in ARRAY_BOUNDS.items():
+        value=array[key]
+        if isinstance(value,bool) or not isinstance(value,(int,float)) or not low<=value<=high or not math.isfinite(value) or (key in ('rows','columns') and int(value)!=value):raise ValueError(f'Invalid array {key}: expected {low} to {high}; rows and columns must be whole numbers')
+
+
+def array_attenuation(template,azimuth_offset_deg,elevation_deg):
+    """Single-panel scalar array with unit-norm uniform weights and local steering."""
+    a=template['array'];az,e,t=map(math.radians,(azimuth_offset_deg,elevation_deg,template['tiltDeg']))
+    y=math.cos(e)*math.sin(az);z=math.sin(t)*math.cos(e)*math.cos(az)+math.cos(t)*math.sin(e)
+    steer_az,steer_el=map(math.radians,(a['steerAzimuthDeg'],-a['steerDowntiltDeg']))
+    def amplitude(count,phase):
+        half=phase/2;den=math.sin(half)
+        return 1 if abs(den)<1e-12 else min(1,abs(math.sin(count*half)/(count*den)))
+    h=amplitude(a['columns'],2*math.pi*a['horizontalSpacing']*(y-math.cos(steer_el)*math.sin(steer_az)))
+    v=amplitude(a['rows'],2*math.pi*a['verticalSpacing']*(z-math.sin(steer_el)))
+    # Numerical floor for ideal coherent nulls, not a 3GPP propagation parameter.
+    return max(0,min(120,-20*math.log10(max(1e-6,h*v))))
+
+
+def peak_eirp(template):
+    return template['powerDbm']+template['gainDbi']-template['lossDb']+(10*math.log10(template['array']['rows']*template['array']['columns']) if template['pattern']=='array' else 0)
+
+
+def array_far_field_distance(template):
+    a=template['array']
+    return 2*(((a['rows']-1)*a['verticalSpacing'])**2+((a['columns']-1)*a['horizontalSpacing'])**2)*3e8/(template['frequencyMHz']*1e6)
+
+
+def antenna_attenuation(template,azimuth_offset_deg,elevation_deg):
+    if template['pattern']=='isotropic':return 0
+    return element_attenuation(azimuth_offset_deg,elevation_deg,template['tiltDeg'])+(array_attenuation(template,azimuth_offset_deg,elevation_deg) if template['pattern']=='array' else 0)
 
 
 def element_attenuation(azimuth_offset_deg,elevation_deg,tilt_deg=0):

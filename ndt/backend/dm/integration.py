@@ -12,7 +12,8 @@ from ..carrier_plan import validate_carrier,PLAN
 from ..equipment_inventory import read_inventory
 from ..equipment_studies import validate_equipment_templates
 from .dm_model import Conflict
-from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,UMA_REFERENCE
+from .model_versions import LEGACY_UMA,DIRECTIONAL_UMA,ARRAY_UMA,UMA_REFERENCE
+from .antenna import peak_eirp
 
 EARTH_RADIUS_M = 6371000
 
@@ -67,13 +68,14 @@ def transmitters(sites, saved_ids, center):
 
 
 def scenario_transmitters(payload,network):
-    if payload.get('modelVersion')!='uma-element-v1':raise ValueError('Unsupported saved scenario model version.')
+    if payload.get('modelVersion') not in ('uma-element-v1','uma-array-v2'):raise ValueError('Unsupported saved scenario model version.')
+    if payload['modelVersion']=='uma-element-v1' and any(t.get('pattern')=='array' for t in [payload['template'],*payload['overrides'].values()]):raise ValueError('Array inputs require the array scenario model version.')
     result=[]
     for transmitter in network:
         template=payload['overrides'].get(transmitter['site_id'],payload['template'])
         validate_radio_template(template);validate_carrier(template,required=True)
-        eirp=template['powerDbm']+template['gainDbi']-template['lossDb']
-        if not 0<=eirp<=90:raise ValueError(f"Site {transmitter['site_id']}: virtual drives support peak EIRP from 0 to 90 dBm.")
+        eirp=peak_eirp(template)
+        if not 0<=eirp<=90:raise ValueError(f"Site {transmitter['site_id']}: virtual drives support peak EIRP (array upper bound) from 0 to 90 dBm.")
         result.append({**transmitter,'frequency_mhz':template['frequencyMHz'],'template':deepcopy(template)})
     if not result:raise ValueError('This project has no supported planning transmitters.')
     return result
@@ -95,7 +97,7 @@ def scenario_baseline(db,region,project,identity,revision,network,fingerprint,eq
 def scenario_changes(baseline,applied,rat):
     sides=[{t['id']:t for t in rows if t['template']['rat']==rat} for rows in (baseline,applied)]
     result=[]
-    fields=('frequencyMHz','mode','pattern','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource')
+    fields=('frequencyMHz','mode','pattern','array','azimuthDeg','tiltDeg','powerDbm','gainDbi','lossDb','bandwidthMHz','carrier','equipmentSource')
     for identity in sorted(sides[0].keys() | sides[1].keys()):
         a,b=[side.get(identity) for side in sides];transmitter=b or a
         for field in (fields if a and b else ('assignment',)):
@@ -128,7 +130,7 @@ def project_radio_context(db,region,project,network,fingerprint):
         scenarios.append(dict(id=identity,name=payload.get('name',name) if payload else name,revision=revision,draftRevision=draft_revision,baselineRevision=baseline,qualified=not bool(issue),issue=issue,
                               baselineQualified=not bool(baseline_issue),baselineIssue=baseline_issue,baselineRats=sorted({t['template']['rat'] for t in baseline_derived}),
                               transmitters=[dict(id=t['id'],site_id=t['site_id'],label=t.get('label',t['site_id']),rat=t['template']['rat'],frequency_mhz=t['frequency_mhz'],
-                                                 eirp_dbm=t['template']['powerDbm']+t['template']['gainDbi']-t['template']['lossDb']) for t in derived]))
+                                                 eirp_dbm=peak_eirp(t['template'])) for t in derived]))
     return dict(id=f'{region}/{project}',region_id=region,project_id=project,sourceFingerprint=fingerprint,scenarios=scenarios,
                 equipment=dict(zip(('revision','sha256','sourceFingerprint','importedAt'),equipment)) if equipment else None)
 
@@ -208,6 +210,9 @@ def _freeze_context(db,selection):
             value['comparisonKind']='scenario-revisions'
             value['scenarioComparison']=dict(baselineRevision=scenario['baselineRevision'],appliedRevision=scenario['revision'],baselineName=value['radioBaseline']['name'],appliedName=payload['name'])
             value['scenarioChanges']=scenario_changes(value['baselineTransmitters'],value['transmitters'],selection.get('rat'))
+        if any(t['template']['pattern']=='array' for t in value['transmitters']+value.get('baselineTransmitters',[])):
+            value['schema']='ndt.execution.v3';value['predictionModel']=ARRAY_UMA
+            value['arrayAssumptions']=dict(panelCount=1,polarizations=1,weights='Uniform unit-norm coherent weights, total conducted beam power shared across elements',eirp='TX power + element peak gain + 10log10(rows*columns) - loss; upper bound before element scan attenuation',nullFloorDb=120,farField='Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm=-300,geometry='Panel local y/z plane; mechanical downtilt and relative electrical steering are separate',limitations='Far-field narrowband scalar array; no coupling, polarization mismatch, multi-port allocation, measured vendor pattern or MIMO')
         value['modelReferences'] += [dict(title=f"3GPP TS {'36.104' if rat=='LTE' else '38.104'} v{PLAN['edition']} Release {PLAN['release']}",url=PLAN['references'][rat],rat=rat)
                                     for rat in sorted({t['template']['rat'] for t in value['transmitters']+value.get('baselineTransmitters',[])})]
     value['id'] = 'SNAP-'+digest(value)[:24]

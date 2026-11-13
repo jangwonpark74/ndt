@@ -1,4 +1,4 @@
-import {RADIO_TEMPLATES, PLANNING_REFERENCE, validateTemplate, predictProbe} from './planning-model.mjs';
+import {RADIO_TEMPLATES, ARRAY_DEFAULTS, PLANNING_REFERENCE, validateTemplate, predictProbe} from './planning-model.mjs';
 import {createScenarioModel} from './scenario-model.mjs';
 import {createScenarioViewModel} from './scenario-view-model.mjs';
 import {CARRIER_PLAN,carrierBand,carrierFrequency,validateCarrier} from './carrier-plan.mjs';
@@ -7,15 +7,16 @@ import {equipmentStudyTemplate,equipmentStudyValues} from './equipment-study.mjs
 export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,getEquipmentInventory=()=>null,getSiteLabel=id=>id,getRunParticipation=()=>null}) {
   const $=id=>document.getElementById(id), form=$('radio-template-form');
   const fields=['frequencyMHz','bandwidthMHz','powerDbm','gainDbi','lossDb','tiltDeg','azimuthDeg','pattern','mode'];
+  const arrayFields=Object.keys(ARRAY_DEFAULTS);
   let rat='LTE',carrierVersion=CARRIER_PLAN.version,equipmentSource=null,pendingLoad=Promise.resolve(),contextVersion=0;
   const scenarios=createScenarioViewModel(createScenarioModel(regionId));
   let previousDraft,overrideSite='';
   const evidence=document.createElement('div');evidence.className='equipment-study';evidence.hidden=true;
-  evidence.innerHTML='<p id="template-equipment-status" class="network-note" role="status"></p><details><summary>Compare reported inputs</summary><p class="network-note">Source records are user-supplied. Modeled power, feeder loss, environment and reference-element pattern are study assumptions; vendor cuts are reviewed separately.</p><table><thead><tr><th scope="col">Input</th><th scope="col">Reported</th><th scope="col">Study</th></tr></thead><tbody id="template-equipment-values"></tbody></table><p id="template-equipment-hash" class="network-note"></p></details><div class="study-actions"><button id="template-equipment-clear" type="button">Keep as assumptions</button></div>';
+  evidence.innerHTML='<p id="template-equipment-status" class="network-note" role="status"></p><details><summary>Compare reported inputs</summary><p class="network-note">Source records are user-supplied. Modeled power, feeder loss, environment and antenna model are study assumptions; vendor cuts are reviewed separately.</p><table><thead><tr><th scope="col">Input</th><th scope="col">Reported</th><th scope="col">Study</th></tr></thead><tbody id="template-equipment-values"></tbody></table><p id="template-equipment-hash" class="network-note"></p></details><div class="study-actions"><button id="template-equipment-clear" type="button">Keep as assumptions</button></div>';
   form.before(evidence);
   function draft(){const base=scenarios.getState().draft;return {name:$('scenario-name').value,template:overrideSite ? base.template : read(),overrides:overrideSite ? {...base.overrides,[overrideSite]:read()} : base?.overrides || {}};}
   const key=()=>`ndt-radio-template:${regionId}:${getProject()?.id || 'region'}`;
-  function read() {return {rat,...Object.fromEntries(fields.map(f=>[f,['pattern','mode'].includes(f) ? form.elements[f].value : form.elements[f].value.trim() === '' ? NaN : Number(form.elements[f].value)])),...($('carrier-enabled').checked ? {carrier:{standard:carrierVersion,band:form.elements.carrierBand.value,channel:form.elements.channel.value==='' ? NaN : Number(form.elements.channel.value),scsKHz:Number(form.elements.carrierScs.value)}} : {}),...(equipmentSource?{equipmentSource}: {})};}
+  function read() {return {rat,...Object.fromEntries(fields.map(f=>[f,['pattern','mode'].includes(f) ? form.elements[f].value : form.elements[f].value.trim() === '' ? NaN : Number(form.elements[f].value)])),...(form.elements.pattern.value==='array'?{array:Object.fromEntries(arrayFields.map(f=>[f,form.elements[f].value.trim()===''?NaN:Number(form.elements[f].value)]))}:{}),...($('carrier-enabled').checked ? {carrier:{standard:carrierVersion,band:form.elements.carrierBand.value,channel:form.elements.channel.value==='' ? NaN : Number(form.elements.channel.value),scsKHz:Number(form.elements.carrierScs.value)}} : {}),...(equipmentSource?{equipmentSource}: {})};}
   function renderEvidence(template){
     evidence.hidden=!equipmentSource;if(!equipmentSource)return;
     const status=$('template-equipment-status'),rows=$('template-equipment-values');rows.replaceChildren();evidence.dataset.invalid='false';
@@ -41,6 +42,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
   function fill(t) {
     equipmentSource=t.equipmentSource || null;
     rat=t.rat;$('template-preset').value=rat === 'NR' ? 'nr' : 'lte';fields.forEach(f=>form.elements[f].value=t[f]);
+    arrayFields.forEach(f=>form.elements[f].value=(t.array || ARRAY_DEFAULTS)[f]);
     form.elements.carrierBand.replaceChildren(...CARRIER_PLAN.bands.filter(b=>b.rat===rat).map(b=>new Option(`${b.id} · ${b.duplex}`,b.id)));
     const c=t.carrier,b=carrierBand(c?.band || (rat==='NR'?'n78':'B4'));
     $('carrier-enabled').checked=!!c;carrierVersion=c?.standard || CARRIER_PLAN.version;
@@ -53,6 +55,9 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('template-result').replaceChildren();
     $('template-error').textContent=result.error || ''; $('template-error').hidden=!result.error || !!carrierError;
     const state=scenarios.getState();
+    $('array-controls').hidden=t.pattern!=='array';
+    $('template-gain-label').textContent=t.pattern==='array'?'Element peak gain (dBi)':'Peak gain (dBi)';
+    $('array-source-gain-note').hidden=!equipmentSource;
     renderEvidence(t);
     $('carrier-check-status').textContent=carrierError || (t.carrier ? `Channel checks passed · ${b.id} · ${b.duplex} · ${t.carrier.scsKHz} kHz SCS` : qualification(t));
     $('carrier-check-status').dataset.invalid=String(!!carrierError);
@@ -60,17 +65,18 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('scenario-override-remove').disabled=!overrideSite || state.loading || state.saving;
     $('template-save').disabled=!!validateTemplate(t) || state.loading || state.saving || (state.projectId && !!state.error && !state.items.length); $('template-export').disabled=!!result.error;
     if (result.error) return;
-    for (const [label,value] of [['Study RAT',rat],['Carrier check',t.carrier?'Supported channel checks passed':'Generic · not checked'],['Peak EIRP',`${result.eirpDbm.toFixed(1)} dBm`],['Path loss',`${result.pathLoss.toFixed(1)} dB`],['Pattern attenuation',`${result.attenuation.toFixed(1)} dB`],['Predicted received power',`${result.rxDbm.toFixed(1)} dBm`]]) {
+    for (const [label,value] of [['Study RAT',rat],['Carrier check',t.carrier?'Supported channel checks passed':'Generic · not checked'],[t.pattern==='array'?'EIRP upper bound':'Peak EIRP',`${result.eirpDbm.toFixed(1)} dBm`],['Path loss',`${result.pathLoss.toFixed(1)} dB`],['Pattern attenuation',`${result.attenuation.toFixed(1)} dB`],['Predicted received power',`${result.rxDbm.toFixed(1)} dBm`]]) {
       const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;$('template-result').append(dt,dd);
     }
   }
   function edited(){if(getProject())scenarios.edit(draft());render();$('template-save-status').textContent='Unsaved study edits.';}
   $('template-preset').onchange=()=>{fill(RADIO_TEMPLATES[$('template-preset').value]);edited();};
   form.oninput=event=>{
+    if(event.target.name==='pattern' && event.target.value==='array' && equipmentSource)form.elements.gainDbi.value='';
     if(['carrierEnabled','carrierBand','channel','carrierScs'].includes(event.target.name)){
       if(event.target.name==='carrierBand'){const b=carrierBand(event.target.value);form.elements.channel.value=b.defaultChannel;form.elements.carrierScs.value=b.scsKHz;carrierVersion=CARRIER_PLAN.version;}
       syncCarrier(true);edited();
-    }else if(fields.includes(event.target.name))edited();else render();
+    }else if(fields.includes(event.target.name) || arrayFields.includes(event.target.name))edited();else render();
   };
   $('scenario-name').oninput=edited;
   form.onsubmit=event=>event.preventDefault();
@@ -104,7 +110,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     const template=read(),distanceM=Number(form.elements.distanceM.value),bearingDeg=Number(form.elements.probeBearing.value),result=predictProbe(template,distanceM,bearingDeg);
     if(result.error)return;
     const state=scenarios.getState(),scenario=state.selected;
-    const blob=new Blob([JSON.stringify({version:3,regionId,projectId:getProject()?.id || null,template,templateTarget:overrideSite || null,probe:{distanceM,bearingDeg},result,scenario:scenario ? {...scenario,unsavedEdits:state.dirty} : null,reference:PLANNING_REFERENCE,carrierQualification:qualification(template),carrierReference:template.carrier ? CARRIER_PLAN.references[rat] : null,powerConvention:'Total average conducted power per modeled carrier/port; peak EIRP = TX power + peak gain - feeder loss. No reference-signal allocation.',model:'UMa mean path loss, 25 m BS / 1.5 m UE; single-element study, no array factor. Bandwidth and RAT do not change the path-loss formula. The probe is independent of map fans and virtual drives. Saved applied templates can be selected for directional virtual drives.'},null,2)],{type:'application/json'});
+    const blob=new Blob([JSON.stringify({version:4,arrayAssumptions:template.pattern==='array'?{nullFloorDb:120,farField:'Slant distance >= 2D^2/wavelength using array diagonal D',minimumRouteOutputDbm:-300,panelCount:1,polarizations:1,weights:'Uniform unit-norm coherent weights',geometry:template.array}:null,regionId,projectId:getProject()?.id || null,template,templateTarget:overrideSite || null,probe:{distanceM,bearingDeg},result,scenario:scenario ? {...scenario,unsavedEdits:state.dirty} : null,reference:PLANNING_REFERENCE,carrierQualification:qualification(template),carrierReference:template.carrier ? CARRIER_PLAN.references[rat] : null,powerConvention:'Total average conducted power per modeled carrier/port; array beam power is shared across elements. EIRP upper bound = TX power + element peak gain + 10log10(rows*columns) - loss for arrays; without an array, peak EIRP = TX power + peak gain - loss. No reference-signal allocation.',model:'UMa mean path loss, 25 m BS / 1.5 m UE; reference element, isotropic or uniform single-panel scalar array; 120 dB numerical array-null cap. Bandwidth and RAT do not change the path-loss formula. The probe is independent of map fans and virtual drives. Saved applied templates can be selected for directional virtual drives.'},null,2)],{type:'application/json'});
     const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='radio-planning-study.json';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
   };
   scenarios.subscribe(state=>{
@@ -119,7 +125,7 @@ export function bindPlanningView({regionId,getProject,getSelectedSite=()=>null,g
     $('scenario-name').disabled=busy;
     $('template-preset').disabled=busy;
     $('scenario-target').disabled=busy;
-    for(const field of fields)form.elements[field].disabled=busy;
+    for(const field of [...fields,...arrayFields])form.elements[field].disabled=busy;
     for(const name of ['carrierEnabled','carrierBand','channel'])form.elements[name].disabled=busy;
     for(const id of ['scenario-baseline','scenario-apply'])$(id).disabled=!state.selected || busy || state.dirty;
     $('scenario-error').textContent=state.error;$('scenario-error').hidden=!state.error;

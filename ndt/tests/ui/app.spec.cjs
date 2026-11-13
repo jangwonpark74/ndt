@@ -289,8 +289,8 @@ test('right-click removes and restores a project site, including after reload', 
   await expect.poll(() => page.evaluate(() => window.testMap?.getSource('project-coverage')?._data.features.length)).toBe(4);
   await page.getByRole('combobox',{name:'Project',exact:true}).selectOption({label:'Harbourfront'});
   await expect(page.locator('#project-sites li')).toHaveCount(7);
-  await expect.poll(() => page.evaluate(() => window.testMap.getSource('project-sites')._data.features.length)).toBe(7);
-  const initial = await page.evaluate(() => window.testMap.getSource('project-sites')._data.features.map(f=>({id:f.properties.site_id,coordinates:f.geometry.coordinates})));
+  let initial;
+  await expect.poll(async()=>{initial=await page.evaluate(()=>window.testMap.getSource('project-sites')._data.features.map(f=>({id:f.properties.site_id,coordinates:f.geometry.coordinates})));return initial.length;}).toBe(7);
   expect(initial).toHaveLength(7);
   const site = await page.evaluate(async ids => {
     const [{projectCoverage}, {RADIO_DEFAULTS}, response] = await Promise.all([

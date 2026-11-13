@@ -4,6 +4,8 @@ import {validateCarrier} from './carrier-plan.mjs';
 import {validateEquipmentReference} from './equipment-study.mjs';
 
 export const PLANNING_REFERENCE = 'https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf';
+export const ARRAY_DEFAULTS=Object.freeze({rows:4,columns:4,verticalSpacing:.5,horizontalSpacing:.5,steerAzimuthDeg:0,steerDowntiltDeg:0});
+export const ARRAY_BOUNDS=Object.freeze({rows:[1,64],columns:[1,64],verticalSpacing:[.25,1],horizontalSpacing:[.25,1],steerAzimuthDeg:[-90,90],steerDowntiltDeg:[-90,90]});
 // Radio presets are editable study assumptions; 3GPP defines the element pattern, not these deployments.
 export const RADIO_TEMPLATES = Object.freeze({
   lte: {name:'4G LTE macro study',rat:'LTE',frequencyMHz:2100,bandwidthMHz:20,powerDbm:40,gainDbi:8,lossDb:2,tiltDeg:6,azimuthDeg:0,pattern:'element',mode:'NLOS'},
@@ -14,11 +16,32 @@ export function validateTemplate(t) {
   const bounds = {frequencyMHz:[500,100000],bandwidthMHz:[.1,400],powerDbm:[-30,80],gainDbi:[0,40],lossDb:[0,40],tiltDeg:[-20,90],azimuthDeg:[0,359.999]};
   const labels={frequencyMHz:'carrier frequency (MHz)',bandwidthMHz:'bandwidth (MHz)',powerDbm:'TX power (dBm)',gainDbi:'peak gain (dBi)',lossDb:'feeder loss (dB)',tiltDeg:'downtilt (degrees)',azimuthDeg:'azimuth (degrees north)'};
   for (const [key,[low,high]] of Object.entries(bounds)) if (!Number.isFinite(t[key]) || t[key]<low || t[key]>high) return `Enter ${labels[key]} between ${low} and ${high}.`;
-  if (!['LTE','NR'].includes(t.rat) || !['element','isotropic'].includes(t.pattern) || !['LOS','NLOS'].includes(t.mode)) return 'Select a supported RAT, antenna pattern and environment.';
+  if (!['LTE','NR'].includes(t.rat) || !['element','isotropic','array'].includes(t.pattern) || !['LOS','NLOS'].includes(t.mode)) return 'Select a supported RAT, antenna pattern and environment.';
+  if(t.pattern==='array'){
+    if(!t.array || typeof t.array!=='object' || Object.keys(t.array).length!==6)return 'Enter all six array geometry and steering inputs.';
+    const arrayLabels={rows:'rows',columns:'columns',verticalSpacing:'vertical spacing (wavelengths)',horizontalSpacing:'horizontal spacing (wavelengths)',steerAzimuthDeg:'electrical azimuth offset (degrees)',steerDowntiltDeg:'electrical downtilt offset (degrees)'};
+    for(const [key,[low,high]]of Object.entries(ARRAY_BOUNDS))if(!Number.isFinite(t.array[key]) || t.array[key]<low || t.array[key]>high || (['rows','columns'].includes(key) && !Number.isInteger(t.array[key])))return `Enter array ${arrayLabels[key]} between ${low} and ${high}${['rows','columns'].includes(key)?' as a whole number':''}.`;
+  }else if(Object.hasOwn(t,'array'))return 'Array geometry requires the uniform panel array pattern.';
   if (t.bandwidthMHz >= t.frequencyMHz) return 'Bandwidth must be smaller than carrier frequency.';
   if (t.pattern === 'isotropic' && t.gainDbi !== 0) return 'An isotropic antenna requires 0 dBi gain.';
   return validateCarrier(t) || (Object.hasOwn(t,'equipmentSource') ? validateEquipmentReference(t.equipmentSource) : '');
 }
+
+// Single panel, single polarization, uniform 1/sqrt(MN) weights; steering is in the panel frame.
+export function arrayAttenuation(template,azimuthOffsetDeg,elevationDeg){
+  const a=template.array,rad=Math.PI/180,az=azimuthOffsetDeg*rad,e=elevationDeg*rad,t=template.tiltDeg*rad;
+  const y=Math.cos(e)*Math.sin(az),z=Math.sin(t)*Math.cos(e)*Math.cos(az)+Math.cos(t)*Math.sin(e);
+  const steerAz=a.steerAzimuthDeg*rad,steerEl=-a.steerDowntiltDeg*rad;
+  function amplitude(count,phase){const half=phase/2,den=Math.sin(half);return Math.abs(den)<1e-12?1:Math.min(1,Math.abs(Math.sin(count*half)/(count*den)));}
+  const h=amplitude(a.columns,2*Math.PI*a.horizontalSpacing*(y-Math.cos(steerEl)*Math.sin(steerAz)));
+  const v=amplitude(a.rows,2*Math.PI*a.verticalSpacing*(z-Math.sin(steerEl)));
+  // Numerical floor for ideal coherent nulls, not a 3GPP propagation parameter.
+  return Math.max(0,Math.min(120,-20*Math.log10(Math.max(1e-6,h*v))));
+}
+
+export function peakEirp(t){return t.powerDbm+t.gainDbi-t.lossDb+(t.pattern==='array'?10*Math.log10(t.array.rows*t.array.columns):0);}
+export function arrayFarFieldDistance(t){const a=t.array;return 2*(((a.rows-1)*a.verticalSpacing)**2+((a.columns-1)*a.horizontalSpacing)**2)*3e8/(t.frequencyMHz*1e6);}
+export function antennaAttenuation(t,azimuthOffsetDeg,elevationDeg){return t.pattern==='isotropic'?0:elementAttenuation(azimuthOffsetDeg,elevationDeg,t.tiltDeg)+(t.pattern==='array'?arrayAttenuation(t,azimuthOffsetDeg,elevationDeg):0);}
 
 // TR 38.901 v18.0.0 table 7.3-1. Rotate the direction into the downtilted element frame.
 export function elementAttenuation(azimuthOffsetDeg, elevationDeg, tiltDeg = 0) {
@@ -34,9 +57,10 @@ export function predictProbe(template, distanceM, bearingDeg) {
   if (error) return {error};
   const pathLoss=umaPathLoss(distanceM,template.frequencyMHz,template.mode);
   if (pathLoss === null || !Number.isFinite(bearingDeg) || bearingDeg<0 || bearingDeg>=360) return {error:'Enter probe distance 10–5000 m and bearing 0–359.999°.'};
+  if(template.pattern==='array' && Math.hypot(distanceM,23.5)<arrayFarFieldDistance(template))return {error:`Probe is inside the array far-field boundary (${arrayFarFieldDistance(template).toFixed(1)} m slant distance). Reduce array size or increase distance.`};
   const elevation=Math.atan2(1.5-25,distanceM)*180/Math.PI;
-  const attenuation=template.pattern === 'element' ? elementAttenuation(bearingDeg-template.azimuthDeg,elevation,template.tiltDeg) : 0;
-  const eirpDbm=template.powerDbm+template.gainDbi-template.lossDb;
+  const attenuation=antennaAttenuation(template,bearingDeg-template.azimuthDeg,elevation);
+  const eirpDbm=peakEirp(template);
   return {eirpDbm,pathLoss,attenuation,rxDbm:eirpDbm-attenuation-pathLoss};
 }
 

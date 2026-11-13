@@ -6,6 +6,8 @@ const inventory={revision:1,sha256:'a'.repeat(64),data:JSON.parse(fs.readFileSyn
 const base={...RADIO_TEMPLATES.nr,powerDbm:37,lossDb:5,carrier:{standard:'3gpp-rel18-carrier-subset-v1',band:'n78',channel:640000,scsKHz:30}};
 const template=equipmentStudyTemplate(base,inventory,'cell-1','link-1','TEST-SITE');
 assert.equal(template.frequencyMHz,3500);assert.equal(template.rat,'NR');assert.equal(template.gainDbi,8);assert.equal(template.azimuthDeg,0);assert.equal(template.tiltDeg,6);assert.equal(template.pattern,'element');
+const fromArray=equipmentStudyTemplate({...base,pattern:'array',array:{rows:4,columns:4}},inventory,'cell-1','link-1','TEST-SITE');
+assert.equal(fromArray.array,undefined,'reported hardware does not establish assumed array geometry');assert.equal(validateTemplate(fromArray),'');
 assert.equal(template.powerDbm,37,'radio total power is not an assumed per-carrier/port allocation');assert.equal(template.lossDb,5);assert.equal(template.carrier,undefined,'coarse reported frequency does not establish an exact qualified carrier');
 assert.deepEqual(template.equipmentSource,{revision:1,sha256:inventory.sha256,cellId:'cell-1',linkId:'link-1'});assert.equal(validateEquipmentReference(template.equipmentSource),'');
 assert.throws(()=>equipmentStudyValues(inventory,template.equipmentSource,'OTHER-SITE'),/site/i);assert.throws(()=>equipmentStudyValues({...inventory,revision:2},template.equipmentSource,'TEST-SITE'),/changed/i);

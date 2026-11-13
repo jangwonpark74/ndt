@@ -268,3 +268,5 @@ body:has(#project-overview:not([hidden])) .active-project,body:has(#project-over
 .equipment-study{border:1px solid #c7d7cd;border-radius:6px;padding:8px;margin:10px 0}.equipment-study table{table-layout:fixed;width:100%;border-collapse:collapse;font-size:11px}.equipment-study th,.equipment-study td{border-bottom:1px solid #dce5dc;padding:5px;text-align:left;overflow-wrap:anywhere}.equipment-study .network-note{overflow-wrap:anywhere}.equipment-study button{margin-top:8px}
 
 .equipment-study summary{font-size:12px;cursor:pointer;padding:8px 0}.equipment-study[data-invalid=true]{border-color:#a75a42;background:#fff4ef}
+
+#array-controls{min-width:0;margin:14px 0;padding:12px;border:1px solid #b9cbbf;border-radius:5px}#array-controls legend{font-size:13px;font-weight:650}#array-controls .planning-input-grid>label{min-width:0;overflow-wrap:anywhere}

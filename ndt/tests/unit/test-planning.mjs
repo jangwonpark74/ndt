@@ -29,3 +29,22 @@ assert.ok(siteTopology(telus,'LTE').length);
 assert.match(siteLabel(bell),/Bell W2539/);
 assert.match(siteLabel(telus),/TELUS ON1775/);
 console.log('Planning reference element, probe, validation and inventory grouping passed.');
+// Array weights share total conducted power; geometry is an explicit study assumption.
+const arrays=await import('../../dist/planning-model.mjs');
+const array={...RADIO_TEMPLATES.nr,pattern:'array',tiltDeg:0,array:{rows:4,columns:4,verticalSpacing:.5,horizontalSpacing:.5,steerAzimuthDeg:0,steerDowntiltDeg:0}};
+assert.equal(validateTemplate(array),'');
+assert.ok(Math.abs(arrays.peakEirp(array)-(46+10*Math.log10(16)))<1e-10);
+assert.equal(arrays.arrayAttenuation(array,0,0),0);
+assert.ok(Math.abs(arrays.arrayAttenuation(array,30,0)-120)<1e-8,'ideal null has a disclosed numerical floor');
+assert.equal(arrays.arrayAttenuation({...array,array:{...array.array,rows:1,columns:1}},53,-23),0);
+for(const bad of [{array:undefined},{array:{...array.array,rows:1.5}},{array:{...array.array,columns:true}},{array:{...array.array,horizontalSpacing:0}},{array:{...array.array,steerDowntiltDeg:91}},{array:{...array.array,extra:1}}])assert.ok(validateTemplate({...array,...bad}));
+assert.ok(validateTemplate({...array,pattern:'element'}),'stale array geometry is rejected');
+assert.match(validateTemplate({...array,array:{...array.array,horizontalSpacing:0}}),/horizontal spacing \(wavelengths\)/);
+assert.match(predictProbe({...array,frequencyMHz:500,array:{...array.array,rows:64,columns:64,verticalSpacing:1,horizontalSpacing:1}},10,0).error,/far-field/);
+for(const [a,e,t]of [[20,-10,0],[-35,15,0],[0,-12,6]]){
+ const steered={...array,tiltDeg:t,array:{...array.array,steerAzimuthDeg:a,steerDowntiltDeg:-e}};
+ // A local steering vector is rotated back through the mechanically tilted panel.
+ const rad=Math.PI/180,x=Math.cos(e*rad)*Math.cos(a*rad),y=Math.cos(e*rad)*Math.sin(a*rad),z=Math.sin(e*rad);
+ const gx=Math.cos(t*rad)*x+Math.sin(t*rad)*z,gz=-Math.sin(t*rad)*x+Math.cos(t*rad)*z;
+ assert.ok(arrays.arrayAttenuation(steered,Math.atan2(y,gx)/rad,Math.asin(gz)/rad)<1e-9);
+}
