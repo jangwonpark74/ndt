@@ -104,6 +104,9 @@ $javascriptTests = @(
     'tests/unit/test-street-detail.mjs'
     'tests/unit/test-dm-analytics.mjs'
     'tests/unit/test-dm-view-model.mjs'
+    'tests/unit/test-field-metrics.mjs'
+    'tests/unit/test-capture-csv.mjs'
+    'tests/unit/test-field-view-model.mjs'
     'tests/unit/test-drive-model-parity.mjs'
     'tests/unit/test-rf-review-model.mjs'
     'tests/unit/test-rf-review-view-model.mjs'
@@ -141,6 +144,13 @@ $pythonTests = @(
     'tests/python/test-receiver-execution.py'
     'tests/python/test-inventory-clusters.py'
     'tests/python/test-drive-http.py'
+    'tests/python/test-field-metrics.py'
+    'tests/python/test-field-calibration.py'
+    'tests/python/test-field-measurements.py'
+    'tests/python/test-field-prediction.py'
+    'tests/python/test-field-study.py'
+    'tests/python/test-field-store.py'
+    'tests/python/test-field-http.py'
 )
 $syntaxFiles = @(
     'dist/task-data.mjs'

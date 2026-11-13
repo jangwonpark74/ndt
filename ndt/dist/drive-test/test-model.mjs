@@ -2,6 +2,7 @@ export const RATS = ['LTE', 'NR'];
 export const bands = rat => rat === 'all' ? RATS : [rat];
 export const METRICS = {
   predicted_rx_dbm: {label: 'Predicted received power', unit: 'dBm', limit: {LTE: -100, NR: -100}, bad: 'below'},
+  measured_rx_dbm: {label: 'Measured carrier power', unit: 'dBm', limit: {LTE: -100, NR: -100}, bad: 'below'},
   rsrp_dbm: {label: 'RSRP', unit: 'dBm', limit: {LTE: -105, NR: -105}, bad: 'below'},
   rsrq_db: {label: 'RSRQ', unit: 'dB', limit: {LTE: -15, NR: -15}, bad: 'below'},
   sinr_db: {label: 'SINR', unit: 'dB', limit: {LTE: 0, NR: 0}, bad: 'below'},
@@ -43,13 +44,19 @@ export function fails(value, rat, metric, limits) {
   return Number.isFinite(value) && (METRICS[metric].bad === 'below' ? value < limits[rat] : value > limits[rat]);
 }
 
+export const metricValue=(row,metric)=>metric==='measured_rx_dbm'&&row.measurement_status!=='valid'?undefined:row[metric];
+export function inspectorMetrics(row,selected){
+  const keys=[selected,'rsrp_dbm','rsrq_db','sinr_db','measured_rx_dbm','predicted_rx_dbm'];
+  return [...new Set(keys)].filter(k=>k===selected||Number.isFinite(row[k])).slice(0,3);
+}
+
 export function observationColor(row, metric, limits) {
-  if (!Number.isFinite(row[metric])) return MISSING_COLOR;
-  return fails(row[metric], row.rat, metric, limits) ? ALERT_COLOR : RAT_COLOR[row.rat];
+  if (!Number.isFinite(metricValue(row,metric))) return MISSING_COLOR;
+  return fails(metricValue(row,metric), row.rat, metric, limits) ? ALERT_COLOR : RAT_COLOR[row.rat];
 }
 
 export function statistics(rows, metric, rat, limits) {
-  const values = rows.map(row => row[metric]).filter(Number.isFinite).sort((a, b) => a - b);
+  const values = rows.map(row => metricValue(row,metric)).filter(Number.isFinite).sort((a, b) => a - b);
   const n = values.length;
   if (!n) return {n, missing: rows.length, failed: 0};
   function quantile(q) {
@@ -116,7 +123,7 @@ export function analyze(rows, metric, limits, gapSeconds, thresholds = {}) {
       const adjacent = previous && row.t - previous.t <= gap;
       const change = adjacent && cellChange(previous, row);
       if (change) events.push({kind: Number.isFinite(row.predicted_rx_dbm) ? 'Predicted selection change' : 'Observed cell change', label: change, row});
-      if (fails(row[metric], rat, metric, limits)) {
+      if (fails(metricValue(row,metric), rat, metric, limits)) {
         if (!episode || !adjacent) {
           episode = {kind: 'Threshold excursion', label: `${METRICS[metric].label} ${METRICS[metric].bad} threshold`,
             row, end: row, worst: row, count: 0};
@@ -153,8 +160,8 @@ export function filterSamples(rows, metric, limits, {search = '', status = 'all'
   const query = search.trim().toLowerCase();
   return rows.filter(row => (!query || [utc(row.t), row.rat, row.band, row.cell_id, row.pci, row.arfcn, row.event]
     .join(' ').toLowerCase().includes(query)) && (status === 'all' ||
-      (status === 'missing' ? !Number.isFinite(row[metric]) :
-        status === 'failed' ? fails(row[metric], row.rat, metric, limits) : Number.isFinite(row[metric]) && !fails(row[metric], row.rat, metric, limits))));
+      (status === 'missing' ? !Number.isFinite(metricValue(row,metric)) :
+        status === 'failed' ? fails(metricValue(row,metric), row.rat, metric, limits) : Number.isFinite(metricValue(row,metric)) && !fails(metricValue(row,metric), row.rat, metric, limits))));
 }
 
 export function analysisPackage(vm) {

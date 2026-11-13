@@ -54,6 +54,9 @@ test:
 	cd ndt && $(NODE) tests/unit/test-street-detail.mjs
 	cd ndt && $(NODE) tests/unit/test-dm-analytics.mjs
 	cd ndt && $(NODE) tests/unit/test-dm-view-model.mjs
+	cd ndt && $(NODE) tests/unit/test-field-metrics.mjs
+	cd ndt && $(NODE) tests/unit/test-capture-csv.mjs
+	cd ndt && $(NODE) tests/unit/test-field-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-drive-model-parity.mjs
 	cd ndt && $(NODE) tests/unit/test-rf-review-model.mjs
 	cd ndt && $(NODE) tests/unit/test-rf-review-view-model.mjs
@@ -89,6 +92,13 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/python/test-receiver-execution.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-inventory-clusters.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-http.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-metrics.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-calibration.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-measurements.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-prediction.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-study.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-store.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-field-http.py
 
 test-ui:
 	npm run test:ui

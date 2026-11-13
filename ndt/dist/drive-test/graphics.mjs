@@ -1,4 +1,4 @@
-import {ALERT_COLOR, elapsed, FIX, fmt, observationColor, RAT_COLOR, traceGeometry} from './test-model.mjs';
+import {ALERT_COLOR, elapsed, FIX, fmt, metricValue, observationColor, RAT_COLOR, traceGeometry} from './test-model.mjs';
 
 export const CHART_PAD = {left: 46, right: 15, top: 12, bottom: 24};
 const COLORS = {water: '#c6e0e9', park: '#dbe9d7', building: '#d8dfe1', rail: '#acb6bd', street: '#fff', arterial: '#fff'};
@@ -144,7 +144,7 @@ export function marker(ctx, pixel) {
 
 export function drawTimeline(ctx, width, height, state, rows, rats) {
   const {test, metric, limits, gap} = state, pad = CHART_PAD;
-  const values = rows.filter(row => Number.isFinite(row[metric]));
+  const values = rows.filter(row => Number.isFinite(metricValue(row,metric)));
   const x = t => pad.left + (t - test.start) / (test.end - test.start || 1) * (width - pad.left - pad.right);
   if (!values.length) {
     ctx.font = '12px sans-serif'; ctx.fillStyle = '#52677d'; ctx.textAlign = 'center';
@@ -182,7 +182,7 @@ export function drawTimeline(ctx, width, height, state, rows, rats) {
     ctx.beginPath();
     for (const row of rows) {
       if (row.rat !== rat) continue;
-      if (!Number.isFinite(row[metric])) { previous = null; continue; }
+      if (!Number.isFinite(metricValue(row,metric))) { previous = null; continue; }
       const a = x(row.t), b = y(row[metric]);
       if (previous && row.t - previous.t <= gap * 1000) ctx.lineTo(a, b);
       else {
@@ -200,7 +200,7 @@ export function drawCDF(ctx, width, height, vm) {
   const rats = vm.rat === 'all' ? ['LTE', 'NR'] : [vm.rat];
   const series = rats.flatMap(rat => [{rat, baseline: false, rows: vm.analysis.byRat[rat].series},
     ...(vm.baseline ? [{rat, baseline: true, rows: vm.baselineAnalysis.byRat[rat].series}] : [])])
-    .map(s => ({...s, values: s.rows.map(r => r[vm.metric]).filter(Number.isFinite).sort((a, b) => a - b)}));
+    .map(s => ({...s, values: s.rows.map(r => metricValue(r,vm.metric)).filter(Number.isFinite).sort((a, b) => a - b)}));
   const available = series.filter(s => s.values.length);
   ctx.font = '11px sans-serif'; ctx.fillStyle = '#52677d';
   if (!available.length) { ctx.fillText('No valid observations for this metric.', 16, 30); return; }

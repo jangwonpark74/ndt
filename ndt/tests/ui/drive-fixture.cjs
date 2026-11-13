@@ -7,9 +7,9 @@ const os=require('node:os');
 const readline=require('node:readline');
 const {stopFixture}=require('./process-cleanup.cjs');
 
-const test=base.extend({driveOrigin:async({},use)=>{
+const test=base.extend({fieldData:[false,{option:true}],driveOrigin:async({fieldData},use)=>{
   const temp=await mkdtemp(path.join(os.tmpdir(),'ndt-drive-'));
-  const child=spawn(fixturePython(),['-B','tests/fixtures/serve-drive-fixture.py','--port','0','--db',path.join(temp,'planning.sqlite3'),'--dm-db',path.join(temp,'tests.sqlite3')],
+  const child=spawn(fixturePython(),['-B','tests/fixtures/serve-drive-fixture.py','--port','0','--db',path.join(temp,'planning.sqlite3'),'--dm-db',path.join(temp,'tests.sqlite3'),...(fieldData?['--field-fixtures']:[]),...(fieldData==='large'?['--large-field-fixture']:[])],
     {cwd:path.join(__dirname,'../..'),stdio:['ignore','pipe','ignore']});
   try{
     const url=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',code=>reject(new Error(`NDT fixture exited ${code}`)));const lines=readline.createInterface({input:child.stdout});lines.on('line',line=>{const match=line.match(/http:\/\/[^ ]+/);if(match){lines.close();resolve(match[0]);}});});

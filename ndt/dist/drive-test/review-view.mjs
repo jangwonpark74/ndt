@@ -1,4 +1,4 @@
-import {acceptance, elapsed, fails, filterSamples, fmt, METRICS, pct, utc} from './test-model.mjs';
+import {acceptance, elapsed, fails, filterSamples, fmt, metricValue, METRICS, pct, utc} from './test-model.mjs';
 import {$, compact, esc, table} from './test-view.mjs';
 
 const LABEL = {pass: 'Within target', fail: 'Outside target', insufficient: 'Insufficient evidence'};
@@ -11,7 +11,7 @@ export function renderQuality(vm) {
     <strong>${esc(vm.profile.name)}</strong><span class="profile-revision">${vm.test.revision ? `Saved · revision ${vm.test.revision}` : 'Default profile · not yet saved'}</span></div>
     ${badge(status)}</div><div class="quality-checks">${checks.map(c => `<div class="quality-check"><div><b>${c.rat} · ${METRICS[vm.metric].label}</b>${badge(c.status)}</div>
       <p>${esc(c.reasons.join(' · '))}</p><div class="quality-facts"><span>Metric <b>${pct(c.coverage)}</b></span><span>GPS <b>${pct(c.gps)}</b></span><span>Valid <b>${compact(c.n)}</b></span></div>
-    </div>`).join('')}</div><p class="quality-method">${vm.test.kind === 'synthetic' ? 'Synthetic evaluation · ' : ''}Selected metric only · sample-weighted · missing evidence prevents a pass. <button id="edit-profile" class="link-button">Edit acceptance profile</button></p>`;
+    </div>`).join('')}</div><p class="quality-method">${vm.test.kind === 'synthetic' ? 'Synthetic evaluation · ' : ''}Selected metric only · sample-weighted · missing evidence prevents a pass. ${vm.metric==='measured_rx_dbm'?'Only explicitly valid readings enter summaries. Instrument and model compatibility require a separate Field validation study. ':''}<button id="edit-profile" class="link-button">Edit acceptance profile</button></p>`;
 }
 
 export const sampleRows = (vm, state) => filterSamples(vm.series, vm.metric, vm.limits, state);
@@ -27,10 +27,10 @@ export function renderSamples(vm, state) {
   $('sample-table').innerHTML = page.length ? `<div class="table-wrap sample-scroll"><table><thead><tr>
     ${['Sample / UTC', 'RAT', 'Cell / PCI', def.label + ' (' + def.unit + ')', 'GPS', 'Status'].map(h => `<th scope="col">${esc(h)}</th>`).join('')}
     </tr></thead><tbody>${page.map((row, i) => {
-      const status = !Number.isFinite(row[vm.metric]) ? 'missing' : fails(row[vm.metric], row.rat, vm.metric, vm.limits) ? 'fail' : 'pass';
+      const value=metricValue(row,vm.metric),status = !Number.isFinite(value) ? 'missing' : fails(value, row.rat, vm.metric, vm.limits) ? 'fail' : 'pass';
       return `<tr data-time="${row.t}" data-rat="${row.rat}" class="${row === vm.selected ? 'is-selected' : ''}"><td><button class="sample-jump" data-sample="${start + i}">${esc(utc(row.t))}</button>
         <small class="sample-elapsed">+${elapsed(row.t - vm.test.start, true)}</small></td><td>${row.rat}</td><td>${esc(row.cell_id || '—')}<small class="sample-elapsed">PCI ${row.pci ?? '—'} · ${esc(row.band || '—')}</small></td>
-        <td class="mono">${fmt(row[vm.metric])}</td><td>${Number.isFinite(row.latitude) ? 'Valid fix' : 'Missing'}</td><td>${badge(status, status === 'missing' ? 'Missing' : status === 'fail' ? 'Outside threshold' : 'Within threshold')}</td></tr>`;
+        <td class="mono">${fmt(row[vm.metric])}${vm.metric==='measured_rx_dbm'?`<small class="sample-elapsed">${esc(row.measurement_status||'Quality unknown')}</small>`:''}</td><td>${Number.isFinite(row.latitude) ? 'Valid fix' : 'Missing'}</td><td>${badge(status, status === 'missing' ? 'Missing / excluded' : status === 'fail' ? 'Outside threshold' : 'Within threshold')}</td></tr>`;
     }).join('')}</tbody></table></div>` : '<p class="empty">No observations match these filters. Change the search or status.</p>';
 }
 

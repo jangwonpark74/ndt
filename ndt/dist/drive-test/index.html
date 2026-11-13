@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../design-tokens.css">
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./integration.css">
+  <link rel="stylesheet" href="./field.css">
   <link rel="stylesheet" href="../vendor/maplibre-gl.css">
   <script defer src="../vendor/maplibre-gl.js"></script>
   <script type="module" src="./app.js"></script>
@@ -25,6 +26,7 @@
       <button data-tab="replay" aria-current="page">Replay</button>
       <button data-tab="analytics">KPI analytics</button>
       <button data-tab="rf-results">RF results</button>
+      <button data-tab="field-validation">Field validation</button>
       <button data-tab="investigate">Investigate</button>
       <button data-tab="report">Test report</button>
     </nav>
@@ -81,7 +83,7 @@
       <p id="message" class="message" role="status" hidden></p>
       <section id="welcome" class="panel welcome">Loading Test IDs…</section>
       <div id="workspace" tabindex="-1" hidden>
-        <div class="run-heading">
+        <div id="run-heading" class="run-heading">
           <div>
             <div class="run-id"><span id="test-id"></span><span id="source-badge" class="badge"></span></div>
             <h2 id="run-title"></h2>
@@ -152,6 +154,7 @@
           </div>
         </div>
         <section id="rf-results" hidden></section>
+        <section id="field-validation" hidden></section>
         <section id="analytics" hidden></section>
         <section id="investigate" class="investigate" hidden>
           <section class="panel">
@@ -187,6 +190,7 @@
       <label>Capture notes <span class="optional">optional</span><input name="Notes" maxlength="500" placeholder="Device, operator, capture profile, conditions"></label>
       <label class="file-field">Normalized CSV<input id="file" type="file" accept=".csv,text/csv" required></label>
       <div class="file-hint"><span>UTF-8 CSV · 16 MiB · 100,000 observations</span><button id="template" type="button" class="link-button">Download template</button></div>
+      <p class="helper">For carrier-power field studies, provide measured_rx_dbm and measurement_status (valid, below-floor, above-ceiling or invalid). RSRP is a separate metric. Field validation checks source compatibility before fitting.</p>
       <p id="import-error" class="error" role="alert" hidden></p>
     </div>
     <div class="dialog-actions"><button type="button" class="cancel">Cancel</button><button id="import-submit" class="primary">Create Test ID</button></div>

@@ -134,6 +134,25 @@ def validate_frozen_cell_inputs(snapshot):
         validate_receiver_templates(payload.get('receiver'),templates)
 
 
+def cell_prediction(transmitter,coordinates,effective_eirp,*,pattern_assets=None,receiver_model=None,polarizations=None):
+    separation=distance(coordinates,transmitter['coordinates']);bearing=initial_bearing(transmitter['coordinates'],coordinates)
+    elevation=math.degrees(math.atan2(-23.5,separation));delta=effective_eirp-cell_eirp(transmitter);port_values=[]
+    common=dict(distanceM=separation,bearingDeg=bearing,elevationDeg=elevation,zeroCollectedPower=False)
+    for port in transmitter.get('ports',[{'template':transmitter.get('template')}]):
+        template=port['template'];loss=path_loss(separation,template['frequencyMHz'],template['mode'])
+        if loss is None:return dict(common,status='model-domain',rxDbm=None,blockedPathId=port.get('linkId'))
+        if math.hypot(separation,23.5)<far_field_distance(template,pattern_assets):
+            return dict(common,status='near-field',rxDbm=None,blockedPathId=port.get('linkId'))
+        if receiver_model:
+            fraction=receiver_model.coupling(polarizations[id(template)],bearing,elevation)['powerFraction']
+            if fraction:
+                port_values.append(peak_eirp(template)+delta-loss-receiver_antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets)+10*math.log10(fraction))
+        else:port_values.append(peak_eirp(template)+delta-loss-antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets))
+    if receiver_model and not port_values:return {**common,'status':'below-output','rxDbm':None,'zeroCollectedPower':True}
+    received=power_sum(port_values)
+    return dict(common,status='below-output' if received < -300 else 'supported',rxDbm=None if received < -300 else received)
+
+
 def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled,pattern_assets=None,receiver_model=None,polarizations=None):
     transmitters=snapshot['transmitters'];rows=[]
     validate_frozen_cell_inputs(snapshot)
@@ -143,22 +162,9 @@ def simulate_cells(snapshot,case,powers,*,interval_s,rat,time_origin,cancelled,p
         if index%100==0 and cancelled():raise InterruptedError('Experiment cancelled.')
         receiver=[position['longitude'],position['latitude']];candidates=[];near_field=False;below_output=False
         for transmitter in transmitters:
-            separation=distance(receiver,transmitter['coordinates']);bearing=initial_bearing(transmitter['coordinates'],receiver)
-            elevation=math.degrees(math.atan2(-23.5,separation));delta=powers[transmitter['id']]-cell_eirp(transmitter);port_values=[];supported=True
-            for port in transmitter.get('ports',[{'template':transmitter.get('template')}]):
-                template=port['template'];loss=path_loss(separation,template['frequencyMHz'],template['mode'])
-                if loss is None:supported=False;break
-                if math.hypot(separation,23.5)<far_field_distance(template,pattern_assets):supported=False;near_field=True;break
-                if receiver_model:
-                    fraction=receiver_model.coupling(polarizations[id(template)],bearing,elevation)['powerFraction']
-                    if fraction:
-                        port_values.append(peak_eirp(template)+delta-loss-receiver_antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets)+10*math.log10(fraction))
-                else:port_values.append(peak_eirp(template)+delta-loss-antenna_attenuation(template,bearing-template['azimuthDeg'],elevation,pattern_assets))
-            if not supported:continue
-            if receiver_model and not port_values:below_output=True;continue
-            received=power_sum(port_values)
-            if received < -300:below_output=True;continue
-            candidates.append((received,transmitter['id']))
+            value=cell_prediction(transmitter,receiver,powers[transmitter['id']],pattern_assets=pattern_assets,receiver_model=receiver_model,polarizations=polarizations)
+            near_field|=value['status']=='near-field';below_output|=value['status']=='below-output'
+            if value['status']=='supported':candidates.append((value['rxDbm'],transmitter['id']))
         row=dict(**position,rat=rat,leg_id=snapshot['route']['id'])
         if candidates:
             received,identity=max(candidates);row.update(predicted_rx_dbm=received,cell_id='PLAN:'+identity)

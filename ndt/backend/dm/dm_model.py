@@ -18,11 +18,11 @@ LIMITS = {
     "latitude": (-90, 90), "longitude": (-180, 180), "pci": (0, 1007),
     "arfcn": (0, 3279165), "rsrp_dbm": (-180, 0), "rsrq_db": (-60, 30),
     "sinr_db": (-60, 80), "dl_mbps": (0, 100000), "ul_mbps": (0, 100000),
-    "latency_ms": (0, 3600000), "predicted_rx_dbm": (-300, 90),
+    "latency_ms": (0, 3600000), "predicted_rx_dbm": (-300, 90), "measured_rx_dbm": (-300, 90),
 }
-TEXT = ("cell_id", "band", "event")
+TEXT = ("cell_id", "band", "event", "measurement_status")
 COLUMNS = REQUIRED + ("band", "pci", "arfcn", "cell_id", "rsrp_dbm", "rsrq_db", "sinr_db",
-                      "dl_mbps", "ul_mbps", "latency_ms", "predicted_rx_dbm", "event")
+                      "dl_mbps", "ul_mbps", "latency_ms", "predicted_rx_dbm", "measured_rx_dbm", "measurement_status", "event")
 MAX_BYTES = 16 * 1024 * 1024
 MAX_ROWS = 100_000
 ID = re.compile(r"[A-Za-z0-9_-]{1,64}")
@@ -34,7 +34,8 @@ DEFAULT_PROFILE = {
     "minCoveragePct": 90, "minGpsPct": 90, "maxFailPct": 5,
     "thresholds": {key: {"LTE": lte, "NR": nr} for key, lte, nr in (
         ("rsrp_dbm", -105, -105), ("rsrq_db", -15, -15), ("sinr_db", 0, 0),
-        ("dl_mbps", 20, 50), ("ul_mbps", 5, 10), ("latency_ms", 60, 60), ("predicted_rx_dbm", -100, -100))},
+        ("dl_mbps", 20, 50), ("ul_mbps", 5, 10), ("latency_ms", 60, 60), ("predicted_rx_dbm", -100, -100),
+        ("measured_rx_dbm", -100, -100))},
 }
 
 
@@ -54,7 +55,10 @@ def validate_profile(value):
             raise ValueError(f"{key} must be between {low} and {high}.")
         if key in ("gap", "minSamples") and int(number) != number:
             raise ValueError(f"{key} must be an integer.")
+    value=deepcopy(value)
     thresholds = value["thresholds"]
+    if isinstance(thresholds,dict) and set(thresholds)==set(DEFAULT_PROFILE['thresholds'])-{'measured_rx_dbm'}:
+        thresholds['measured_rx_dbm']=deepcopy(DEFAULT_PROFILE['thresholds']['measured_rx_dbm'])
     if not isinstance(thresholds, dict) or set(thresholds) != set(DEFAULT_PROFILE["thresholds"]):
         raise ValueError("Provide thresholds for all supported metrics.")
     for metric, limits in thresholds.items():
@@ -123,6 +127,8 @@ def normalize(raw):
                     if len(value) > 160 or any(ord(ch) < 32 for ch in value):
                         raise ValueError(f"{field} must be plain text of up to 160 characters")
                     if value:
+                        if field=='measurement_status' and value not in ('valid','below-floor','above-ceiling','invalid'):
+                            raise ValueError('measurement_status must be valid, below-floor, above-ceiling or invalid')
                         row[field] = value
             except (ValueError, OverflowError) as exc:
                 raise ValueError(f"Line {reader.line_num}: {exc}.") from exc
@@ -244,6 +250,7 @@ def workspace(path, test_id):
             entry["profile"] = json.loads(entry["profile"]) if entry["profile"] else None
     profile = json.loads(row['profile']) if row else deepcopy(DEFAULT_PROFILE)
     profile['thresholds'].setdefault('predicted_rx_dbm', deepcopy(DEFAULT_PROFILE['thresholds']['predicted_rx_dbm']))
+    profile['thresholds'].setdefault('measured_rx_dbm', deepcopy(DEFAULT_PROFILE['thresholds']['measured_rx_dbm']))
     return {"revision": row["revision"] if row else 0, "profile": profile, "issues": issues, "audit": audit}
 
 

@@ -1,4 +1,4 @@
-import {ALERT_COLOR, bands, elapsed, FIX, fmt, KEYS, METRICS, MISSING_COLOR, pct, RAT_COLOR, statistics, utc} from './test-model.mjs';
+import {ALERT_COLOR, bands, elapsed, FIX, fmt, inspectorMetrics, KEYS, METRICS, MISSING_COLOR, pct, RAT_COLOR, statistics, utc} from './test-model.mjs';
 import {drawCDF, setupCanvas} from './graphics.mjs';
 
 export const $ = id => document.getElementById(id);
@@ -74,7 +74,7 @@ export function renderHeading(vm) {
   $('event-kind').value = vm.eventKind;
 }
 
-let previousSample;
+let previousSample,previousMetric;
 export function renderCursor(vm, x) {
   const {test, selected: row, series, index, playing, t} = vm;
   text('play', playing ? 'Ⅱ Pause' : '▶ Play');
@@ -87,8 +87,8 @@ export function renderCursor(vm, x) {
   $('scrub').setAttribute('aria-valuetext', elapsed(t - test.start, true));
   $('cursor').hidden = !x || !series.length;
   if (x) $('cursor').style.left = `${x(t)}px`;
-  if (previousSample === row) return;
-  previousSample = row;
+  if (previousSample === row&&previousMetric===vm.metric) return;
+  previousSample = row;previousMetric=vm.metric;
   text('sample-time', row ? utc(row.t) : vm.series.length ? 'No observation at this replay time' : 'No observations for this technology');
   text('sample-rat', row?.rat || '');
   $('sample-rat').className = `badge ${row?.rat || ''}`;
@@ -102,7 +102,8 @@ export function renderCursor(vm, x) {
     ['Downlink / Uplink', `${unitValue(row.dl_mbps, 'Mbps')} / ${unitValue(row.ul_mbps, 'Mbps')}`],
     ['Latency', unitValue(row.latency_ms, 'ms')],
     ['GPS', FIX(row) ? `${row.latitude.toFixed(5)}, ${row.longitude.toFixed(5)}` : 'No fix']];
-  $('sample-details').innerHTML = `<div class="metric-pair">${KEYS.slice(0,3).map(key => `<div><span>${METRICS[key].label}</span>
+  if(Number.isFinite(row.measured_rx_dbm))details.unshift(['Measurement quality',row.measurement_status||'Not declared']);
+  $('sample-details').innerHTML = `<div class="metric-pair">${inspectorMetrics(row,vm.metric).map(key => `<div><span>${METRICS[key].label}</span>
     <strong>${fmt(row[key])}</strong><small>${METRICS[key].unit}</small></div>`).join('')}</div>
     <dl class="dl">${details.map(([label, value]) => `<dt>${label}</dt><dd>${esc(value)}</dd>`).join('')}</dl>`;
 }

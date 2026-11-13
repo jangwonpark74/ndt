@@ -3,18 +3,20 @@
 import json
 import sqlite3
 import uuid
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from .dm_model import (Conflict, ID, MAX_BYTES, get_test, list_tests, save_issue,
                        save_profile, save_test, set_issue_status, validate_profile)
 from .integration import catalog
 from .experiments import ExperimentStore, ExperimentWorker
+from .field_store import FieldStudyStore
 
 
 class DriveTestService:
     def __init__(self, planning_db, tests_db):
         self.planning_db, self.tests_db = planning_db, tests_db
         self.store = ExperimentStore(tests_db, planning_db)
-        self.worker = ExperimentWorker(self.store)
+        self.field_store = FieldStudyStore(tests_db)
+        self.worker = ExperimentWorker(self.store,companion=self.field_store)
 
     def close(self):
         self.worker.close()
@@ -38,6 +40,7 @@ class DriveTestAPI:
         service = self.server.drive_service
         self.dm_db, self.planning_db = service.tests_db, service.planning_db
         self.dm_store = service.store
+        self.dm_field_store = service.field_store
         if method in ('GET', 'POST', 'PUT', 'PATCH'):
             getattr(self, 'dm_' + method)()
         else:
@@ -49,6 +52,8 @@ class DriveTestAPI:
             return
         path = self.dm_path()
         try:
+            if path=='/api/field-studies' or path.startswith('/api/field-studies/'):
+                return self.dm_field_get(path)
             if path == '/api/tests':
                 return self.dm_json(200, list_tests(self.dm_db))
             if path == '/api/catalog':
@@ -65,8 +70,59 @@ class DriveTestAPI:
             return self.dm_json(404, {'error': 'Drive-test resource not found.'})
         except LookupError as error:
             self.dm_json(404, {'error': str(error)})
+        except (ValueError,TypeError,KeyError) as error:
+            self.dm_json(400, {'error': str(error) or 'Invalid drive-test query.'})
         except (OSError, sqlite3.Error):
             self.dm_json(503, {'error': 'Drive-test storage is unavailable. Retry loading.'})
+
+    def dm_field_get(self,path):
+        query=parse_qs(urlsplit(self.path).query,keep_blank_values=True,max_num_fields=10)
+        if any(len(v)!=1 for v in query.values()):raise ValueError('Use each field-study query parameter once')
+        query={k:v[0] for k,v in query.items()}
+        if path=='/api/field-studies':
+            if query:raise ValueError('Field-study history does not accept query parameters')
+            return self.dm_json(200,self.dm_field_store.list())
+        if path=='/api/field-studies/inputs':
+            if set(query)!={'capture_id','prediction_id'}:raise ValueError('Choose capture_id and prediction_id')
+            return self.dm_json(200,self.dm_field_store.inputs(**query))
+        parts=path.strip('/').split('/')
+        if len(parts)==3:
+            if query:raise ValueError('Study summaries do not accept query parameters')
+            return self.dm_json(200,self.dm_field_store.get(parts[2]))
+        if len(parts)==4 and parts[3]=='records':
+            if not {'kind'}<=set(query) or set(query)-{'kind','offset','limit'}:raise ValueError('Choose kind and optional offset/limit for field records')
+            return self.dm_json(200,self.dm_field_store.records(parts[2],query['kind'],offset=int(query.get('offset','0')),limit=int(query.get('limit','50'))))
+        if len(parts)==4 and parts[3]=='export':
+            if query:raise ValueError('Field-study export does not accept query parameters')
+            return self.dm_json(200,self.dm_field_store.export(parts[2]))
+        return self.dm_json(404,{'error':'Field-study resource not found.'})
+
+    def dm_field_post(self,path):
+        parts=path.strip('/').split('/')
+        if path not in ('/api/field-studies','/api/field-studies/check') and not (len(parts)==4 and parts[:2]==['api','field-studies'] and parts[3]=='cancel'):
+            return self.dm_json(404,{'error':'Field-study resource not found.'})
+        if self.headers.get_content_type()!='application/json':return self.dm_json(415,{'error':'Send application/json.'})
+        try:
+            size=int(self.headers.get('Content-Length','0'))
+            if not 0<size<=1048576:return self.dm_json(413,{'error':'Field-study requests must be 1 byte to 1 MiB; measurement descriptors are limited to 128 KiB.'})
+            raw=self.rfile.read(size)
+            if len(raw)!=size:raise ValueError('The request ended early. Retry the same submission.')
+            value=json.loads(raw)
+            if not isinstance(value,dict):raise ValueError('Provide a JSON object')
+            if path=='/api/field-studies':
+                if set(value)!={'request_id','spec'}:raise ValueError('Provide request_id and spec')
+                result=self.dm_field_store.submit(value['request_id'],value['spec']);self.server.drive_service.worker.wake.set()
+            elif path.endswith('/check'):
+                if set(value)!={'capture_id','prediction_id','descriptor_raw'}:raise ValueError('Provide capture_id, prediction_id and descriptor_raw')
+                result=self.dm_field_store.inspect(**value)
+            else:
+                if value:raise ValueError('Cancel uses an empty JSON object')
+                result=self.dm_field_store.cancel(parts[2])
+            self.dm_json(200,result)
+        except Conflict as error:self.dm_json(409,{'error':str(error)})
+        except LookupError as error:self.dm_json(404,{'error':str(error)})
+        except (ValueError,TypeError,KeyError,UnicodeError,TimeoutError) as error:self.dm_json(400,{'error':str(error) or 'Invalid field-study request'})
+        except (OSError,sqlite3.Error):self.dm_json(503,{'error':'The field study could not be saved. Retry the same submission.'})
 
     def dm_experiment_post(self, path):
         if self.headers.get_content_type() != 'application/json':
@@ -138,6 +194,8 @@ class DriveTestAPI:
         if not self.dm_local():
             return
         path = self.dm_path()
+        if path=='/api/field-studies' or path.startswith('/api/field-studies/'):
+            return self.dm_field_post(path)
         if path == '/api/experiments' or path == '/api/comparisons' or path.endswith(('/cancel', '/route-associations')):
             return self.dm_experiment_post(path)
         if path.endswith("/issues"):

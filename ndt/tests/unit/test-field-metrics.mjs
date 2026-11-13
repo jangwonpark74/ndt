@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {statistics,observationColor,MISSING_COLOR,filterSamples} from '../../dist/drive-test/test-model.mjs';
+import {Workspace} from '../../dist/drive-test/test-view-model.mjs';
+import {METRICS,DEFAULT_PROFILE} from '../../dist/drive-test/test-model.mjs';
+assert.equal(METRICS.measured_rx_dbm.label,'Measured carrier power');
+const profile=structuredClone(DEFAULT_PROFILE);delete profile.thresholds.measured_rx_dbm;
+const base={id:'field',kind:'imported',start:0,end:1000,profile,issues:[],audit:[],revision:0,rows:[{t:0,rat:'NR',measured_rx_dbm:-80,measurement_status:'valid'},{t:1000,rat:'NR',measured_rx_dbm:-82,measurement_status:'valid'}]};
+const tests={field:base,ordinary:{...base,id:'ordinary',rows:[{t:0,rat:'NR',rsrp_dbm:-100}]},virtual:{...base,id:'virtual',kind:'simulated',rows:[{t:0,rat:'NR',predicted_rx_dbm:-70}]}};
+const vm=new Workspace({loadTest:async id=>structuredClone(tests[id])},{cancel(){},request(){},now:()=>0},{});
+await vm.open('field');assert.equal(vm.metric,'measured_rx_dbm');assert.ok(vm.profile.thresholds.measured_rx_dbm);assert.equal(vm.analysis.byRat.NR.stats.measured_rx_dbm.n,2);
+assert.equal(base.profile.thresholds.measured_rx_dbm,undefined,'legacy input profile remains unchanged');
+await vm.open('virtual');assert.equal(vm.metric,'predicted_rx_dbm');await vm.open('ordinary');assert.equal(vm.metric,'rsrp_dbm');
+const qualityRows=[...base.rows,{t:2000,rat:'NR',measured_rx_dbm:-140,measurement_status:'below-floor'},{t:3000,rat:'NR',measured_rx_dbm:-50}];
+assert.equal(statistics(qualityRows,'measured_rx_dbm','NR',METRICS.measured_rx_dbm.limit).n,2,'censored/unknown quality readings cannot pass evidence checks');
+assert.equal(observationColor(qualityRows[2],'measured_rx_dbm',METRICS.measured_rx_dbm.limit),MISSING_COLOR);
+assert.equal(filterSamples(qualityRows,'measured_rx_dbm',METRICS.measured_rx_dbm.limit,{status:'missing'}).length,2);
+console.log('Field metrics remain distinct from RSRP/planning power, with compatible legacy-profile reading.');

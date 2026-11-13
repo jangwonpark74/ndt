@@ -1,6 +1,7 @@
 import {analyze, DEFAULT_PROFILE, GAP_SECONDS, METRICS, nearestIndex} from './test-model.mjs';
 
 const scopeKey = scope => [scope.region_id, scope.project_id, scope.task_id].join('/');
+const readProfile=profile=>{const copy=structuredClone(profile);copy.thresholds.measured_rx_dbm??=structuredClone(DEFAULT_PROFILE.thresholds.measured_rx_dbm);return copy;};
 
 export class Workspace {
   constructor(api, clock, scope = {}) {
@@ -70,8 +71,11 @@ export class Workspace {
       const test = await this.api.loadTest(id);
       if (revision !== this.revision) return;
       this.test = test;
-      this.profile = structuredClone(test.profile);
-      this.metric = test.kind === 'simulated' ? 'predicted_rx_dbm' : this.metric === 'predicted_rx_dbm' ? 'rsrp_dbm' : this.metric;
+      this.profile = readProfile(test.profile);
+      const measured=test.rows.some(r=>Number.isFinite(r.measured_rx_dbm)),rsrp=test.rows.some(r=>Number.isFinite(r.rsrp_dbm));
+      if(test.kind==='simulated')this.metric='predicted_rx_dbm';
+      else if(this.metric==='predicted_rx_dbm'||this.metric==='measured_rx_dbm'&&!measured)this.metric=measured&&!rsrp?'measured_rx_dbm':'rsrp_dbm';
+      else if(this.metric==='rsrp_dbm'&&!rsrp&&measured)this.metric='measured_rx_dbm';
       this.limits = this.profile.thresholds[this.metric];
       this.gap = this.profile.gap;
       this.baseline = null;
@@ -153,7 +157,7 @@ export class Workspace {
       const state = await operation(id);
       if (this.test?.id === id) {
         Object.assign(this.test, state);
-        this.profile = structuredClone(state.profile);
+        this.profile = readProfile(state.profile);
         this.limits = this.profile.thresholds[this.metric];
         this.gap = this.profile.gap;
         this.recalculate();

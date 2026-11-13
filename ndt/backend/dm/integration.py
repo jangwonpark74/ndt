@@ -287,7 +287,7 @@ def route_lengths(coordinates):
     return lengths
 
 
-def match_route(rows, route, *, direction='forward', tolerance_m=50, gap_ms=10000):
+def match_route(rows, route, *, direction='forward', tolerance_m=50, gap_ms=10000, cancelled=lambda:False, progress=lambda n:None):
     if direction not in ('forward', 'reverse') or not 1 <= tolerance_m <= 200:
         raise ValueError('Use forward/reverse direction and a 1–200 m matching tolerance.')
     coordinates = route['coordinates']
@@ -296,6 +296,9 @@ def match_route(rows, route, *, direction='forward', tolerance_m=50, gap_ms=1000
     previous = None
     fixed_timestamps = {row['t'] for row in rows if 'latitude' in row and 'longitude' in row}
     for index, row in enumerate(rows):
+        if index%100==0:
+            if cancelled():raise InterruptedError('Route matching cancelled.')
+            progress(100*index//max(1,len(rows)))
         item = dict(index=index, t=row['t'], rat=row['rat'])
         if 'latitude' not in row or 'longitude' not in row:
             item['status'] = 'missing-gps'
@@ -337,6 +340,8 @@ def match_route(rows, route, *, direction='forward', tolerance_m=50, gap_ms=1000
         else:
             merged.append([lo, hi])
     covered = sum(hi-lo for lo, hi in merged)
+    if cancelled():raise InterruptedError('Route matching cancelled.')
+    progress(100)
     return dict(schema='ndt.route-association.v1', direction=direction, tolerance_m=tolerance_m, gap_ms=gap_ms,
                 route_length_m=lengths[-1], route_coverage_pct=100*covered/lengths[-1] if lengths[-1] else 0,
                 matched_samples=sum(m['status'] == 'matched' for m in matches), samples=matches)

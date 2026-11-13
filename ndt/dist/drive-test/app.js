@@ -1,5 +1,7 @@
 import * as api from './test-data.mjs';
 import {bindRFReview} from './rf-review-view.mjs';
+import {bindFieldValidation} from './field-view.mjs';
+import {captureCSV,captureTemplate} from './capture-csv.mjs';
 import {bindExperiments} from './experiment-view.mjs';
 import {renderAlignedComparison} from './comparison-view.mjs';
 import {analysisPackage, bands, DEFAULT_PROFILE, METRICS, utc} from './test-model.mjs';
@@ -23,6 +25,7 @@ const map = makeMap($('route-canvas'), $('live-map'), $('map-mode'), $('map-stat
   row => vm.jump(row));
 
 const rfReview=bindRFReview({getWorkspace:()=>vm,download,onReplay:index=>{vm.jump(vm.test.rows[index]);selectTab('replay');}});
+const fieldValidation=bindFieldValidation({getWorkspace:()=>vm,download});
 function drawChart() {
   if (!vm.test || !chart.clientWidth) return;
   const width = chart.clientWidth, height = chart.clientHeight;
@@ -31,19 +34,23 @@ function drawChart() {
 }
 
 function selectTab(tab) {
-  const tabs = ['replay', 'analytics', 'rf-results', 'investigate', 'report'];
+  const tabs = ['replay', 'analytics', 'rf-results', 'field-validation', 'investigate', 'report'];
   const restoreFocus = tabs.some(name => name !== tab && $(name).contains(document.activeElement));
   vm.stop();
   vm.tab = tab;
+  document.querySelector('.skip-link').href=tab==='field-validation'?'#field-heading':'#execution-heading';
   rfReview.active(tab==='rf-results');if(tab==='rf-results')$('execution-details').open=false;
-  for(const id of ['analysis-controls','kpis','quality-summary'])show(id,tab!=='rf-results');
-  renderRouteContext();if(tab==='rf-results')$('route-context-panel').hidden=true;
+  fieldValidation.active(tab==='field-validation');show('execution-panel',tab!=='field-validation');show('run-heading',tab!=='field-validation');
+  for(const id of ['analysis-controls','kpis','quality-summary'])show(id,!['rf-results','field-validation'].includes(tab));
+  for(const id of ['package','export'])show(id,tab!=='field-validation');
+  renderRouteContext();if(['rf-results','field-validation'].includes(tab))$('route-context-panel').hidden=true;
   for (const button of document.querySelectorAll('[data-tab]')) {
     if (button.dataset.tab === tab) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   }
   for (const name of tabs) show(name, name === tab);
   if(tab==='rf-results'){$('rf-heading').focus({preventScroll:true});$('rf-results').scrollIntoView({block:'start'});}
+  if(tab==='field-validation'){$('field-heading').focus({preventScroll:true});$('field-validation').scrollIntoView({block:'start'});}
   if (tab === 'analytics' && vm.test) {renderAnalytics(vm);renderAligned();}
   if (tab === 'investigate' && vm.test) renderInvestigations(vm, explorer);
   if (tab === 'report' && vm.test) renderReport(vm, snapshot,rfReview.report());
@@ -68,6 +75,7 @@ vm.listen(change => {
     return;
   }
   rfReview.sync();
+  fieldValidation.sync();
   const {test, error} = vm;
   for(const button of document.querySelectorAll('[data-tab]')){
     button.disabled=!test;
@@ -90,7 +98,7 @@ vm.listen(change => {
     history.replaceState(null, '', url);
     explorer.page = 0;
   }
-  renderRouteContext();if(vm.tab==='rf-results')$('route-context-panel').hidden=true;
+  renderRouteContext();if(['rf-results','field-validation'].includes(vm.tab))$('route-context-panel').hidden=true;
   for(const button of document.querySelectorAll('[data-tab]'))button.disabled=!test;
   if (change !== 'comparison') {
     renderHeading(vm);
@@ -186,32 +194,20 @@ $('events').addEventListener('click', event => {
   if (index !== undefined) vm.jump(selectedEvents(vm)[Number(index)].row);
 });
 
-const header = ['timestamp', 'latitude', 'longitude', 'rat', 'band', 'pci', 'arfcn', 'cell_id',
-  'rsrp_dbm', 'rsrq_db', 'sinr_db', 'dl_mbps', 'ul_mbps', 'latency_ms', 'predicted_rx_dbm', 'event'];
 function download(filename, content, type = 'text/csv;charset=utf-8') {
   const url = URL.createObjectURL(new Blob([content], {type}));
   const link = document.createElement('a');
   link.href = url; link.download = filename; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function csvCell(value) {
-  if (value == null) return '';
-  if (typeof value !== 'string') return String(value);
-  const text = /^[=+@\-\t\r]/.test(value) ? "'" + value : value;
-  return '"' + text.replaceAll('"', '""') + '"';
-}
 $('export').addEventListener('click', () => {
-  const lines = [header.join(',')];
-  for (const row of vm.test.rows) lines.push(header.map(key =>
-    csvCell(key === 'timestamp' ? new Date(row.t).toISOString() : row[key])).join(','));
-  download(`${vm.test.id}.csv`, lines.join('\r\n') + '\r\n');
+  download(`${vm.test.id}.csv`, captureCSV(vm.test.rows));
 });
 $('package').addEventListener('click', () => {
   download(`${vm.test.id}-analysis.json`, JSON.stringify({...analysisPackage(vm),rfReview:rfReview.export()}, null, 2) + '\n', 'application/json');
 });
 $('template').addEventListener('click', () => {
-  download('drive-test-dm-template.csv', header.join(',') + '\r\n' +
-    '2026-11-09T14:10:00Z,43.64036,-79.39472,NR,n78,412,640128,N-412,-91.2,-10.4,18.3,125.1,20.2,21,\r\n');
+  download('drive-test-dm-template.csv', captureTemplate());
 });
 
 const importDialog = $('import-dialog'), importForm = $('import-form');
@@ -280,7 +276,7 @@ function fillRules(profile) {
 function openRules() {
   const def = METRICS[vm.metric];
   $('rules-context').textContent = `${def.label} (${def.unit}) · flag values ${def.bad} the threshold.`;
-  const bounds = {predicted_rx_dbm:[-300,90],rsrp_dbm: [-180, 0], rsrq_db: [-60, 30], sinr_db: [-60, 80],
+  const bounds = {predicted_rx_dbm:[-300,90],measured_rx_dbm:[-300,90],rsrp_dbm: [-180, 0], rsrq_db: [-60, 30], sinr_db: [-60, 80],
     dl_mbps: [0, 100000], ul_mbps: [0, 100000], latency_ms: [0, 3600000]}[vm.metric];
   for (const input of [$('limit-lte'), $('limit-nr')]) [input.min, input.max] = bounds;
   fillRules(vm.profile);
@@ -387,4 +383,4 @@ const experiments=bindExperiments({api,clock:{set:(callback,delay)=>setTimeout(c
 });
 await experiments.load(vm.catalog.tasks?.length?vm.catalog:undefined);
 if(query.get('experiment'))await experiments.open(query.get('experiment'));
-window.addEventListener('pagehide',()=>{leaving=true;rfReview.dispose();api.disposeRequests();vm.stop();experiments.dispose();});
+window.addEventListener('pagehide',()=>{leaving=true;rfReview.dispose();fieldValidation.dispose();api.disposeRequests();vm.stop();experiments.dispose();});

@@ -34,3 +34,11 @@ export const submitExperiment = (request_id, spec) => post('/api/dm/experiments'
 export const cancelExperiment = id => post(`/api/dm/experiments/${encodeURIComponent(id)}/cancel`, {});
 export const associateRoute = (id, selection) => post(`/api/dm/tests/${encodeURIComponent(id)}/route-associations`, selection);
 export const compareRoutes = value => post('/api/dm/comparisons', value);
+export const loadFieldInputs=(capture_id,prediction_id)=>api('/api/dm/field-studies/inputs?'+new URLSearchParams({capture_id,prediction_id}));
+export const checkFieldInputs=(capture_id,prediction_id,descriptor_raw)=>post('/api/dm/field-studies/check',{capture_id,prediction_id,descriptor_raw});
+export const loadFieldStudies=()=>api('/api/dm/field-studies');
+export const loadFieldStudy=id=>api(`/api/dm/field-studies/${encodeURIComponent(id)}`);
+export const submitFieldStudy=(request_id,spec)=>post('/api/dm/field-studies',{request_id,spec});
+export const cancelFieldStudy=id=>post(`/api/dm/field-studies/${encodeURIComponent(id)}/cancel`,{});
+export const loadFieldRecords=(id,kind,offset=0)=>api(`/api/dm/field-studies/${encodeURIComponent(id)}/records?`+new URLSearchParams({kind,offset,limit:50}));
+export const exportFieldStudy=id=>api(`/api/dm/field-studies/${encodeURIComponent(id)}/export`);

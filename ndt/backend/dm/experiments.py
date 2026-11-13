@@ -234,7 +234,7 @@ class ExperimentStore:
             groups = {}
             for match in matches:
                 row = test['rows'][match['index']]
-                if match['status'] == 'matched' and metric in row and (rat=='all' or row['rat']==rat):
+                if match['status'] == 'matched' and metric in row and (metric!='measured_rx_dbm' or row.get('measurement_status')=='valid') and (rat=='all' or row['rat']==rat):
                     key = (math.floor(match['chainage_m']/bin_m), row['rat'])
                     groups.setdefault(key, []).append(row)
             return groups
@@ -251,7 +251,7 @@ class ExperimentStore:
             raise ValueError(f'Insufficient common route coverage: {coverage:.1f}%; need {minimum_coverage_pct}%. Captures remain available for descriptive analysis.')
         def mean(rows):
             values = [r[metric] for r in rows]
-            return 10*math.log10(sum(10**(v/10) for v in values)/len(values)) if metric in ('rsrp_dbm', 'predicted_rx_dbm') else statistics.mean(values)
+            return 10*math.log10(sum(10**(v/10) for v in values)/len(values)) if metric in ('rsrp_dbm', 'predicted_rx_dbm','measured_rx_dbm') else statistics.mean(values)
         pairs = []
         for key in common:
             av, bv = mean(left[key]), mean(right[key])
@@ -275,8 +275,9 @@ class ExperimentStore:
 
 
 class ExperimentWorker:
-    def __init__(self, store):
+    def __init__(self, store, *, companion=None):
         self.store, self.stopped, self.wake = store, threading.Event(), threading.Event()
+        self.companion=companion
         self.lock = store.path.with_name(store.path.name+'.worker.lock').open('a+b')
         try:
             if os.name == 'nt':
@@ -295,13 +296,16 @@ class ExperimentWorker:
             self.thread = None
             return
         self.store.recover_interrupted()
+        if self.companion:self.companion.recover_interrupted()
         self.thread = threading.Thread(target=self.run, name='ndt-drive-worker', daemon=True)
         self.thread.start()
 
     def run(self):
         try:
             while not self.stopped.is_set():
-                if not self.store.run_one():
+                worked=self.store.run_one()
+                if self.companion and not self.stopped.is_set():worked=self.companion.run_one() or worked
+                if not worked:
                     self.wake.wait(1)
                     self.wake.clear()
         finally:

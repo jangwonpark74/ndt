@@ -106,12 +106,18 @@ def build_cell_transmitters(resolved,features):
     return result
 
 
-def validate_cell_power_change(transmitters,budgets,target_id=None,changed_eirp=None):
+def validate_cell_power_change(transmitters,budgets,target_id=None,changed_eirp=None,*,effective_powers=None):
     if target_id is not None and (isinstance(changed_eirp,bool) or not isinstance(changed_eirp,(int,float)) or not 0<=changed_eirp<=90):raise ValueError('Changed cell EIRP upper bound must be 0 to 90 dBm')
+    if effective_powers is not None:
+        if target_id is not None or not isinstance(effective_powers,dict) or set(effective_powers)!={t['id'] for t in transmitters}:
+            raise ValueError('Provide exactly the frozen effective power of every transmitter')
+        if any(type(v) not in (int,float) or not math.isfinite(v) or not 0<=v<=90 for v in effective_powers.values()):
+            raise ValueError('Frozen effective EIRP bounds must be finite from 0 to 90 dBm')
     powers={};found=target_id is None
     for transmitter in transmitters:
         if 'ports' not in transmitter:continue
-        delta=changed_eirp-cell_eirp(transmitter) if transmitter['id']==target_id else 0
+        delta=(effective_powers[transmitter['id']]-cell_eirp(transmitter) if effective_powers is not None else
+               changed_eirp-cell_eirp(transmitter) if transmitter['id']==target_id else 0)
         found|=transmitter['id']==target_id
         for port in transmitter['ports']:
             value=port['template']['powerDbm']+delta

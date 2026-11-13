@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {CSV_COLUMNS,captureCSV,captureTemplate} from '../../dist/drive-test/capture-csv.mjs';
+const normalize=csv=>JSON.parse(execFileSync(process.env.PYTHON||'python',['-X','utf8','-B','-c',"import json,sys;from backend.dm.dm_model import normalize;print(json.dumps(normalize(sys.stdin.buffer.read())))"],{input:csv,encoding:'utf8'}));
+const template=captureTemplate();
+assert.equal(template.trimEnd().split('\r\n')[1].split(',').length,CSV_COLUMNS.length,'every template row has exactly the declared columns');
+assert.equal(normalize(template)[0].rsrp_dbm,-91.2);
+const rows=[{t:1793620800000,latitude:43.7,longitude:-79.4,rat:'NR',band:'n78',arfcn:640000,cell_id:'observed-cell',measured_rx_dbm:-82.5,measurement_status:'below-floor',event:'Quoted "event", with comma'}];
+const restored=normalize(captureCSV(rows));
+assert.equal(restored[0].measured_rx_dbm,-82.5);assert.equal(restored[0].measurement_status,'below-floor');assert.equal(restored[0].event,rows[0].event);
+assert.ok(!Object.hasOwn(restored[0],'rsrp_dbm'));assert.ok(!Object.hasOwn(restored[0],'predicted_rx_dbm'));
+assert.match(captureCSV([{...rows[0],event:'=HYPERLINK("bad")'}]),/'=HYPERLINK/);
+console.log('Capture CSV template and measured-power round trip passed.');
