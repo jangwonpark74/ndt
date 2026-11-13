@@ -21,6 +21,7 @@ export function createNycReservations(map, base) {
     const description = document.createElement('p');
     description.textContent = `${p.on_street || 'Street not reported'}${p.cross_street_1 ? ` near ${p.cross_street_1}` : ''} · ${p.borough || 'Borough not reported'} · ${p.pole_type || 'Pole type not reported'}${p.reservation_date ? ` · Reserved ${p.reservation_date.slice(0,10)}` : ''}${p.installation_date ? ` · Installed ${p.installation_date.slice(0,10)}` : ''}`;
     detail.append(title, description);
+    document.dispatchEvent(new CustomEvent('reservationselected',{detail:feature}));
     if (move) map.flyTo({center:feature.geometry.coordinates,zoom:Math.max(map.getZoom(),16),pitch:55});
   }
   function refresh() {

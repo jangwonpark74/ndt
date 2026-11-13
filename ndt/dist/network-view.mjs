@@ -7,6 +7,7 @@ import {openContextPanel,hideContextPanel} from './context-panel.mjs';
 import {siteLabel,siteTopology} from './planning-model.mjs';
 import {bindPlanningView} from './planning-view.mjs';
 import {createPlanningLabels} from './planning-label-view.mjs';
+import {bindEquipmentView} from './equipment-view.mjs';
 
 export function createNetworkView({map, region, projectViewModel, viewModel:networkViewModel, projectView, setLayers, getNetworkLayer, emptyFeatures}) {
 const $ = id => document.getElementById(id);
@@ -15,6 +16,8 @@ const labels=createPlanningLabels({map,onSelect:site=>selectNetwork(site),getSit
   getSelected:()=>networkViewModel.getState().selected,getProjects:()=>region.projects,
   getProjectData:()=>projectViewModel.getState().data,getActiveProject:()=>projectViewModel.getState().selected});
 bindPlanningView({regionId:region.id,getProject:()=>projectViewModel.getState().selected,getSelectedSite:()=>networkViewModel.getState().selected});
+const equipment=bindEquipmentView({regionId:region.id,getProject:()=>projectViewModel.getState().selected});
+document.addEventListener('equipmentinventorychange',()=>{const site=networkViewModel.getState().selected;if(site)renderSiteDetail(site);});
 let previousProject,previousData;
 projectViewModel.subscribe(state=>{
   if(state.selected === previousProject && state.data === previousData)return;
@@ -157,6 +160,7 @@ function renderSiteDetail(feature) {
       groups.append(card);}}
   filter.onchange=renderTopology;renderTopology();detail.append(topology);
   const link = document.createElement('a'); link.href = 'https://ised-isde.canada.ca/site/spectrum-management-system/en/spectrum-management-system-data/download-sms-data'; link.textContent = 'ISED source data'; link.target = '_blank'; link.rel = 'noopener noreferrer'; detail.append(link);
+  equipment.renderSite(detail,feature);
 }
 function selectNetwork(feature, move = false, sector = null) {
   networkViewModel.select(feature,sector);

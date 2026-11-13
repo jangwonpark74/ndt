@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "sources": [{"id":"test-operator","title":"Synthetic test configuration","uri":"urn:ndt:test-fixture","observedAt":"2026-11-01T00:00:00Z","kind":"operator"}],
+  "sites": [{"id":"site-1","inventorySiteId":"TEST-SITE","name":"Test site","sourceId":"test-operator","sourceRecordId":"site-row-1"}],
+  "sectors": [{"id":"sector-1","siteId":"site-1","azimuthDeg":0,"sourceId":"test-operator","sourceRecordId":"sector-row-1"}],
+  "radios": [{"id":"radio-1","siteId":"site-1","manufacturer":"Test vendor","model":"Test radio","powerDbm":40,"sourceId":"test-operator","sourceRecordId":"radio-row-1"}],
+  "antennas": [{"id":"antenna-1","siteId":"site-1","model":"Test antenna","patternId":"pattern-1","gainDbi":8,"tiltDeg":6,"sourceId":"test-operator","sourceRecordId":"antenna-row-1"}],
+  "cells": [{"id":"cell-1","sectorId":"sector-1","radioId":"radio-1","rat":"NR","cellIdentity":"test-nci-1","frequencyMHz":3500,"bandwidthMHz":100,"sourceId":"test-operator","sourceRecordId":"cell-row-1"}],
+  "ports": [{"id":"radio-port-1","equipmentId":"radio-1","role":"radio","name":"TX1","sourceId":"test-operator","sourceRecordId":"port-row-1"},{"id":"antenna-port-1","equipmentId":"antenna-1","role":"antenna","name":"P1","sourceId":"test-operator","sourceRecordId":"port-row-2"}],
+  "links": [{"id":"link-1","cellId":"cell-1","radioPortId":"radio-port-1","antennaPortId":"antenna-port-1","sourceId":"test-operator","sourceRecordId":"link-row-1"}],
+  "patterns": [{"id":"pattern-1","name":"Synthetic reference cuts","horizontal":[[-180,30],[-90,23],[0,0],[90,23],[180,30]],"vertical":[[-90,30],[0,0],[90,30]],"sourceId":"test-operator","sourceRecordId":"pattern-row-1"}]
+}

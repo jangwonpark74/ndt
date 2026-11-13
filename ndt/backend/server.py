@@ -13,11 +13,12 @@ from pathlib import Path
 import sqlite3
 import sys
 import tempfile
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlsplit, parse_qs
 from .road_routing import driving_route, validate_points, RoutingUnavailable
 from .task_store import connect, validate_tasks, initialize_tasks, read_tasks, write_tasks
 from .dm.http import DriveTestAPI, DriveTestService
 from .radio_scenarios import initialize_scenarios, list_scenarios, save_scenario, ScenarioConflict
+from .equipment_inventory import initialize_inventory, read_inventory, preview_inventory, import_inventory, InventoryConflict
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / 'dist'
@@ -137,6 +138,7 @@ def initialize(db_path):
             PRIMARY KEY (region_id, dataset_path, site_id), UNIQUE (region_id, dataset_path, ordinal));
             CREATE INDEX IF NOT EXISTS network_sites_location ON network_sites(region_id, dataset_path, longitude, latitude);''')
         initialize_scenarios(db)
+        initialize_inventory(db)
         for region in regions:
             files = list(region_files(region))
             required = {'trees/manifest.json', 'trees/overview.geojson', 'street-detail/manifest.json',
@@ -172,6 +174,8 @@ def handler_for(db_path):
             super().__init__(*args, directory=str(DIST), **kwargs)
 
         def do_GET(self):
+            if self.handle_equipment_inventory('GET'):
+                return
             if self.handle_radio_scenarios('GET'):
                 return
             if self.handle_dm('GET'):
@@ -222,6 +226,8 @@ def handler_for(db_path):
             return super().do_GET()
 
         def do_PUT(self):
+            if self.handle_equipment_inventory('PUT'):
+                return
             if self.handle_radio_scenarios('PUT'):
                 return
             if self.handle_dm('PUT'):
@@ -321,6 +327,8 @@ def handler_for(db_path):
             return self.respond(b'{}', 'application/json')
 
         def do_POST(self):
+            if self.handle_equipment_inventory('POST'):
+                return
             if self.handle_dm('POST'):
                 return
             if urlsplit(self.path).path != '/api/road-route':
@@ -341,6 +349,37 @@ def handler_for(db_path):
         def do_PATCH(self):
             if not self.handle_dm('PATCH'):
                 self.send_error(404)
+
+        def handle_equipment_inventory(self, method):
+            parsed=urlsplit(self.path)
+            parts=unquote(parsed.path).split('/')
+            if len(parts)!=7 or parts[1:3]!=['api','regions'] or parts[4]!='projects' or parts[6]!='equipment-inventory':return False
+            if not self.dm_local():return True
+            try:
+                with closing(connect(db_path)) as db,db:
+                    if not self.known_project(db,parts[3],parts[5]):raise LookupError('Unknown project')
+                    if method=='GET':
+                        value=parse_qs(parsed.query).get('revision',[None])[0]
+                        if value is not None and (not value.isdecimal() or not 1<=int(value)<=50):raise ValueError('Revision must be 1 to 50')
+                        result=read_inventory(db,parts[3],parts[5],int(value) if value is not None else None)
+                        if result is None and value is not None:raise LookupError('Equipment revision not found')
+                    else:
+                        length=int(self.headers.get('Content-Length','0'))
+                        if not 0<length<=4010000:raise ValueError('Equipment request is too large')
+                        body=json.loads(self.rfile.read(length))
+                        if not isinstance(body,dict) or not isinstance(body.get('raw'),str):raise ValueError('Expected the original equipment JSON text')
+                        raw=body['raw'].encode('utf-8')
+                        if method=='POST':result=preview_inventory(db,parts[3],parts[5],raw)
+                        else:
+                            fingerprint=body.get('sourceFingerprint')
+                            if not isinstance(fingerprint,str) or not fingerprint:raise ValueError('Preview the equipment file before importing it')
+                            result=import_inventory(db,parts[3],parts[5],raw,body.get('expectedRevision'),fingerprint)
+                self.dm_json(200,result)
+            except InventoryConflict as error:self.dm_json(409,{'error':str(error)})
+            except (ValueError,UnicodeError) as error:self.dm_json(400,{'error':str(error)})
+            except LookupError as error:self.dm_json(404,{'error':str(error)})
+            except sqlite3.Error:self.dm_json(503,{'error':'Equipment storage unavailable. Your selected file is retained; retry.'})
+            return True
 
         def handle_radio_scenarios(self, method):
             parts = unquote(urlsplit(self.path).path).split('/')

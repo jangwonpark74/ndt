@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createEquipmentViewModel} from '../../dist/equipment-view-model.mjs';
+let finishPreview,request;
+const inventory={revision:1,sha256:'hash',data:{cells:[]},history:[]};
+const model={load:async()=>inventory,preview:()=>new Promise(done=>finishPreview=done),commit:async(project,body)=>{request={project,body};return {...inventory,revision:2};}};
+const vm=createEquipmentViewModel(model);await vm.load('project-a');
+const first=vm.preview('\ufeff{"source":1}','source.json');finishPreview({sha256:'raw-hash',sourceFingerprint:'source-1',counts:{cells:1}});await first;
+await vm.commit();assert.equal(request.body.raw.charCodeAt(0),65279);assert.equal(request.body.expectedRevision,1);assert.equal(vm.getState().inventory.revision,2);
+const late=vm.preview('old project file','old.json');await vm.load('project-b');finishPreview({sourceFingerprint:'old'});await late;
+assert.equal(vm.getState().projectId,'project-b');assert.equal(vm.getState().preview,null);
+const conflict=createEquipmentViewModel({load:async()=>inventory,preview:async()=>({sourceFingerprint:'source-1'}),commit:async()=>{throw Error('Inventory changed elsewhere');}});
+await conflict.load('project-a');await conflict.preview('retained source','source.json');await assert.rejects(conflict.commit());
+assert.equal(conflict.getState().raw,'retained source');assert.match(conflict.getState().error,/changed elsewhere/);
+console.log('Equipment preview, original-byte preservation, stale response and conflict recovery passed.');

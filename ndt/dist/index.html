@@ -160,6 +160,16 @@
       <div class="network-search"><label for="nyc-search">Find a reservation</label><input id="nyc-search" type="search" placeholder="Street, borough, ID or status" autocomplete="off" maxlength="100"><p id="nyc-list-status" role="status" aria-live="polite"></p><div id="nyc-list" aria-label="Verizon reservations"></div></div>
       <p class="network-note"><a href="https://data.cityofnewyork.us/City-Government/Mobile-Telecommunications-Franchise-Pole-Reservati/tbgj-tdd6" target="_blank" rel="noopener noreferrer">NYC source data</a> · <a href="https://www.nyc.gov/assets/oti/downloads/pdf/mobile-telecom-franchises/new-york-smsa-limited-partnership-mtf-agreement-2020.pdf" target="_blank" rel="noopener noreferrer">Franchise agreement</a></p>
     </section>
+      <details id="equipment-imports" class="inspector-section"><summary>Equipment inventory imports</summary>
+        <p class="network-note">Preview operator configuration and vendor pattern cuts before importing. Sources and missing attributes remain visible.</p>
+        <p id="equipment-status" class="network-note" role="status">Select a project to review its equipment inventory.</p>
+        <label class="equipment-file">Equipment JSON file<input id="equipment-file" type="file" accept=".json,application/json"></label>
+        <div class="study-actions"><button id="equipment-reload" type="button">Reload equipment inventory</button><button id="equipment-repreview" type="button">Preview selected file again</button></div>
+        <p id="equipment-error" role="alert" hidden></p><div id="equipment-preview" hidden></div>
+        <button id="equipment-import" class="network-view-site" type="button" disabled>Import previewed inventory</button>
+        <details><summary>Import history and source files</summary><ol id="equipment-history"></ol></details>
+        <details><summary>Import format</summary><p class="network-note">UTF-8 JSON, up to 2 MB, schemaVersion 1. Use stable IDs and explicit source IDs, source record IDs and observation timestamps. Link sites to regional inventory IDs; never infer equipment connections from a licensed bearing. Missing numeric attributes use null. Pattern cuts use degrees and relative attenuation in dB.</p><a href="./equipment-format.json" download>Download equipment JSON schema</a></details>
+      </details>
     </aside>
 
     <section id="project-overview" class="project-overview" aria-labelledby="project-title" tabindex="-1" hidden>
