@@ -1,0 +1,18 @@
+{
+  "version": "3gpp-rel18-carrier-subset-v1",
+  "release": "18",
+  "edition": "18.5.0",
+  "references": {
+    "LTE": "https://www.etsi.org/deliver/etsi_ts/136100_136199/136104/18.05.00_60/ts_136104v180500p.pdf",
+    "NR": "https://www.etsi.org/deliver/etsi_ts/138100_138199/138104/18.05.00_60/ts_138104v180500p.pdf"
+  },
+  "scope": "Conservative downlink subset: LTE B2/B4/B7 with 5/10/15/20 MHz and 15 kHz SCS; NR n41/n77/n78 with 30 kHz SCS. Single contiguous carrier entirely inside the band. No uplink, CA, DSS, FR2, SSB placement, resource allocation or regional licensing qualification.",
+  "bands": [
+    {"id":"B2","rat":"LTE","duplex":"FDD","lowMHz":1930,"highMHz":1990,"channelLow":600,"channelHigh":1199,"channelStep":1,"frequencyBaseMHz":1930,"channelOffset":600,"rasterMHz":0.1,"scsKHz":15,"bandwidthsMHz":[5,10,15,20],"defaultChannel":900,"clauses":"TS 36.104 5.5, 5.6, 5.7.2 and table 5.7.3-1"},
+    {"id":"B4","rat":"LTE","duplex":"FDD","lowMHz":2110,"highMHz":2155,"channelLow":1950,"channelHigh":2399,"channelStep":1,"frequencyBaseMHz":2110,"channelOffset":1950,"rasterMHz":0.1,"scsKHz":15,"bandwidthsMHz":[5,10,15,20],"defaultChannel":2250,"clauses":"TS 36.104 5.5, 5.6, 5.7.2 and table 5.7.3-1"},
+    {"id":"B7","rat":"LTE","duplex":"FDD","lowMHz":2620,"highMHz":2690,"channelLow":2750,"channelHigh":3449,"channelStep":1,"frequencyBaseMHz":2620,"channelOffset":2750,"rasterMHz":0.1,"scsKHz":15,"bandwidthsMHz":[5,10,15,20],"defaultChannel":3100,"clauses":"TS 36.104 5.5, 5.6, 5.7.2 and table 5.7.3-1"},
+    {"id":"n41","rat":"NR","duplex":"TDD","lowMHz":2496,"highMHz":2690,"channelLow":499200,"channelHigh":537996,"channelStep":6,"frequencyBaseMHz":0,"channelOffset":0,"rasterMHz":0.005,"scsKHz":30,"bandwidthsMHz":[10,15,20,25,30,35,40,45,50,60,70,80,90,100],"defaultChannel":520002,"clauses":"TS 38.104 tables 5.2-1, 5.3.5-1, 5.4.2.1-1 and 5.4.2.3-1"},
+    {"id":"n77","rat":"NR","duplex":"TDD","lowMHz":3300,"highMHz":4200,"channelLow":620000,"channelHigh":680000,"channelStep":2,"frequencyBaseMHz":3000,"channelOffset":600000,"rasterMHz":0.015,"scsKHz":30,"bandwidthsMHz":[10,15,20,25,30,40,50,60,70,80,90,100],"defaultChannel":640000,"clauses":"TS 38.104 tables 5.2-1, 5.3.5-1, 5.4.2.1-1 and 5.4.2.3-1"},
+    {"id":"n78","rat":"NR","duplex":"TDD","lowMHz":3300,"highMHz":3800,"channelLow":620000,"channelHigh":653332,"channelStep":2,"frequencyBaseMHz":3000,"channelOffset":600000,"rasterMHz":0.015,"scsKHz":30,"bandwidthsMHz":[10,15,20,25,30,40,50,60,70,80,90,100],"defaultChannel":640000,"clauses":"TS 38.104 tables 5.2-1, 5.3.5-1, 5.4.2.1-1 and 5.4.2.3-1"}
+  ]
+}

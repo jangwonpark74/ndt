@@ -29,7 +29,7 @@ def text(value,label,maximum=160):
 
 
 def number(value,label,low,high):
-    if value is not None and (isinstance(value,bool) or not isinstance(value,(float,int)) or not math.isfinite(value) or not low<=value<=high):
+    if value is not None and (isinstance(value,bool) or not isinstance(value,(float,int)) or not low<=value<=high or not math.isfinite(value)):
         raise ValueError(f'{label}: use {low} to {high}, or null for unknown')
 
 

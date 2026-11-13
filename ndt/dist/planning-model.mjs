@@ -1,5 +1,6 @@
 import {umaPathLoss} from './radio-model.mjs';
 import {antennaPattern, sectorAzimuth} from './network-symbols.mjs';
+import {validateCarrier} from './carrier-plan.mjs';
 
 export const PLANNING_REFERENCE = 'https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf';
 // Radio presets are editable study assumptions; 3GPP defines the element pattern, not these deployments.
@@ -15,7 +16,7 @@ export function validateTemplate(t) {
   if (!['LTE','NR'].includes(t.rat) || !['element','isotropic'].includes(t.pattern) || !['LOS','NLOS'].includes(t.mode)) return 'Select a supported RAT, antenna pattern and environment.';
   if (t.bandwidthMHz >= t.frequencyMHz) return 'Bandwidth must be smaller than carrier frequency.';
   if (t.pattern === 'isotropic' && t.gainDbi !== 0) return 'An isotropic antenna requires 0 dBi gain.';
-  return '';
+  return validateCarrier(t);
 }
 
 // TR 38.901 v18.0.0 table 7.3-1. Rotate the direction into the downtilted element frame.

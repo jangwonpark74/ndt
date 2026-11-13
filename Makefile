@@ -32,6 +32,7 @@ test:
 	cd ndt && $(NODE) tests/unit/test-network-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-radio-model.mjs
 	cd ndt && $(NODE) tests/unit/test-planning.mjs
+	cd ndt && $(NODE) tests/unit/test-carrier-plan.mjs
 	cd ndt && $(NODE) tests/unit/test-scenario-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-equipment-view-model.mjs
 	cd ndt && $(NODE) tests/unit/test-fixture-cleanup.cjs
@@ -57,6 +58,7 @@ test:
 	cd ndt && $(UV) run --locked python -B tests/python/test-road-routing.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-task-store.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-radio-scenarios.py
+	cd ndt && $(UV) run --locked python -B tests/python/test-carrier-plan.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-equipment-inventory.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-dm-model.py
 	cd ndt && $(UV) run --locked python -B tests/python/test-drive-integration.py
@@ -112,6 +114,7 @@ check: test
 	cd ndt && $(NODE) --check dist/project-view.mjs
 	cd ndt && $(NODE) --check dist/radio-model.mjs
 	cd ndt && $(NODE) --check dist/planning-model.mjs
+	cd ndt && $(NODE) --check dist/carrier-plan.mjs
 	cd ndt && $(NODE) --check dist/planning-view.mjs
 	cd ndt && $(NODE) --check dist/planning-label-view.mjs
 	cd ndt && $(NODE) --check dist/scenario-model.mjs

@@ -114,6 +114,15 @@
         <p id="scenario-override-note" class="network-note">Site overrides are planning assumptions, not verified equipment assignments.</p></details>
         <label for="template-preset">Radio preset</label><select id="template-preset"><option value="lte">4G LTE macro study</option><option value="nr">5G NR macro study</option></select>
         <form id="radio-template-form">
+          <details id="carrier-checks"><summary>Carrier channel checks</summary>
+            <label class="coverage-focus"><input id="carrier-enabled" name="carrierEnabled" type="checkbox"> Check a supported 3GPP carrier</label>
+            <div id="carrier-controls" hidden>
+              <div class="planning-input-grid"><label>Operating band<select name="carrierBand"></select></label><label>Downlink channel number<input name="channel" type="number" step="1" aria-describedby="carrier-check-status"></label><label>SCS (kHz, fixed)<output name="carrierScs" class="carrier-fixed" aria-live="off"></output></label></div>
+              <p id="carrier-check-status" class="network-note" role="status"></p>
+              <p class="network-note">Release 18, v18.5.0 subset: LTE B2/B4/B7; NR n41/n77/n78. Carrier frequency follows EARFCN or NR-ARFCN. These checks do not establish spectrum rights or base-station conformance.</p>
+              <a id="carrier-reference" target="_blank" rel="noopener noreferrer">Carrier standard reference</a>
+            </div>
+          </details>
           <div class="planning-input-grid">
             <label>Carrier (MHz)<input name="frequencyMHz" type="number" min="500" max="100000" step="any" required></label>
             <label>Bandwidth (MHz)<input name="bandwidthMHz" type="number" min="0.1" max="400" step="any" required></label>
@@ -124,6 +133,7 @@
             <label>Azimuth (degrees north)<input name="azimuthDeg" type="number" min="0" max="359.999" step="any" required></label>
             <label>Environment<select name="mode"><option>NLOS</option><option>LOS</option></select></label>
           </div>
+          <p class="network-note">TX power is total average conducted power for one modeled carrier/port. EIRP adds peak gain and subtracts feeder loss. No reference-signal power allocation is modeled.</p>
           <label>Antenna pattern<select name="pattern"><option value="element">3GPP reference element (65 degrees / 65 degrees)</option><option value="isotropic">Isotropic (set gain to 0 dBi)</option></select></label>
           <h3>Receiver probe</h3>
           <div class="planning-input-grid"><label>Distance (m)<input name="distanceM" type="number" min="10" max="5000" value="500" step="any" required></label><label>Bearing (degrees north)<input name="probeBearing" type="number" min="0" max="359.999" value="0" step="any" required></label></div>
@@ -131,7 +141,7 @@
           <div class="study-actions"><button id="template-save" type="button">Save study</button><button id="template-export" type="button">Export JSON</button></div>
           <p id="template-save-status" class="network-note" role="status"></p>
         </form>
-        <details><summary>Model scope and reference</summary><p class="network-note">TR 38.901 v18.0.0, tables 7.3-1 and 7.4.1-1. Reference element: 65 degrees horizontal/vertical widths, 30 dB caps, 8 dBi default peak gain. Power, gain, tilt and carrier presets are editable assumptions. Fixed BS 25 m and UE 1.5 m; distance 10 m to 5 km, carrier 0.5 to 100 GHz. Bandwidth and RAT are metadata and are not band-plan validated. No array factor, MIMO, interference, terrain, fading, RSRP or throughput. Isotropic mode uses 0 dBi gain and ignores tilt.</p><a href="https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf" target="_blank" rel="noopener noreferrer">3GPP TR 38.901 reference</a></details>
+        <details><summary>Model scope and reference</summary><p class="network-note">TR 38.901 v18.0.0, tables 7.3-1 and 7.4.1-1. Reference element: 65 degrees horizontal/vertical widths, 30 dB caps, 8 dBi default peak gain. Power, gain, tilt and carrier presets are editable assumptions. Fixed BS 25 m and UE 1.5 m; distance 10 m to 5 km, carrier 0.5 to 100 GHz. Optional carrier checks cover the stated Release 18 subset; unchecked studies have no band/channel qualification. Bandwidth and RAT do not change the path-loss formula. No array factor, MIMO, interference, terrain, fading, RSRP or throughput. Isotropic mode uses 0 dBi gain and ignores tilt.</p><a href="https://www.etsi.org/deliver/etsi_tr/138900_138999/138901/18.00.00_60/tr_138901v180000p.pdf" target="_blank" rel="noopener noreferrer">3GPP TR 38.901 reference</a></details>
       </details>
       <details class="inspector-section"><summary>Map display and fan assumptions</summary>
       <label class="coverage-focus"><input id="site-labels-toggle" type="checkbox" checked> Site and cluster labels</label><p class="network-note">Site labels at zoom 13+; selected site and project clusters stay labeled. Labels avoid overlap and show up to 45 items.</p>

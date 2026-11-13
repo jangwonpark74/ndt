@@ -53,6 +53,16 @@ class RadioScenarios(unittest.TestCase):
             self.assertEqual(saved, [second])
             self.assertEqual(list_scenarios(db, 'toronto', 'northyork'), [])
 
+    def test_qualified_carrier_is_retained_and_invalid_revision_cannot_replace_it(self):
+        carrier=dict(standard='3gpp-rel18-carrier-subset-v1',band='n78',channel=640000,scsKHz=30)
+        template={**TEMPLATE,'frequencyMHz':3600,'carrier':carrier}
+        saved=self.save(template=template)
+        self.assertEqual(saved['versions'][0]['template']['carrier'],carrier)
+        with self.assertRaisesRegex(ValueError,'channel raster'):
+            self.save(expectedRevision=1,template={**template,'carrier':{**carrier,'channel':640001}})
+        with closing(connect(self.path)) as db:
+            self.assertEqual(list_scenarios(db,'toronto','harbourfront')[0]['revision'],1)
+
     def test_stale_save_apply_and_baseline_cannot_overwrite(self):
         self.save()
         for action in ('save', 'apply', 'baseline'):

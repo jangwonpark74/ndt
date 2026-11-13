@@ -21,8 +21,11 @@ for (const width of [1440,390]) test(`project use case dropdown saves, recovers 
     await expect(page.locator('#project-use-case')).toBeDisabled();
     await page.locator('#project-picker').selectOption('northyork');
     if(width===390) await page.getByRole('button',{name:'Open map navigation'}).click();
-    const overviewBox=await page.locator('#overview-open').boundingBox();
-    const driveBox=await page.locator('#drive-workspace').boundingBox();
+    await expect.poll(async()=> (await page.locator('#map-navigation').boundingBox()).x).toBeGreaterThanOrEqual(0);
+    // Read both controls in one frame; separate reads can observe different drawer-animation positions.
+    const [overviewBox,driveBox]=await page.evaluate(()=>['overview-open','drive-workspace'].map(id=>{
+      const box=document.getElementById(id).getBoundingClientRect();return {x:box.x,width:box.width};
+    }));
     expect(overviewBox.width).toBeCloseTo(driveBox.width, 1);
     expect(overviewBox.x).toBeCloseTo(driveBox.x, 1);
     const dropdown=page.locator('#project-use-case');

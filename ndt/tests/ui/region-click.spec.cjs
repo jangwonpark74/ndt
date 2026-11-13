@@ -16,6 +16,8 @@ test('region dropdown switches regions and is keyboard focusable', async ({page}
   await expect(region).toHaveValue('new-york');
   await page.getByRole('button', {name:'Search locations'}).focus();
   await page.keyboard.press('Tab');
+  // Firefox exposes the scrollable navigation landmark as an additional keyboard stop.
+  if(await page.locator('#map-navigation').evaluate(el=>el===document.activeElement))await page.keyboard.press('Tab');
   await expect(region).toBeFocused();
   await region.selectOption('toronto');
   await expect(page).toHaveURL(/region=toronto/);

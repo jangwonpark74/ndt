@@ -43,6 +43,7 @@ class EquipmentInventory(unittest.TestCase):
             lambda d:d['sources'][0].update(observedAt='yesterday'),
             lambda d:d['sites'][0].update(inventorySiteId='invented-site'),
             lambda d:d['sites'][0].update(inventorySiteId=[]),
+            lambda d:d['radios'][0].update(powerDbm=10**400),
             lambda d:d['patterns'][0].update(horizontal=[[-180,30],[180,0]])]
         for mutate in mutations:
             with self.subTest(mutate=mutate):

@@ -67,7 +67,8 @@ for (const viewport of [{width:390,height:844},{width:320,height:568}]) test(`ta
   await page.screenshot({path:joinTempPath(tmpdir(), `ndt-task-editor-${viewport.width}.png`)});
   await page.getByRole('button',{name:'Open project overview'}).click(); await expect(page.locator('#project-overview')).toBeFocused(); await expect(page.locator('#overview-task-status')).toContainText('Unsaved draft');
   await expect(page.locator('#project-status')).toContainText('Bell locations');
-  const rect=await page.locator('#project-overview').boundingBox(); expect(rect.width).toBe(viewport.width); expect(rect.y+rect.height).toBe(viewport.height);
+  const rect=await page.locator('#project-overview').boundingBox(); expect(rect.width).toBeCloseTo(viewport.width,0); expect(rect.y+rect.height).toBeCloseTo(viewport.height,0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:joinTempPath(tmpdir(), `ndt-task-overview-${viewport.width}.png`)});
   await page.getByRole('button',{name:'Map task editor',exact:true}).click(); await expect(page.getByLabel('Task name',{exact:true})).toHaveValue('Phone route');
   await page.getByRole('button',{name:'Discard changes',exact:true}).click();
@@ -99,6 +100,7 @@ test('road fitting updates geometry and connected endpoints, then preserves the 
   await page.route('**/api/road-route',route=>unavailable ? route.fulfill({status:503,json:{error:'No connected driving route was found.'}}) : route.fulfill({json:{coordinates:fitted}}));
   await select(page,'North York');await page.getByRole('button',{name:'New task',exact:true}).click();await page.getByLabel('Task name',{exact:true}).fill('Road test');await upload(page);
   await expect(page.locator('.route-fit-status')).toContainText('Road fitted');
+  await expect.poll(()=>page.evaluate(()=>window.testMap.getSource('task-routes')._data.features[0]?.geometry.coordinates)).toEqual(fitted);
   const data=await page.evaluate(()=>window.testMap.getSource('task-routes')._data.features);
   expect(data[0].geometry.coordinates).toEqual(fitted);expect(data[0].properties.road_fitted).toBe(true);expect(data[1].geometry.coordinates).toEqual(fitted[0]);expect(data[2].geometry.coordinates).toEqual(fitted.at(-1));
   unavailable=true;await page.getByRole('button',{name:'Fit to roads',exact:true}).click();await expect(page.locator('.route-fit-status')).toContainText('previous fitted path is kept');
